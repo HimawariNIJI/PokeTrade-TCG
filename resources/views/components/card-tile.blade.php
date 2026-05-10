@@ -1,39 +1,32 @@
 @props(['card'])
 
 <a href="{{ route('cards.show', $card) }}" class="group relative block">
-    {{-- Holographic glow halo (sits behind the card, fades in on hover) --}}
+    {{-- Rainbow halo behind the card, fades in on group hover --}}
     <div class="prism-halo-glow"></div>
 
-    <div class="card-surface relative">
-        <div class="aspect-[245/342] overflow-hidden bg-gradient-to-br from-ink-100 to-ink-200">
-            @if($card->image_small)
-                <img src="{{ $card->image_small }}"
-                     alt="{{ $card->name }}"
-                     loading="lazy"
-                     class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-            @else
-                <div class="flex h-full w-full items-center justify-center">
-                    <span class="font-display text-2xl text-ink-300">No image</span>
-                </div>
-            @endif
-        </div>
-
+    <x-tilted-card
+        :src="$card->image_small"
+        :alt="$card->name"
+        :rotate="14"
+        :scaleOnHover="1.05"
+        innerClass="ring-1 ring-ink-100 shadow-md"
+    >
         @if($card->featured)
-            <span class="absolute left-3 top-3 z-10 rounded-full prism-bg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-md pointer-events-none">
+            <span class="absolute left-3 top-3 z-20 rounded-full prism-bg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-md pointer-events-none [transform:translateZ(20px)]">
                 ★ Featured
             </span>
         @endif
 
         @if($card->stock <= 0)
-            <span class="absolute right-3 top-3 z-10 rounded-full bg-ink-900/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white pointer-events-none">
+            <span class="absolute right-3 top-3 z-20 rounded-full bg-ink-900/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white pointer-events-none [transform:translateZ(20px)]">
                 Sold out
             </span>
         @elseif($card->stock <= 3)
-            <span class="absolute right-3 top-3 z-10 rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white pointer-events-none">
+            <span class="absolute right-3 top-3 z-20 rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white pointer-events-none [transform:translateZ(20px)]">
                 Only {{ $card->stock }} left
             </span>
         @endif
-    </div>
+    </x-tilted-card>
 
     <div class="relative mt-3 px-1">
         <div class="flex items-start justify-between gap-2">

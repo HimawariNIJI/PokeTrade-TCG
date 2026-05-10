@@ -23,13 +23,13 @@
             <div class="lg:col-span-5 xl:col-span-5">
                 <div class="group relative mx-auto max-w-md">
                     <div class="prism-halo-glow always-on opacity-40"></div>
-                    <div class="card-surface relative shadow-2xl ring-1 ring-white/60">
-                        @if($card->image_large)
-                            <img src="{{ $card->image_large }}" alt="{{ $card->name }}" class="aspect-[245/342] w-full object-cover" />
-                        @else
-                            <div class="aspect-[245/342] w-full bg-ink-100"></div>
-                        @endif
-                    </div>
+                    <x-tilted-card
+                        :src="$card->image_large"
+                        :alt="$card->name"
+                        :rotate="16"
+                        :scaleOnHover="1.04"
+                        innerClass="shadow-2xl ring-1 ring-white/60"
+                    />
                 </div>
 
                 {{-- Set + artist micro-strip --}}

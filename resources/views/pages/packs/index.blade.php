@@ -58,11 +58,13 @@
                          style="transform: translate(calc(-50% + {{ $tx }}px), calc(-50% + {{ $ty }}px)) rotate({{ $rot }}deg);">
                         <div class="group relative animate-float" style="animation-delay: {{ $delay }}s;">
                             <div class="prism-halo-glow always-on opacity-50"></div>
-                            <div class="card-surface relative ring-4 ring-white/30">
-                                @if($card->image_large)
-                                    <img src="{{ $card->image_large }}" alt="" class="aspect-[245/342] w-full object-cover">
-                                @endif
-                            </div>
+                            <x-tilted-card
+                                :src="$card->image_large"
+                                alt="Preview card"
+                                :rotate="14"
+                                :scaleOnHover="1.05"
+                                innerClass="ring-4 ring-white/30"
+                            />
                         </div>
                     </div>
                 @endforeach

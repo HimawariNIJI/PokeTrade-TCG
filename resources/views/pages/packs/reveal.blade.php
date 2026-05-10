@@ -18,11 +18,13 @@
             @foreach($pulls as $card)
                 <a href="{{ route('cards.show', $card) }}" class="group relative block">
                     <div class="prism-halo-glow"></div>
-                    <div class="card-surface relative shadow-2xl">
-                        @if($card->image_large)
-                            <img src="{{ $card->image_large }}" alt="{{ $card->name }}" class="aspect-[245/342] w-full object-cover">
-                        @endif
-                    </div>
+                    <x-tilted-card
+                        :src="$card->image_large"
+                        :alt="$card->name"
+                        :rotate="14"
+                        :scaleOnHover="1.05"
+                        innerClass="shadow-2xl"
+                    />
                     <p class="relative mt-3 line-clamp-1 text-center text-sm font-bold">{{ $card->name }}</p>
                     <p class="relative text-center text-[10px] uppercase tracking-widest text-white/60">{{ $card->rarity ?? 'Common' }}</p>
                 </a>

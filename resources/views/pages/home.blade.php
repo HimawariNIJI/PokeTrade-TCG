@@ -77,11 +77,13 @@
                            class="group relative block animate-float"
                            style="animation-delay: {{ $delay }}s;">
                             <div class="prism-halo-glow always-on opacity-40"></div>
-                            <div class="card-surface relative shadow-2xl ring-1 ring-white/50">
-                                <img src="{{ $card->image_large ?? $card->image_small }}"
-                                     alt="{{ $card->name }}"
-                                     class="aspect-[245/342] w-full object-cover" />
-                            </div>
+                            <x-tilted-card
+                                :src="$card->image_large ?? $card->image_small"
+                                :alt="$card->name"
+                                :rotate="14"
+                                :scaleOnHover="1.05"
+                                innerClass="shadow-2xl ring-1 ring-white/50"
+                            />
                         </a>
                     </div>
                 @endforeach
@@ -166,10 +168,13 @@
 
         <div class="relative lg:col-span-5">
             <div class="absolute -inset-6 -z-10 rounded-[3rem] prism-bg opacity-20 blur-2xl"></div>
-            <div class="card-surface mx-auto w-full max-w-[280px]" style="transform: rotate(-2deg);">
-                @if($row1Card?->image_large)
-                    <img src="{{ $row1Card->image_large }}" alt="{{ $row1Card->name }}" class="aspect-[245/342] w-full object-cover" />
-                @endif
+            <div class="mx-auto w-full max-w-[280px]" style="transform: rotate(-2deg);">
+                <x-tilted-card
+                    :src="$row1Card?->image_large"
+                    :alt="$row1Card?->name ?? 'Card'"
+                    :rotate="14"
+                    :scaleOnHover="1.05"
+                />
             </div>
             @if($row1Card)
                 <div class="absolute -right-4 -top-4 rounded-2xl bg-white px-3 py-2 shadow-xl ring-1 ring-ink-200">
@@ -215,10 +220,13 @@
             </div>
 
             <div class="relative bg-gradient-to-br from-prism-violet/40 via-prism-pink/30 to-prism-sky/40 p-8 md:p-12 lg:col-span-6">
-                <div class="card-surface mx-auto w-full max-w-[260px]" style="transform: rotate(3deg);">
-                    @if($row2CardB?->image_large)
-                        <img src="{{ $row2CardB->image_large }}" alt="{{ $row2CardB->name }}" class="aspect-[245/342] w-full object-cover">
-                    @endif
+                <div class="mx-auto w-full max-w-[260px]" style="transform: rotate(3deg);">
+                    <x-tilted-card
+                        :src="$row2CardB?->image_large"
+                        :alt="$row2CardB?->name ?? 'Card'"
+                        :rotate="14"
+                        :scaleOnHover="1.05"
+                    />
                 </div>
                 <div class="absolute left-6 top-6 inline-flex items-center gap-1.5 rounded-full bg-rose-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-lg">
                     <span class="h-1.5 w-1.5 rounded-full bg-white"></span> Ends in 02:14
@@ -242,11 +250,14 @@
         <div class="relative order-1 grid grid-cols-2 items-center gap-2 lg:order-2 lg:col-span-6">
             {{-- "you offer" card --}}
             <div class="relative">
-                <p class="absolute -top-7 left-2 text-[10px] font-bold uppercase tracking-widest text-prism-violet">You offer</p>
-                <div class="card-surface" style="transform: rotate(-3deg);">
-                    @if($row3CardOffer?->image_large)
-                        <img src="{{ $row3CardOffer->image_large }}" alt="" class="aspect-[245/342] w-full object-cover">
-                    @endif
+                <p class="absolute -top-7 left-2 z-10 text-[10px] font-bold uppercase tracking-widest text-prism-violet">You offer</p>
+                <div style="transform: rotate(-3deg);">
+                    <x-tilted-card
+                        :src="$row3CardOffer?->image_large"
+                        alt="Offer card"
+                        :rotate="14"
+                        :scaleOnHover="1.05"
+                    />
                 </div>
             </div>
 
@@ -259,12 +270,14 @@
 
             {{-- "they offer" card --}}
             <div class="relative">
-                <p class="absolute -top-7 right-2 text-[10px] font-bold uppercase tracking-widest text-prism-mint">You request</p>
-                <div class="card-surface" style="transform: rotate(3deg);">
-                    @if($row3CardWant?->image_large)
-                        <img src="{{ $row3CardWant->image_large }}" alt="" class="aspect-[245/342] w-full object-cover">
-                    @endif
-                </div>
+                <p class="absolute -top-7 right-2 z-10 text-[10px] font-bold uppercase tracking-widest text-prism-mint">You request</p>
+                <div style="transform: rotate(3deg);">
+                    <x-tilted-card
+                        :src="$row3CardWant?->image_large"
+                        alt="Request card"
+                        :rotate="14"
+                        :scaleOnHover="1.05"
+                    />
             </div>
         </div>
 
