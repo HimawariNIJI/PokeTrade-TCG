@@ -94,13 +94,20 @@
    Brand utilities
    ============================================================ */
 
+/* Prismatic text with a bright shine stripe baked into the gradient.
+   The whole gradient (rainbow + shine) pans 150% → -50% so the
+   shine sweeps from off-right to off-left while the rainbow flows
+   along with it. Same algorithm as React Bits' ShinyText, with the
+   gray base swapped for the prism palette. */
 @utility prism-text {
-    background: linear-gradient(
-        90deg,
-        var(--color-prism-rose) 0%,
-        var(--color-prism-gold) 25%,
-        var(--color-prism-mint) 50%,
-        var(--color-prism-sky)  75%,
+    background-image: linear-gradient(
+        110deg,
+        var(--color-prism-rose)    0%,
+        var(--color-prism-gold)   20%,
+        #ffffff                   38%,
+        #ffffff                   42%,
+        var(--color-prism-mint)   58%,
+        var(--color-prism-sky)    78%,
         var(--color-prism-violet) 100%
     );
     background-size: 200% auto;
@@ -108,7 +115,20 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
-    animation: var(--animate-rainbow-pan);
+    animation: prism-shine 5s linear infinite;
+}
+
+@keyframes prism-shine {
+    0%   { background-position: 150% center; }
+    100% { background-position: -50% center; }
+}
+
+/* Slower / faster variants for context-specific shine speeds. */
+@utility prism-text-slow {
+    animation-duration: 8s !important;
+}
+@utility prism-text-fast {
+    animation-duration: 3s !important;
 }
 
 @utility prism-bg {
