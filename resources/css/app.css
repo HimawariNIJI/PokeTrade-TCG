@@ -94,51 +94,49 @@
    Brand utilities
    ============================================================ */
 
-/* Prismatic text with a saturated electric-yellow shine band that
-   sweeps across the rainbow gradient. Two animations run in lockstep:
-     1. prism-shine: pans the gradient (and the shine band with it)
-        from 150% → -50%, so the shine travels off-right to off-left.
-     2. prism-glow: pulses a yellow drop-shadow at the midpoint of
-        the cycle, when the shine is centered over the text — turns
-        the whole word into a brief lantern. This double-animation
-        guarantees the idle motion is visible even on white pages
-        where a pure-white shine would otherwise vanish. */
+/* Prismatic text — seamless rainbow flow with a baked-in yellow
+   shine band, plus a constant subtle glow so the motion reads.
+
+   Two changes for "seamless":
+   1. The gradient WRAPS — it ends with rose, the same color it
+      starts with, so when it tiles there's no visible color seam.
+   2. background-size 200% + animation 0% → 200% means exactly one
+      gradient cycle scrolls across the text per loop, and because
+      the gradient wraps, position 200% looks identical to 0%.
+      No snap-back. The shine just keeps flowing.
+
+   The glow is held at a constant moderate level — no pulse-peak
+   marking "the middle of the cycle" the way the previous
+   prism-glow keyframe did. Steady glow + flowing gradient =
+   no rhythmic landmark for the eye to clock. */
 @utility prism-text {
     background-image: linear-gradient(
         110deg,
         var(--color-prism-rose)    0%,
-        var(--color-prism-gold)   18%,
-        #ffe600                   33%,
-        #fff700                   42%,
-        #ffe600                   51%,
-        var(--color-prism-mint)   64%,
-        var(--color-prism-sky)    82%,
-        var(--color-prism-violet) 100%
+        var(--color-prism-gold)   12%,
+        #ffe600                   22%,
+        #fff700                   28%,
+        #ffe600                   34%,
+        var(--color-prism-mint)   48%,
+        var(--color-prism-sky)    62%,
+        var(--color-prism-violet) 76%,
+        var(--color-prism-rose)  100%   /* wraps back to start */
     );
-    background-size: 220% auto;
+    background-size: 200% auto;
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
-    animation:
-        prism-shine 3.5s linear infinite,
-        prism-glow  3.5s linear infinite;
-    will-change: background-position, filter;
+    animation: prism-shine 9s linear infinite;
+    filter:
+        drop-shadow(0 0 10px rgba(255, 230, 0, .45))
+        drop-shadow(0 0 20px rgba(255, 230, 0, .15));
+    will-change: background-position;
 }
 
 @keyframes prism-shine {
-    0%   { background-position: 150% center; }
-    100% { background-position: -50% center; }
-}
-
-/* Glow pulse — synced with prism-shine so the drop-shadow peaks
-   exactly when the shine band crosses the middle of the text. */
-@keyframes prism-glow {
-    0%, 100% { filter: drop-shadow(0 0 0   transparent); }
-    35%      { filter: drop-shadow(0 0 8px rgba(255, 230, 0, .55)); }
-    50%      { filter: drop-shadow(0 0 18px rgba(255, 230, 0, .9))
-                       drop-shadow(0 0 32px rgba(255, 230, 0, .35)); }
-    65%      { filter: drop-shadow(0 0 8px rgba(255, 230, 0, .55)); }
+    0%   { background-position: 0% center; }
+    100% { background-position: 200% center; }
 }
 
 /* Slower / faster variants for context-specific shine speeds. */
