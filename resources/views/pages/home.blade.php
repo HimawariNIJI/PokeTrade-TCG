@@ -37,7 +37,7 @@
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
                 </x-prism-button>
                 <x-prism-button :href="route('auctions.index')" variant="ghost" size="lg">Live auctions</x-prism-button>
-                <x-prism-button :href="route('gacha.index')" variant="outline" size="lg">Try a gacha pull</x-prism-button>
+                <x-prism-button :href="route('packs.index')" variant="outline" size="lg">Open a pack</x-prism-button>
             </div>
 
             <dl class="mt-10 grid max-w-lg grid-cols-3 gap-8 border-t border-ink-200 pt-8">
@@ -350,7 +350,7 @@
                     <span class="prism-text">Trade your way in.</span>
                 </h2>
                 <p class="mt-4 max-w-md text-ink-700">
-                    Sign up to save a wishlist, place bids, propose trades, and roll the gacha. Free, clean, prismatic.
+                    Sign up to save a wishlist, place bids, propose trades, and open packs. Free, clean, prismatic.
                 </p>
             </div>
             <div class="flex flex-col gap-3 md:items-end">

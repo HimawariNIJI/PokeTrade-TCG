@@ -4,7 +4,7 @@
         ['route' => 'cards.index',    'label' => 'Card Shop'],
         ['route' => 'shop.index',     'label' => 'Merch'],
         ['route' => 'auctions.index', 'label' => 'Auctions'],
-        ['route' => 'gacha.index',    'label' => 'Gacha'],
+        ['route' => 'packs.index',    'label' => 'Open Pack'],
         ['route' => 'about',          'label' => 'About'],
     ];
 @endphp

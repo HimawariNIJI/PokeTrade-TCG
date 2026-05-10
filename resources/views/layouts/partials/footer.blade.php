@@ -17,7 +17,7 @@
                     <li><a href="{{ route('cards.index') }}" class="hover:text-ink-900">Card Shop</a></li>
                     <li><a href="{{ route('shop.index') }}" class="hover:text-ink-900">Merch</a></li>
                     <li><a href="{{ route('auctions.index') }}" class="hover:text-ink-900">Auctions</a></li>
-                    <li><a href="{{ route('gacha.index') }}" class="hover:text-ink-900">Gacha</a></li>
+                    <li><a href="{{ route('packs.index') }}" class="hover:text-ink-900">Open Pack</a></li>
                 </ul>
             </div>
 
@@ -39,10 +39,13 @@
             <div class="md:col-span-4">
                 <h4 class="font-display text-sm font-bold uppercase tracking-widest text-ink-900">Stay updated</h4>
                 <p class="mt-3 text-sm text-ink-500">Drop your email for restocks, new auctions, and limited drops.</p>
-                <form class="mt-4 flex gap-2" onsubmit="event.preventDefault();">
+                <form class="mt-4 relative" onsubmit="event.preventDefault();">
                     <input type="email" placeholder="trainer@kanto.com"
-                           class="w-full rounded-full border-ink-200 px-4 py-2.5 text-sm focus:border-prism-violet focus:ring-prism-violet" />
-                    <x-prism-button type="submit" size="sm">Notify me</x-prism-button>
+                           class="w-full rounded-full border-ink-200 py-2.5 pl-4 pr-32 text-sm focus:border-prism-violet focus:ring-prism-violet" />
+                    <button type="submit"
+                            class="absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center rounded-full bg-ink-900 px-4 py-1.5 text-xs font-display font-bold text-white hover:bg-prism-violet">
+                        Notify me
+                    </button>
                 </form>
             </div>
         </div>

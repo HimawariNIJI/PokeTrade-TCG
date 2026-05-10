@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <title>{{ $title ?? config('app.name', 'PokeTrade') }} — Prismatic Evolutions Marketplace</title>
-    <meta name="description" content="Buy, sell, auction, and trade Pokémon TCG: Scarlet & Violet — Prismatic Evolutions cards. Eevee evolutions, illustration rares, gacha pulls, and more.">
+    <meta name="description" content="Buy, sell, auction, and trade Pokémon TCG: Scarlet & Violet — Prismatic Evolutions cards. Eevee evolutions, illustration rares, pack openings, and more.">
 
     {{-- Google Fonts: Outfit (display) + Inter (body) --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">

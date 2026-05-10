@@ -4,7 +4,7 @@ use App\Http\Controllers\AuctionController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\GachaController;
+use App\Http\Controllers\PackController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
@@ -31,7 +31,7 @@ Route::get('/shop/{shopItem:slug}', [ShopController::class, 'show'])->name('shop
 Route::get('/auctions', [AuctionController::class, 'index'])->name('auctions.index');
 Route::get('/auctions/{auction}', [AuctionController::class, 'show'])->name('auctions.show');
 
-Route::get('/gacha', [GachaController::class, 'index'])->name('gacha.index');
+Route::get('/packs', [PackController::class, 'index'])->name('packs.index');
 
 /*
 |--------------------------------------------------------------------------
@@ -74,8 +74,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/trades/{trade}', [TradeController::class, 'show'])->name('trades.show');
     Route::post('/trades/{trade}/respond', [TradeController::class, 'respond'])->name('trades.respond');
 
-    // Gacha
-    Route::post('/gacha/pull', [GachaController::class, 'pull'])->name('gacha.pull');
+    // Pack opening
+    Route::post('/packs/open', [PackController::class, 'open'])->name('packs.open');
 });
 
 /*

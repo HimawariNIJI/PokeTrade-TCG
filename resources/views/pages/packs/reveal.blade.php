@@ -6,7 +6,7 @@
     <div class="mx-auto max-w-[1400px] px-4 py-16 md:px-8 md:py-24">
         <div class="text-center">
             <span class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest backdrop-blur">
-                Pulled
+                Pack opened
             </span>
             <h1 class="mt-4 font-display text-5xl font-black md:text-7xl">
                 Your <span class="prism-text">5 cards</span>.
@@ -33,11 +33,11 @@
         </div>
 
         <div class="mt-14 flex flex-wrap justify-center gap-3">
-            <form method="POST" action="{{ route('gacha.pull') }}">
+            <form method="POST" action="{{ route('packs.open') }}">
                 @csrf
                 <button type="submit" class="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-base font-bold text-white shadow-xl transition hover:scale-[1.02]">
                     <span class="absolute inset-0 prism-bg"></span>
-                    <span class="relative font-display text-sm font-black uppercase tracking-widest">Pull again — @idr(49000)</span>
+                    <span class="relative font-display text-sm font-black uppercase tracking-widest">Open another — @idr(49000)</span>
                 </button>
             </form>
             <x-prism-button :href="route('cards.index')" variant="ghost" size="md">Back to shop</x-prism-button>

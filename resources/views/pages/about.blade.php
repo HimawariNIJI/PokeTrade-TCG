@@ -10,7 +10,7 @@
             <span class="prism-text">PokeTrade</span><br/>is a love letter to <em>Eevee.</em>
         </h1>
         <p class="mt-6 text-base text-ink-700 md:text-lg">
-            We built PokeTrade to celebrate the <strong>Scarlet &amp; Violet — Prismatic Evolutions</strong> expansion, the set that put Eevee and every one of its evolutions in their own dazzling Special Illustration Rare. This site is a marketplace, an auction house, a trading floor, and a gacha cabinet — all wrapped in the iridescent foil that gave the set its name.
+            We built PokeTrade to celebrate the <strong>Scarlet &amp; Violet — Prismatic Evolutions</strong> expansion, the set that put Eevee and every one of its evolutions in their own dazzling Special Illustration Rare. This site is a marketplace, an auction house, a trading floor, and a pack-opening floor — all wrapped in the iridescent foil that gave the set its name.
         </p>
     </div>
 </section>
@@ -19,7 +19,7 @@
     <div class="grid gap-6 md:grid-cols-2">
         @foreach([
             ['title' => 'The Set', 'body' => 'Released January 17, 2025 in the West, Prismatic Evolutions (sv8pt5) is a special-set capstone for Scarlet & Violet that retraces Eevee\'s evolution line in the rainbow holographic style the set name promises. 180 cards, with multiple Eevee evolutions appearing as Pokémon ex.'],
-            ['title' => 'The Marketplace', 'body' => 'Every card on PokeTrade is sourced from the public pokemontcg.io API, with live market prices and our own house-pricing on top. Buy, sell, list for auction, propose a trade, or pull packs in the gacha. Auctions run on websockets — bids land in real time.'],
+            ['title' => 'The Marketplace', 'body' => 'Every card on PokeTrade is sourced from the public pokemontcg.io API, with live market prices and our own house-pricing on top. Buy, sell, list for auction, propose a trade, or open card packs. Auctions run on websockets — bids land in real time.'],
             ['title' => 'The Tech', 'body' => 'Laravel 12, Tailwind v4 (CSS-first config, custom prismatic design tokens), Blade components, SQLite for local development, MySQL-friendly for production. Image-uploaded merch in the custom shop, dropdown-selected cards from the API for the card catalog.'],
             ['title' => 'The Team', 'body' => 'A two-person student project with a friend handling backend business logic and the rest of us building scaffolding, architecture, and the entire UI. Submitted as part of an Indonesian higher-education TCG marketplace assignment.'],
         ] as $card)
