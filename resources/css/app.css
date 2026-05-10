@@ -1,0 +1,202 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+
+@source "../views/**/*.blade.php";
+@source "../js/**/*.js";
+
+/* ============================================================
+   PokeTrade — Prismatic Evolutions design system
+   Inspired by tcg.pokemon.com + the Prismatic Evolutions
+   expansion's iridescent, rainbow-foil aesthetic.
+   ============================================================ */
+
+@theme {
+    /* Display + body fonts */
+    --font-display: "Outfit", "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+    /* Brand — Prismatic palette */
+    --color-prism-pink: #ff6ad5;
+    --color-prism-rose: #ff5e8a;
+    --color-prism-gold: #ffd86b;
+    --color-prism-mint: #6affc1;
+    --color-prism-sky:  #6ad7ff;
+    --color-prism-violet: #b46bff;
+
+    /* Neutral surface — clean Pokemon TCG white-on-white */
+    --color-ink-50:  #fafafb;
+    --color-ink-100: #f3f4f6;
+    --color-ink-200: #e5e7eb;
+    --color-ink-300: #cbd0d8;
+    --color-ink-500: #6b7280;
+    --color-ink-700: #2c3440;
+    --color-ink-900: #0d1220;
+
+    /* Pokemon TCG type colors (for type chips on cards) */
+    --color-type-grass:    #5fbf5f;
+    --color-type-fire:     #f08030;
+    --color-type-water:    #5fa9f0;
+    --color-type-lightning:#f8d030;
+    --color-type-psychic:  #b760c2;
+    --color-type-fighting: #c03030;
+    --color-type-darkness: #404870;
+    --color-type-metal:    #9098a0;
+    --color-type-fairy:    #ee99ac;
+    --color-type-dragon:   #7d3fff;
+    --color-type-colorless:#a8a878;
+
+    /* Animations */
+    --animate-shimmer: shimmer 6s linear infinite;
+    --animate-tilt: tilt 8s ease-in-out infinite;
+    --animate-float: float 6s ease-in-out infinite;
+    --animate-rainbow-pan: rainbow-pan 4s linear infinite;
+}
+
+@keyframes shimmer {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+@keyframes tilt {
+    0%, 100% { transform: rotate(-1deg); }
+    50%      { transform: rotate(1deg); }
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+}
+@keyframes rainbow-pan {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+/* ============================================================
+   Custom utilities — used across the app
+   ============================================================ */
+
+@utility prism-text {
+    background: linear-gradient(
+        90deg,
+        var(--color-prism-rose) 0%,
+        var(--color-prism-gold) 25%,
+        var(--color-prism-mint) 50%,
+        var(--color-prism-sky)  75%,
+        var(--color-prism-violet) 100%
+    );
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: var(--animate-rainbow-pan);
+}
+
+@utility prism-bg {
+    background: linear-gradient(
+        90deg,
+        var(--color-prism-pink),
+        var(--color-prism-gold),
+        var(--color-prism-mint),
+        var(--color-prism-sky),
+        var(--color-prism-violet),
+        var(--color-prism-pink)
+    );
+    background-size: 200% 100%;
+    animation: var(--animate-rainbow-pan);
+}
+
+@utility prism-border {
+    position: relative;
+    isolation: isolate;
+}
+@utility prism-border-inner {
+    /* Apply this to a child or use the ::before pattern below */
+    background: linear-gradient(135deg,
+        var(--color-prism-pink),
+        var(--color-prism-gold),
+        var(--color-prism-mint),
+        var(--color-prism-sky),
+        var(--color-prism-violet)
+    );
+}
+
+/* Holographic card sheen — the signature "prismatic" effect */
+@utility holo-sheen {
+    position: relative;
+    overflow: hidden;
+}
+.holo-sheen::after {
+    content: "";
+    position: absolute;
+    inset: -50%;
+    background: conic-gradient(
+        from 180deg at 50% 50%,
+        rgba(255, 106, 213, 0.0)   0deg,
+        rgba(255, 216, 107, 0.35)  60deg,
+        rgba(106, 255, 193, 0.35) 120deg,
+        rgba(106, 215, 255, 0.35) 180deg,
+        rgba(180, 107, 255, 0.35) 240deg,
+        rgba(255, 106, 213, 0.35) 300deg,
+        rgba(255, 106, 213, 0.0)  360deg
+    );
+    mix-blend-mode: color-dodge;
+    opacity: 0;
+    transition: opacity 350ms ease;
+    pointer-events: none;
+}
+.holo-sheen:hover::after { opacity: .9; animation: rainbow-pan 6s linear infinite; }
+
+/* Card tilt on hover (Pokemon TCG-style) */
+@utility card-tilt {
+    transition: transform 350ms cubic-bezier(.2,.8,.2,1), box-shadow 350ms;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+.card-tilt:hover {
+    transform: translateY(-6px) rotate(-1.5deg) scale(1.03);
+    box-shadow:
+        0 20px 40px -10px rgba(180, 107, 255, .35),
+        0 10px 20px -10px rgba(106, 215, 255, .35);
+}
+
+/* Halftone dot background — matches Prismatic Evolutions key art */
+@utility halftone {
+    background-image: radial-gradient(rgba(0,0,0,.06) 1px, transparent 1px);
+    background-size: 14px 14px;
+}
+
+/* Subtle ticket / coupon shape (used for nav cta and sale chips) */
+@utility ticket {
+    clip-path: polygon(
+        4% 0, 96% 0, 100% 50%, 96% 100%, 4% 100%, 0 50%
+    );
+}
+
+/* Custom focus ring */
+@layer base {
+    :where(button, a, input, select, textarea):focus-visible {
+        outline: 2px solid var(--color-prism-violet);
+        outline-offset: 2px;
+        border-radius: 6px;
+    }
+    body {
+        font-family: var(--font-sans);
+        color: var(--color-ink-900);
+        background: #ffffff;
+    }
+    h1, h2, h3, h4, h5 {
+        font-family: var(--font-display);
+        letter-spacing: -0.01em;
+    }
+}
+
+/* Scrollbar polish on light backgrounds */
+@layer base {
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: var(--color-ink-100); }
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, var(--color-prism-violet), var(--color-prism-sky));
+        border-radius: 999px;
+    }
+}
