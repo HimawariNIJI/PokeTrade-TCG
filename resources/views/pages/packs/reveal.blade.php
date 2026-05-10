@@ -11,24 +11,20 @@
             <h1 class="mt-4 font-display text-5xl font-black md:text-7xl">
                 Your <span class="prism-text">5 cards</span>.
             </h1>
-            <p class="mt-3 text-white/70">Tap a card to flip it back.</p>
+            <p class="mt-3 text-white/70">Tap a card for full details.</p>
         </div>
 
-        {{-- Cards start face-down (showing PokeTrade card back), then auto-flip
-             face-up on a stagger. Click to flip back. --}}
         <div class="mx-auto mt-14 grid max-w-[1100px] grid-cols-2 gap-5 md:grid-cols-5">
-            @foreach($pulls as $i => $card)
-                <div>
-                    <x-card-flippable
-                        :card="$card"
-                        :startFlipped="true"
-                        :autoReveal="true"
-                        :revealDelay="600 + ($i * 220)"
-                        class="relative shadow-2xl"
-                    />
+            @foreach($pulls as $card)
+                <a href="{{ route('cards.show', $card) }}" class="block">
+                    <div class="card-surface relative shadow-2xl">
+                        @if($card->image_large)
+                            <img src="{{ $card->image_large }}" alt="{{ $card->name }}" class="aspect-[245/342] w-full object-cover">
+                        @endif
+                    </div>
                     <p class="mt-3 line-clamp-1 text-center text-sm font-bold">{{ $card->name }}</p>
                     <p class="text-center text-[10px] uppercase tracking-widest text-white/60">{{ $card->rarity ?? 'Common' }}</p>
-                </div>
+                </a>
             @endforeach
         </div>
 

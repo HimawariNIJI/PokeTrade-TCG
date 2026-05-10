@@ -19,17 +19,17 @@
         </nav>
 
         <div class="grid gap-12 lg:grid-cols-12">
-            {{-- LEFT: Flippable card --}}
+            {{-- LEFT: Card hero --}}
             <div class="lg:col-span-5 xl:col-span-5">
                 <div class="relative mx-auto max-w-md">
                     <div class="pointer-events-none absolute -inset-6 rounded-[2.5rem] prism-bg opacity-40 blur-3xl"></div>
-                    <x-card-flippable
-                        :card="$card"
-                        class="relative shadow-2xl ring-1 ring-white/60 rounded-3xl overflow-hidden bg-white"
-                    />
-                    <p class="mt-3 text-center text-[11px] font-semibold uppercase tracking-widest text-ink-500">
-                        Tap card to flip ⇄
-                    </p>
+                    <div class="card-surface relative shadow-2xl ring-1 ring-white/60">
+                        @if($card->image_large)
+                            <img src="{{ $card->image_large }}" alt="{{ $card->name }}" class="aspect-[245/342] w-full object-cover" />
+                        @else
+                            <div class="aspect-[245/342] w-full bg-ink-100"></div>
+                        @endif
+                    </div>
                 </div>
 
                 {{-- Set + artist micro-strip --}}

@@ -139,13 +139,20 @@
 }
 
 .card-surface:hover {
-    transform: translateY(-4px) scale(1.015);
+    transform: translateY(-6px) scale(1.025) rotate(-1.2deg);
     box-shadow:
-        0 4px 8px rgba(13, 18, 32, .06),
-        0 24px 48px -12px rgba(180, 107, 255, .25);
+        0 6px 12px rgba(13, 18, 32, .08),
+        0 28px 56px -12px rgba(180, 107, 255, .35),
+        0 14px 28px -8px rgba(106, 215, 255, .25);
 }
 .card-surface:hover::before {
     background-position: 0% 0%;
+}
+
+/* Mirror variant — tilts the OTHER way. Apply .card-surface.tilt-right
+   to alternating cards in a row for a more organic feel. */
+.card-surface.tilt-right:hover {
+    transform: translateY(-6px) scale(1.025) rotate(1.2deg);
 }
 
 /* ============================================================

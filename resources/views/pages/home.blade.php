@@ -54,7 +54,6 @@
                     <dd class="mt-1 text-xs uppercase tracking-widest text-ink-500">trade combos</dd>
                 </div>
             </dl>
-            <p class="mt-3 max-w-lg text-xs text-ink-500">Click any card → flip it.</p>
         </div>
 
         {{-- Hero card stack — flippable, not floating. Click to flip. --}}
@@ -69,13 +68,18 @@
                         $ty  = [40, 0, 30][$i] ?? 0;
                         $z   = [10, 30, 20][$i] ?? 10;
                     @endphp
-                    <div class="absolute left-1/2 top-1/2 w-[230px] md:w-[280px]"
-                         style="transform: translate(calc(-50% + {{ $tx }}px), calc(-50% + {{ $ty }}px)) rotate({{ $rot }}deg); z-index: {{ $z }};">
+                    <a href="{{ route('cards.show', $card) }}"
+                       class="absolute left-1/2 top-1/2 w-[230px] md:w-[280px]"
+                       style="transform: translate(calc(-50% + {{ $tx }}px), calc(-50% + {{ $ty }}px)) rotate({{ $rot }}deg); z-index: {{ $z }};">
                         <div class="relative">
                             <div class="pointer-events-none absolute -inset-3 rounded-3xl prism-bg opacity-30 blur-xl"></div>
-                            <x-card-flippable :card="$card" class="relative shadow-2xl ring-1 ring-white/50 rounded-2xl overflow-hidden" />
+                            <div class="card-surface relative shadow-2xl ring-1 ring-white/50">
+                                <img src="{{ $card->image_large ?? $card->image_small }}"
+                                     alt="{{ $card->name }}"
+                                     class="aspect-[245/342] w-full object-cover" />
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 @endforeach
 
                 <div class="pointer-events-none absolute right-0 top-0 h-12 w-12 rounded-tr-2xl border-r-2 border-t-2 border-prism-violet/40"></div>

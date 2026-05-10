@@ -21,7 +21,7 @@
         <div class="space-y-4">
             @foreach($orders as $order)
                 <a href="{{ route('orders.show', $order) }}"
-                   class="group flex flex-col gap-3 rounded-2xl border border-ink-200 bg-white p-5 transition hover:border-prism-violet hover:shadow-lg md:flex-row md:items-center">
+                   class="group gleam relative flex flex-col gap-3 rounded-2xl border border-ink-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-prism-violet hover:shadow-lg duration-300 ease-[cubic-bezier(.22,1,.36,1)] md:flex-row md:items-center">
                     <div class="flex-1">
                         <div class="flex flex-wrap items-center gap-2">
                             <span class="font-mono text-xs font-bold tracking-widest text-ink-700">{{ $order->code }}</span>
