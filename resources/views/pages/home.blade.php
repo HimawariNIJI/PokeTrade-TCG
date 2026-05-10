@@ -94,22 +94,25 @@
         </div>
     </div>
 
-    {{-- Bottom CTA strip --}}
-    <div class="relative">
-        <div class="absolute inset-x-0 bottom-0 -z-10 h-20 prism-bg opacity-90"></div>
+    {{-- Bottom CTA strip — full-width prism ribbon, content centered.
+         prism-bg on the wrapper means the rainbow covers the whole
+         strip on every screen size (it was previously an absolute
+         h-20 backdrop that only covered ~80px). --}}
+    <div class="prism-bg">
         <div class="mx-auto grid max-w-[1400px] grid-cols-1 divide-y divide-white/30 text-white md:grid-cols-3 md:divide-x md:divide-y-0">
-            <a href="{{ route('cards.index') }}" class="group flex items-center justify-center gap-3 px-6 py-5 font-display text-sm font-bold uppercase tracking-widest transition hover:bg-white/10">
-                See full card list
-                <svg class="h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
-            </a>
-            <a href="{{ route('shop.index') }}" class="group flex items-center justify-center gap-3 px-6 py-5 font-display text-sm font-bold uppercase tracking-widest transition hover:bg-white/10">
-                Booster Boxes &amp; Merch
-                <svg class="h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
-            </a>
-            <a href="{{ route('about') }}" class="group flex items-center justify-center gap-3 px-6 py-5 font-display text-sm font-bold uppercase tracking-widest transition hover:bg-white/10">
-                About Prismatic Evolutions
-                <svg class="h-4 w-4 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
-            </a>
+            @foreach([
+                ['route' => 'cards.index', 'label' => 'See full card list'],
+                ['route' => 'shop.index',  'label' => 'Booster Boxes & Merch'],
+                ['route' => 'about',       'label' => 'About Prismatic Evolutions'],
+            ] as $cta)
+                <a href="{{ route($cta['route']) }}"
+                   class="group flex min-h-[64px] items-center justify-center gap-3 px-6 py-5 text-center font-display text-sm font-bold uppercase tracking-widest transition hover:bg-white/15">
+                    <span class="line-clamp-1">{{ $cta['label'] }}</span>
+                    <svg class="h-4 w-4 shrink-0 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/>
+                    </svg>
+                </a>
+            @endforeach
         </div>
     </div>
 </section>
