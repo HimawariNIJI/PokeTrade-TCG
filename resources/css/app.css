@@ -96,63 +96,146 @@
 }
 
 /* ============================================================
-   CARD — smooth hover, diagonal gleam (top-left → bottom-right)
+   CARD HOVER — the original card treatment from day 1.
+     .card-tilt   → lift + rotate + scale on hover
+     .holo-sheen  → conic-gradient rainbow that animates on hover
+     .prism-halo  → big rainbow bloom behind a card on hover
+   Apply all three together for the full "TCG card on a glass
+   shelf" feel. .card-surface is a convenience alias that bakes
+   tilt + sheen into a single class.
    ============================================================ */
 
-@utility card-surface {
-    /* The polished surface every card image sits on. Hover is a
-       gentle, single transition — no rotation, no rubber-band. */
+@utility card-tilt {
     position: relative;
     overflow: hidden;
     border-radius: 1rem;
     background: #ffffff;
-    box-shadow:
-        0 1px 2px rgba(13, 18, 32, .04),
-        0 8px 16px -8px rgba(13, 18, 32, .12);
     transition:
-        transform 400ms cubic-bezier(.22, 1, .36, 1),
-        box-shadow 400ms cubic-bezier(.22, 1, .36, 1);
+        transform 350ms cubic-bezier(.2, .8, .2, 1),
+        box-shadow 350ms;
+    transform-style: preserve-3d;
     will-change: transform;
 }
+.card-tilt:hover {
+    transform: translateY(-6px) rotate(-1.5deg) scale(1.03);
+    box-shadow:
+        0 20px 40px -10px rgba(180, 107, 255, .35),
+        0 10px 20px -10px rgba(106, 215, 255, .35);
+}
+.card-tilt.tilt-right:hover {
+    transform: translateY(-6px) rotate(1.5deg) scale(1.03);
+}
 
-/* Diagonal gleam — strict top-left to bottom-right linear sweep.
-   Idle: parked off-screen at the top-left.
-   Hover: travels across once. No infinite loop. */
-.card-surface::before {
+/* Conic-gradient rainbow shimmer — idle invisible, on hover fades
+   in and pans through the spectrum continuously while the cursor
+   stays over the element. mix-blend-mode color-dodge brightens
+   whatever is below, giving the holographic-foil look. */
+@utility holo-sheen {
+    position: relative;
+    overflow: hidden;
+}
+.holo-sheen::after {
     content: "";
     position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        135deg,
-        transparent 0%,
-        transparent 35%,
-        rgba(255, 255, 255, 0.55) 50%,
-        transparent 65%,
-        transparent 100%
+    inset: -50%;
+    background: conic-gradient(
+        from 180deg at 50% 50%,
+        rgba(255, 106, 213, 0.0)   0deg,
+        rgba(255, 216, 107, 0.35)  60deg,
+        rgba(106, 255, 193, 0.35) 120deg,
+        rgba(106, 215, 255, 0.35) 180deg,
+        rgba(180, 107, 255, 0.35) 240deg,
+        rgba(255, 106, 213, 0.35) 300deg,
+        rgba(255, 106, 213, 0.0)  360deg
     );
-    background-size: 250% 250%;
-    background-position: 100% 100%;
-    transition: background-position 700ms cubic-bezier(.22, 1, .36, 1);
+    mix-blend-mode: color-dodge;
+    opacity: 0;
+    transition: opacity 350ms ease;
     pointer-events: none;
-    mix-blend-mode: overlay;
-    z-index: 2;
+    z-index: 3;
+}
+.holo-sheen:hover::after,
+.group:hover .holo-sheen::after {
+    opacity: .9;
+    animation: rainbow-pan 6s linear infinite;
 }
 
+/* Backward-compat alias — every page that uses .card-surface
+   gets the full tilt + sheen treatment. */
+@utility card-surface {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    background: #ffffff;
+    transition:
+        transform 350ms cubic-bezier(.2, .8, .2, 1),
+        box-shadow 350ms;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
 .card-surface:hover {
-    transform: translateY(-6px) scale(1.025) rotate(-1.2deg);
+    transform: translateY(-6px) rotate(-1.5deg) scale(1.03);
     box-shadow:
-        0 6px 12px rgba(13, 18, 32, .08),
-        0 28px 56px -12px rgba(180, 107, 255, .35),
-        0 14px 28px -8px rgba(106, 215, 255, .25);
+        0 20px 40px -10px rgba(180, 107, 255, .35),
+        0 10px 20px -10px rgba(106, 215, 255, .35);
 }
-.card-surface:hover::before {
-    background-position: 0% 0%;
+.card-surface::after {
+    content: "";
+    position: absolute;
+    inset: -50%;
+    background: conic-gradient(
+        from 180deg at 50% 50%,
+        rgba(255, 106, 213, 0.0)   0deg,
+        rgba(255, 216, 107, 0.35)  60deg,
+        rgba(106, 255, 193, 0.35) 120deg,
+        rgba(106, 215, 255, 0.35) 180deg,
+        rgba(180, 107, 255, 0.35) 240deg,
+        rgba(255, 106, 213, 0.35) 300deg,
+        rgba(255, 106, 213, 0.0)  360deg
+    );
+    mix-blend-mode: color-dodge;
+    opacity: 0;
+    transition: opacity 350ms ease;
+    pointer-events: none;
+    z-index: 3;
+}
+.card-surface:hover::after,
+.group:hover .card-surface::after {
+    opacity: .9;
+    animation: rainbow-pan 6s linear infinite;
+}
+.card-surface.tilt-right:hover {
+    transform: translateY(-6px) rotate(1.5deg) scale(1.03);
 }
 
-/* Mirror variant — tilts the OTHER way. Apply .card-surface.tilt-right
-   to alternating cards in a row for a more organic feel. */
-.card-surface.tilt-right:hover {
-    transform: translateY(-6px) scale(1.025) rotate(1.2deg);
+/* Rainbow halo bloom — sits behind a card and fades in when
+   the parent .group is hovered. Apply <div class="prism-halo-glow">
+   as a sibling BEFORE the card element, with the parent set as
+   .group relative. */
+@utility prism-halo-glow {
+    position: absolute;
+    inset: -12px;
+    border-radius: 1.75rem;
+    pointer-events: none;
+    opacity: 0;
+    filter: blur(20px);
+    transition: opacity 500ms cubic-bezier(.22, 1, .36, 1);
+    z-index: 0;
+    background: linear-gradient(
+        90deg,
+        var(--color-prism-pink),
+        var(--color-prism-gold),
+        var(--color-prism-mint),
+        var(--color-prism-sky),
+        var(--color-prism-violet),
+        var(--color-prism-pink)
+    );
+    background-size: 200% 100%;
+    animation: rainbow-pan 8s linear infinite;
+}
+.group:hover .prism-halo-glow,
+.prism-halo-glow.always-on {
+    opacity: .6;
 }
 
 /* ============================================================
@@ -290,24 +373,6 @@
     background-position: 0% 0%;
 }
 
-/* Bump the static .card-surface gleam to the same intensity as the
-   flip-face and gleam-utility versions, so the whole site reads
-   consistent. */
-.card-surface::before {
-    background: linear-gradient(
-        135deg,
-        transparent 0%,
-        transparent 30%,
-        rgba(255, 255, 255, 0.75) 50%,
-        transparent 70%,
-        transparent 100%
-    ) !important;
-    background-size: 250% 250% !important;
-    background-position: 100% 100%;
-}
-.card-surface:hover::before {
-    background-position: 0% 0%;
-}
 
 /* ============================================================
    PokeTrade card back — original CSS-rendered design

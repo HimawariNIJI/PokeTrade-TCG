@@ -21,8 +21,8 @@
         <div class="grid gap-12 lg:grid-cols-12">
             {{-- LEFT: Card hero --}}
             <div class="lg:col-span-5 xl:col-span-5">
-                <div class="relative mx-auto max-w-md">
-                    <div class="pointer-events-none absolute -inset-6 rounded-[2.5rem] prism-bg opacity-40 blur-3xl"></div>
+                <div class="group relative mx-auto max-w-md">
+                    <div class="prism-halo-glow always-on opacity-40"></div>
                     <div class="card-surface relative shadow-2xl ring-1 ring-white/60">
                         @if($card->image_large)
                             <img src="{{ $card->image_large }}" alt="{{ $card->name }}" class="aspect-[245/342] w-full object-cover" />

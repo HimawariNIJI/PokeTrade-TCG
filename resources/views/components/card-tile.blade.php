@@ -1,13 +1,16 @@
 @props(['card'])
 
-<a href="{{ route('cards.show', $card) }}" class="group block">
-    <div class="card-surface">
+<a href="{{ route('cards.show', $card) }}" class="group relative block">
+    {{-- Holographic glow halo (sits behind the card, fades in on hover) --}}
+    <div class="prism-halo-glow"></div>
+
+    <div class="card-surface relative">
         <div class="aspect-[245/342] overflow-hidden bg-gradient-to-br from-ink-100 to-ink-200">
             @if($card->image_small)
                 <img src="{{ $card->image_small }}"
                      alt="{{ $card->name }}"
                      loading="lazy"
-                     class="h-full w-full object-cover" />
+                     class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
             @else
                 <div class="flex h-full w-full items-center justify-center">
                     <span class="font-display text-2xl text-ink-300">No image</span>
@@ -32,7 +35,7 @@
         @endif
     </div>
 
-    <div class="mt-3 px-1">
+    <div class="relative mt-3 px-1">
         <div class="flex items-start justify-between gap-2">
             <h3 class="line-clamp-1 font-display text-sm font-bold text-ink-900 group-hover:text-prism-violet transition-colors">{{ $card->name }}</h3>
             <span class="shrink-0 text-xs font-mono text-ink-500">#{{ $card->number ?? '—' }}</span>

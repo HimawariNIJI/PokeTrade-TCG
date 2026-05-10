@@ -49,10 +49,10 @@
                 @php $previewCards = $preview->take(3); @endphp
                 @foreach($previewCards as $i => $card)
                     @php $rot = [-12, 0, 14][$i] ?? 0; $tx = [-90, 0, 100][$i] ?? 0; $ty = [40, 0, 60][$i] ?? 0; @endphp
-                    <div class="absolute left-1/2 top-1/2 w-52 md:w-64"
+                    <div class="group absolute left-1/2 top-1/2 w-52 md:w-64"
                          style="transform: translate(calc(-50% + {{ $tx }}px), calc(-50% + {{ $ty }}px)) rotate({{ $rot }}deg);">
                         <div class="relative">
-                            <div class="pointer-events-none absolute -inset-4 rounded-3xl prism-bg opacity-60 blur-2xl"></div>
+                            <div class="prism-halo-glow always-on opacity-50"></div>
                             <div class="card-surface relative ring-4 ring-white/30">
                                 @if($card->image_large)
                                     <img src="{{ $card->image_large }}" alt="" class="aspect-[245/342] w-full object-cover">

@@ -69,10 +69,10 @@
                         $z   = [10, 30, 20][$i] ?? 10;
                     @endphp
                     <a href="{{ route('cards.show', $card) }}"
-                       class="absolute left-1/2 top-1/2 w-[230px] md:w-[280px]"
+                       class="group absolute left-1/2 top-1/2 w-[230px] md:w-[280px]"
                        style="transform: translate(calc(-50% + {{ $tx }}px), calc(-50% + {{ $ty }}px)) rotate({{ $rot }}deg); z-index: {{ $z }};">
                         <div class="relative">
-                            <div class="pointer-events-none absolute -inset-3 rounded-3xl prism-bg opacity-30 blur-xl"></div>
+                            <div class="prism-halo-glow"></div>
                             <div class="card-surface relative shadow-2xl ring-1 ring-white/50">
                                 <img src="{{ $card->image_large ?? $card->image_small }}"
                                      alt="{{ $card->name }}"
