@@ -23,14 +23,14 @@
     @if($live->isNotEmpty())
         <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             @foreach($live as $a)
-                <a href="{{ route('auctions.show', $a) }}" class="group relative block overflow-hidden rounded-3xl border border-ink-200 bg-white">
+                <a href="{{ route('auctions.show', $a) }}" class="group relative block overflow-hidden rounded-3xl border border-ink-200 bg-white transition hover:-translate-y-1 hover:border-prism-violet hover:shadow-xl duration-400 ease-[cubic-bezier(.22,1,.36,1)]">
                     <div class="absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-rose-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-lg">
                         <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-white"></span>
                         Live
                     </div>
-                    <div class="aspect-[245/342] overflow-hidden bg-ink-100">
+                    <div class="gleam aspect-[245/342] overflow-hidden bg-ink-100">
                         @if($a->card?->image_small)
-                            <img src="{{ $a->card->image_small }}" alt="{{ $a->card->name }}" class="h-full w-full object-cover transition group-hover:scale-105">
+                            <img src="{{ $a->card->image_small }}" alt="{{ $a->card->name }}" class="h-full w-full object-cover">
                         @endif
                     </div>
                     <div class="p-4">

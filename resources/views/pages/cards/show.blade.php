@@ -19,21 +19,17 @@
         </nav>
 
         <div class="grid gap-12 lg:grid-cols-12">
-            {{-- LEFT: Card image with holo treatment --}}
+            {{-- LEFT: Flippable card --}}
             <div class="lg:col-span-5 xl:col-span-5">
-                <div x-data="{ tilt: { x:0, y:0 } }"
-                     @mousemove="tilt.x = (($event.offsetX / $event.target.offsetWidth) - 0.5) * 16; tilt.y = (($event.offsetY / $event.target.offsetHeight) - 0.5) * -16"
-                     @mouseleave="tilt.x = 0; tilt.y = 0"
-                     class="relative mx-auto max-w-md">
-                    <div class="absolute -inset-6 rounded-[2.5rem] prism-bg opacity-40 blur-3xl"></div>
-                    <div class="holo-sheen relative overflow-hidden rounded-3xl bg-white p-3 shadow-2xl ring-1 ring-white/60 transition-transform duration-200"
-                         :style="`transform: perspective(900px) rotateY(${tilt.x}deg) rotateX(${tilt.y}deg);`">
-                        @if($card->image_large)
-                            <img src="{{ $card->image_large }}" alt="{{ $card->name }}" class="w-full rounded-2xl" />
-                        @else
-                            <div class="aspect-[245/342] w-full rounded-2xl bg-ink-100"></div>
-                        @endif
-                    </div>
+                <div class="relative mx-auto max-w-md">
+                    <div class="pointer-events-none absolute -inset-6 rounded-[2.5rem] prism-bg opacity-40 blur-3xl"></div>
+                    <x-card-flippable
+                        :card="$card"
+                        class="relative shadow-2xl ring-1 ring-white/60 rounded-3xl overflow-hidden bg-white"
+                    />
+                    <p class="mt-3 text-center text-[11px] font-semibold uppercase tracking-widest text-ink-500">
+                        Tap card to flip ⇄
+                    </p>
                 </div>
 
                 {{-- Set + artist micro-strip --}}

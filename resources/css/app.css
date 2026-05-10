@@ -149,24 +149,58 @@
 }
 
 /* ============================================================
-   CARD FLIP — 3D rotateY on click toggle
-   Use with Alpine: x-data="{ flipped: false }" and toggle on click
+   CARD FLIP — hover-lift + diagonal gleam (like .card-surface)
+   AND a 3D click-to-flip that lifts the card toward the viewer.
+   The two interactions live on different layers and compose:
+     .card-flip   (outer) → hover lift + gleam, perspective host
+     .card-flip-inner     → rotateY + scale + translateZ on flip
    ============================================================ */
 
 @utility card-flip {
-    perspective: 1200px;
+    perspective: 900px;
+    position: relative;
+    z-index: 0;
+    border-radius: 1rem;
+    transition:
+        transform 400ms cubic-bezier(.22, 1, .36, 1),
+        box-shadow 400ms cubic-bezier(.22, 1, .36, 1);
+    will-change: transform;
+    box-shadow:
+        0 1px 2px rgba(13, 18, 32, .04),
+        0 8px 16px -8px rgba(13, 18, 32, .12);
+}
+
+/* Hover: matches the old card-surface feel exactly — translate up,
+   subtle scale, deeper prism-tinted shadow, lift above neighbours
+   so the gleam sweep isn't clipped by the next tile. */
+.card-flip:hover {
+    transform: translateY(-4px) scale(1.015);
+    z-index: 10;
+    box-shadow:
+        0 4px 8px rgba(13, 18, 32, .06),
+        0 24px 48px -12px rgba(180, 107, 255, .25);
+}
+
+/* While a card is mid-flip / flipped, keep it on top of the grid. */
+.card-flip:has(.card-flipped) {
+    z-index: 20;
 }
 
 @utility card-flip-inner {
     position: relative;
     width: 100%;
     height: 100%;
-    transition: transform 700ms cubic-bezier(.22, 1, .36, 1);
     transform-style: preserve-3d;
+    transform: rotateY(0) translateZ(0) scale(1);
+    transition: transform 750ms cubic-bezier(.16, 1, .3, 1);
+    will-change: transform;
 }
 
+/* The flip end-state: rotate, scale up slightly, and lift toward
+   the viewer along Z so the card pops out of the grid as it
+   rotates — matches the perfect-order gallery feel. */
 @utility card-flipped {
-    transform: rotateY(180deg);
+    transform: rotateY(180deg) scale(1.06) translateZ(60px);
 }
 
 @utility card-face {
@@ -182,6 +216,90 @@
 
 @utility card-face-back {
     transform: rotateY(180deg);
+}
+
+/* Diagonal gleam on the visible face. Same 135° (top-left →
+   bottom-right) direction used everywhere on the site.
+   Idle: parked off-screen at bottom-right. Hover: travels across
+   to the top-left exactly once. No infinite loop. */
+.card-face::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        transparent 0%,
+        transparent 30%,
+        rgba(255, 255, 255, 0.75) 50%,
+        transparent 70%,
+        transparent 100%
+    );
+    background-size: 250% 250%;
+    background-position: 100% 100%;
+    transition: background-position 700ms cubic-bezier(.22, 1, .36, 1);
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    z-index: 5;
+}
+
+.card-flip:hover .card-face::before {
+    background-position: 0% 0%;
+}
+
+/* ============================================================
+   GLEAM — reusable diagonal sheen for any card-shaped surface
+   that doesn't need the full .card-surface lift treatment
+   (shop tiles, auction tiles, anywhere we want consistency).
+   Apply .gleam to any element with overflow:hidden + relative.
+   ============================================================ */
+
+@utility gleam {
+    position: relative;
+    overflow: hidden;
+}
+
+.gleam::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        transparent 0%,
+        transparent 30%,
+        rgba(255, 255, 255, 0.7) 50%,
+        transparent 70%,
+        transparent 100%
+    );
+    background-size: 250% 250%;
+    background-position: 100% 100%;
+    transition: background-position 700ms cubic-bezier(.22, 1, .36, 1);
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    z-index: 4;
+}
+
+.gleam:hover::after,
+.group:hover .gleam::after {
+    background-position: 0% 0%;
+}
+
+/* Bump the static .card-surface gleam to the same intensity as the
+   flip-face and gleam-utility versions, so the whole site reads
+   consistent. */
+.card-surface::before {
+    background: linear-gradient(
+        135deg,
+        transparent 0%,
+        transparent 30%,
+        rgba(255, 255, 255, 0.75) 50%,
+        transparent 70%,
+        transparent 100%
+    ) !important;
+    background-size: 250% 250% !important;
+    background-position: 100% 100%;
+}
+.card-surface:hover::before {
+    background-position: 0% 0%;
 }
 
 /* ============================================================

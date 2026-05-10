@@ -1,8 +1,8 @@
 @props(['item'])
 
 <a href="{{ route('shop.show', $item) }}"
-   class="group relative block overflow-hidden rounded-2xl border border-ink-200 bg-white transition hover:border-prism-violet hover:shadow-xl">
-    <div class="aspect-square overflow-hidden bg-gradient-to-br from-ink-50 to-ink-100">
+   class="group relative block overflow-hidden rounded-2xl border border-ink-200 bg-white transition hover:-translate-y-1 hover:border-prism-violet hover:shadow-xl duration-400 ease-[cubic-bezier(.22,1,.36,1)]">
+    <div class="gleam aspect-square overflow-hidden bg-gradient-to-br from-ink-50 to-ink-100">
         @if($item->image)
             <img src="{{ asset('storage/' . $item->image) }}"
                  alt="{{ $item->name }}"
