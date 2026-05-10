@@ -41,7 +41,7 @@
                         <td class="px-4 py-3">
                             @foreach(($c->types ?? []) as $t) <x-type-chip :type="$t" size="sm" /> @endforeach
                         </td>
-                        <td class="px-4 py-3 text-right font-mono">${{ number_format((float) $c->price, 2) }}</td>
+                        <td class="px-4 py-3 text-right font-mono">@idr($c->price)</td>
                         <td class="px-4 py-3 text-right font-mono {{ $c->stock <= 0 ? 'text-rose-600' : '' }}">{{ $c->stock }}</td>
                         <td class="px-4 py-3 text-center">
                             @if($c->featured) <span class="inline-flex h-6 w-6 items-center justify-center rounded-full prism-bg text-[10px] text-white">★</span> @endif

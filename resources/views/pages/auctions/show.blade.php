@@ -32,7 +32,7 @@
             <div class="mt-6 grid gap-3 rounded-3xl border border-ink-200 bg-white p-6 md:grid-cols-2">
                 <div>
                     <p class="text-[10px] uppercase tracking-widest text-ink-500">Current bid</p>
-                    <p class="mt-1 font-display text-4xl font-black prism-text">${{ number_format((float) $auction->current_bid, 2) }}</p>
+                    <p class="mt-1 font-display text-4xl font-black prism-text">@idr($auction->current_bid)</p>
                     @if($auction->currentLeader)
                         <p class="mt-1 text-xs text-ink-500">Leader: {{ $auction->currentLeader->name }}</p>
                     @endif
@@ -41,7 +41,7 @@
                     <p class="text-[10px] uppercase tracking-widest text-ink-500">Time remaining</p>
                     <p class="mt-1 font-display text-2xl font-bold">{{ $auction->ends_at?->diffForHumans() }}</p>
                     @if($auction->buy_now_price)
-                        <p class="mt-1 text-xs text-ink-500">Buy it now: <strong>${{ number_format((float) $auction->buy_now_price, 2) }}</strong></p>
+                        <p class="mt-1 text-xs text-ink-500">Buy it now: <strong>@idr($auction->buy_now_price)</strong></p>
                     @endif
                 </div>
             </div>
@@ -53,7 +53,7 @@
                         <span class="text-xs font-bold uppercase tracking-widest text-ink-700">Your bid</span>
                         <input type="number" step="0.01" name="amount" min="{{ $auction->min_next_bid }}"
                                class="mt-1.5 w-full rounded-full border-ink-200 focus:border-prism-violet focus:ring-prism-violet"
-                               placeholder="≥ ${{ number_format($auction->min_next_bid, 2) }}">
+                               placeholder="≥ @idr($auction->min_next_bid)">
                     </label>
                     <x-prism-button type="submit" size="lg">Place bid</x-prism-button>
                 </form>
@@ -76,7 +76,7 @@
                                 <p class="text-xs text-ink-500">{{ $bid->created_at->diffForHumans() }}</p>
                             </div>
                         </div>
-                        <span class="font-mono font-bold">${{ number_format((float) $bid->amount, 2) }}</span>
+                        <span class="font-mono font-bold">@idr($bid->amount)</span>
                     </div>
                 @empty
                     <p class="px-5 py-8 text-center text-sm text-ink-500">No bids yet — be the first.</p>

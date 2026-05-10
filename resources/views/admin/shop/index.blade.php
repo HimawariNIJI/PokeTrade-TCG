@@ -35,7 +35,7 @@
                             </div>
                         </td>
                         <td class="px-4 py-3 text-xs capitalize">{{ $item->category }}</td>
-                        <td class="px-4 py-3 text-right font-mono">${{ number_format((float) $item->price, 2) }}</td>
+                        <td class="px-4 py-3 text-right font-mono">@idr($item->price)</td>
                         <td class="px-4 py-3 text-right font-mono">{{ $item->stock }}</td>
                         <td class="px-4 py-3 text-center">@if($item->featured) ★ @endif</td>
                         <td class="px-4 py-3 text-right">

@@ -91,12 +91,12 @@
                     <div>
                         <p class="text-[10px] font-bold uppercase tracking-widest text-ink-500">Our price</p>
                         <p class="mt-1 font-display text-4xl font-black text-ink-900">
-                            ${{ number_format((float) $card->display_price, 2) }}
+                            @idr($card->display_price)
                         </p>
                         @if($card->market_price && $card->price > 0 && $card->market_price > 0)
                             @php $diff = $card->price - $card->market_price; @endphp
                             <p class="mt-1 text-xs {{ $diff > 0 ? 'text-rose-600' : 'text-emerald-600' }}">
-                                {{ $diff > 0 ? '↑' : '↓' }} ${{ number_format(abs($diff), 2) }} vs. market
+                                {{ $diff > 0 ? '↑' : '↓' }} @idr(abs($diff)) vs. market
                             </p>
                         @endif
                     </div>
@@ -104,7 +104,7 @@
                     <div class="md:border-l md:border-ink-200 md:pl-6">
                         <p class="text-[10px] font-bold uppercase tracking-widest text-ink-500">Market value (TCGplayer)</p>
                         <p class="mt-1 font-display text-2xl font-bold text-ink-700">
-                            ${{ $card->market_price ? number_format((float) $card->market_price, 2) : '—' }}
+                            {{ $card->market_price ? 'Rp ' . number_format((float) $card->market_price, 0, ',', '.') : '—' }}
                         </p>
                         <p class="mt-1 text-xs text-ink-500">
                             Stock:

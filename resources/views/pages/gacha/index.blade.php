@@ -38,7 +38,7 @@
                 <button type="submit" class="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full px-10 py-5 text-base font-bold text-white shadow-2xl transition hover:scale-105">
                     <span class="absolute inset-0 prism-bg"></span>
                     <span class="absolute inset-[2px] rounded-full bg-ink-900 opacity-0 transition group-hover:opacity-0"></span>
-                    <span class="relative font-display text-lg font-black uppercase tracking-widest">Pull pack — $4.99</span>
+                    <span class="relative font-display text-lg font-black uppercase tracking-widest">Pull pack — @idr(49000)</span>
                 </button>
                 <p class="mt-3 text-xs text-white/60">Sandbox payment. No real charges.</p>
             </form>

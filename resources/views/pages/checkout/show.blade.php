@@ -92,21 +92,21 @@
                                     <p class="line-clamp-1 text-sm font-semibold">{{ $it->name ?? '—' }}</p>
                                     <p class="text-xs text-ink-500">Qty {{ $line->quantity }}</p>
                                 </div>
-                                <span class="font-mono text-sm font-bold">${{ number_format((float) $line->price_snapshot * $line->quantity, 2) }}</span>
+                                <span class="font-mono text-sm font-bold">@idr($line->price_snapshot * $line->quantity)</span>
                             </li>
                         @endforeach
                     </ul>
                 @endif
 
                 <div class="space-y-1 border-t border-ink-100 pt-4 text-sm">
-                    <div class="flex justify-between"><span class="text-ink-500">Subtotal</span><span class="font-mono">${{ number_format((float) ($cart->subtotal ?? 0), 2) }}</span></div>
-                    <div class="flex justify-between"><span class="text-ink-500">Shipping</span><span class="font-mono">$5.00</span></div>
-                    <div class="flex justify-between"><span class="text-ink-500">Tax (est.)</span><span class="font-mono">${{ number_format((float) ($cart->subtotal ?? 0) * 0.10, 2) }}</span></div>
+                    <div class="flex justify-between"><span class="text-ink-500">Subtotal</span><span class="font-mono">@idr(($cart->subtotal ?? 0))</span></div>
+                    <div class="flex justify-between"><span class="text-ink-500">Shipping</span><span class="font-mono">@idr(25000)</span></div>
+                    <div class="flex justify-between"><span class="text-ink-500">Tax (est.)</span><span class="font-mono">@idr(($cart->subtotal ?? 0) * 0.10)</span></div>
                 </div>
                 <div class="flex items-baseline justify-between border-t border-ink-100 pt-4">
                     <span class="font-display text-base font-bold">Total</span>
                     <span class="font-display text-2xl font-black prism-text">
-                        ${{ number_format((float) ($cart->subtotal ?? 0) * 1.10 + 5, 2) }}
+                        @idr(($cart->subtotal ?? 0) * 1.10 + 25000)
                     </span>
                 </div>
 

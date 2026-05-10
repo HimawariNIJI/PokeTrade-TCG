@@ -20,6 +20,15 @@ class CardSeeder extends Seeder
     private const SET_QUERY = 'set.id:sv8pt5';
     private const PAGE_SIZE = 60;
 
+    /** USD → IDR conversion rate. Adjust if rates shift dramatically. */
+    private const USD_TO_IDR = 16000;
+
+    /** Markup applied over market price for our house listings. */
+    private const HOUSE_MARKUP = 1.10;
+
+    /** Floor price for cards with no available market data (Rp 5.000). */
+    private const PRICE_FLOOR_IDR = 5000;
+
     public function run(): void
     {
         $page = 1;
@@ -55,10 +64,13 @@ class CardSeeder extends Seeder
             }
 
             foreach ($cards as $c) {
-                $marketPrice = $this->extractMarketPrice($c['tcgplayer']['prices'] ?? []);
-                $price = $marketPrice > 0
-                    ? round($marketPrice * 1.10, 2)  // 10% markup over market
-                    : 0.99;
+                $marketUsd = $this->extractMarketPrice($c['tcgplayer']['prices'] ?? []);
+                $marketIdr = $marketUsd > 0
+                    ? $this->roundToNearest($marketUsd * self::USD_TO_IDR, 500)
+                    : 0;
+                $priceIdr = $marketIdr > 0
+                    ? $this->roundToNearest($marketIdr * self::HOUSE_MARKUP, 500)
+                    : self::PRICE_FLOOR_IDR;
 
                 Card::updateOrCreate(
                     ['api_id' => $c['id']],
@@ -84,9 +96,8 @@ class CardSeeder extends Seeder
                         'retreat_cost' => $c['retreatCost'] ?? [],
                         'flavor_text' => $c['flavorText'] ?? null,
                         'artist'      => $c['artist'] ?? null,
-                        'language'    => 'en',
-                        'price'       => $price,
-                        'market_price' => $marketPrice,
+                        'price'       => $priceIdr,
+                        'market_price' => $marketIdr,
                         'stock'       => random_int(0, 25),
                         'featured'    => $featuredCount < 6 && $this->isHighlightRarity($c['rarity'] ?? '')
                             ? (++$featuredCount && true)
@@ -121,5 +132,11 @@ class CardSeeder extends Seeder
             || str_contains(strtolower($rarity), 'special')
             || str_contains(strtolower($rarity), 'hyper')
             || str_contains(strtolower($rarity), 'ultra');
+    }
+
+    /** Round an IDR amount to the nearest multiple (e.g. 500 or 1000). */
+    private function roundToNearest(float $amount, int $step): int
+    {
+        return (int) (round($amount / $step) * $step);
     }
 }

@@ -33,7 +33,7 @@
         <h3 class="mt-2 line-clamp-2 font-display text-base font-bold text-ink-900">{{ $item->name }}</h3>
         <div class="mt-3 flex items-baseline justify-between">
             <span class="font-display text-xl font-bold text-ink-900">
-                ${{ number_format((float) $item->price, 2) }}
+                @idr($item->price)
             </span>
             <span class="text-xs text-ink-500">
                 {{ $item->stock > 0 ? "$item->stock in stock" : 'Sold out' }}

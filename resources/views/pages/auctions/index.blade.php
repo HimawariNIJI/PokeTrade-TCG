@@ -38,7 +38,7 @@
                         <div class="mt-2 flex items-baseline justify-between">
                             <div>
                                 <p class="text-[10px] uppercase tracking-widest text-ink-500">Current bid</p>
-                                <p class="font-display text-xl font-black prism-text">${{ number_format((float) $a->current_bid, 2) }}</p>
+                                <p class="font-display text-xl font-black prism-text">@idr($a->current_bid)</p>
                             </div>
                             <div class="text-right">
                                 <p class="text-[10px] uppercase tracking-widest text-ink-500">Ends in</p>
@@ -81,7 +81,7 @@
                     </div>
                     <div class="min-w-0 flex-1">
                         <p class="line-clamp-1 text-sm font-bold">{{ $a->card?->name }}</p>
-                        <p class="text-xs text-ink-500">Sold for ${{ number_format((float) $a->current_bid, 2) }}</p>
+                        <p class="text-xs text-ink-500">Sold for @idr($a->current_bid)</p>
                     </div>
                 </div>
             @endforeach

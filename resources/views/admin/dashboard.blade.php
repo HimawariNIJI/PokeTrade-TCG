@@ -21,7 +21,7 @@
         <div class="flex items-end justify-between">
             <div>
                 <p class="text-[10px] font-bold uppercase tracking-widest text-ink-500">Revenue (paid orders)</p>
-                <p class="mt-2 font-display text-4xl font-black prism-text">${{ number_format($stats['revenue'], 2) }}</p>
+                <p class="mt-2 font-display text-4xl font-black prism-text">@idr($stats['revenue'])</p>
             </div>
             <p class="text-xs text-ink-500">Last 6 months</p>
         </div>
@@ -52,7 +52,7 @@
                         <p class="line-clamp-1 text-xs font-bold">{{ $c->name }}</p>
                         <p class="text-[10px] text-ink-500">{{ $c->rarity }}</p>
                     </div>
-                    <span class="font-mono text-xs font-bold prism-text">${{ number_format((float) $c->market_price, 2) }}</span>
+                    <span class="font-mono text-xs font-bold prism-text">@idr($c->market_price)</span>
                 </li>
             @endforeach
         </ul>
@@ -86,7 +86,7 @@
                         <td class="px-6 py-3">
                             <span class="rounded-full bg-{{ $o->status_color }}-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-{{ $o->status_color }}-700">{{ $o->status }}</span>
                         </td>
-                        <td class="px-6 py-3 text-right font-mono font-bold">${{ number_format((float) $o->total, 2) }}</td>
+                        <td class="px-6 py-3 text-right font-mono font-bold">@idr($o->total)</td>
                     </tr>
                 @endforeach
             </tbody>

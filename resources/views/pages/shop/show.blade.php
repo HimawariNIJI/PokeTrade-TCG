@@ -33,7 +33,7 @@
 
             <div class="mt-8 rounded-3xl border border-ink-200 bg-white p-6">
                 <p class="text-[10px] font-bold uppercase tracking-widest text-ink-500">Price</p>
-                <p class="mt-1 font-display text-4xl font-black">${{ number_format((float) $item->price, 2) }}</p>
+                <p class="mt-1 font-display text-4xl font-black">@idr($item->price)</p>
                 <p class="mt-1 text-xs text-ink-500">
                     {{ $item->stock > 0 ? "$item->stock in stock" : 'Sold out' }}
                 </p>

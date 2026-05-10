@@ -15,7 +15,7 @@
             <div class="flex justify-between"><dt class="text-ink-500">Role</dt><dd>{{ $user->role }}</dd></div>
             <div class="flex justify-between"><dt class="text-ink-500">Joined</dt><dd>{{ $user->created_at->format('M j, Y') }}</dd></div>
             <div class="flex justify-between"><dt class="text-ink-500">Orders</dt><dd>{{ $user->orders->count() }}</dd></div>
-            <div class="flex justify-between"><dt class="text-ink-500">Spent</dt><dd class="font-mono">${{ number_format((float) $user->orders->where('payment_status', 'paid')->sum('total'), 2) }}</dd></div>
+            <div class="flex justify-between"><dt class="text-ink-500">Spent</dt><dd class="font-mono">@idr($user->orders->where('payment_status', 'paid')->sum('total'))</dd></div>
         </dl>
 
         <form method="POST" action="{{ route('admin.users.updateRole', $user) }}" class="mt-6">
@@ -38,7 +38,7 @@
                     <li class="flex items-center justify-between py-3 text-sm">
                         <a href="{{ route('admin.orders.show', $o) }}" class="font-mono text-xs hover:text-prism-violet">{{ $o->code }}</a>
                         <span class="rounded-full bg-{{ $o->status_color }}-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-{{ $o->status_color }}-700">{{ $o->status }}</span>
-                        <span class="font-mono">${{ number_format((float) $o->total, 2) }}</span>
+                        <span class="font-mono">@idr($o->total)</span>
                     </li>
                 @endforeach
             </ul>

@@ -20,7 +20,7 @@ class Card extends Model
         'national_pokedex_numbers',
         'image_small', 'image_large',
         'attacks', 'weaknesses', 'resistances', 'retreat_cost',
-        'flavor_text', 'artist', 'language',
+        'flavor_text', 'artist',
         'price', 'market_price', 'stock', 'featured',
     ];
 

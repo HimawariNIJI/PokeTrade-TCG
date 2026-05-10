@@ -52,23 +52,16 @@
                 <h2 class="font-display text-base font-black">Pricing &amp; stock</h2>
                 <div class="mt-3 grid gap-4 md:grid-cols-2">
                     <label class="block">
-                        <span class="text-xs font-bold uppercase tracking-widest text-ink-700">Price ($)</span>
-                        <input type="number" step="0.01" name="price" value="{{ old('price', $card?->price ?? '0.00') }}" class="mt-1.5 w-full rounded-xl border-ink-200">
+                        <span class="text-xs font-bold uppercase tracking-widest text-ink-700">Price (Rp)</span>
+                        <input type="number" step="500" name="price" value="{{ old('price', $card?->price ?? 0) }}" class="mt-1.5 w-full rounded-xl border-ink-200">
                     </label>
                     <label class="block">
-                        <span class="text-xs font-bold uppercase tracking-widest text-ink-700">Market price ($)</span>
-                        <input type="number" step="0.01" name="market_price" value="{{ old('market_price', $card?->market_price ?? '0.00') }}" class="mt-1.5 w-full rounded-xl border-ink-200">
+                        <span class="text-xs font-bold uppercase tracking-widest text-ink-700">Market price (Rp)</span>
+                        <input type="number" step="500" name="market_price" value="{{ old('market_price', $card?->market_price ?? 0) }}" class="mt-1.5 w-full rounded-xl border-ink-200">
                     </label>
                     <label class="block">
                         <span class="text-xs font-bold uppercase tracking-widest text-ink-700">Stock</span>
                         <input type="number" name="stock" value="{{ old('stock', $card?->stock ?? 0) }}" class="mt-1.5 w-full rounded-xl border-ink-200">
-                    </label>
-                    <label class="block">
-                        <span class="text-xs font-bold uppercase tracking-widest text-ink-700">Language</span>
-                        <select name="language" class="mt-1.5 w-full rounded-xl border-ink-200">
-                            <option value="en" @selected(old('language', $card?->language) === 'en')>English</option>
-                            <option value="ja" @selected(old('language', $card?->language) === 'ja')>Japanese</option>
-                        </select>
                     </label>
                 </div>
 

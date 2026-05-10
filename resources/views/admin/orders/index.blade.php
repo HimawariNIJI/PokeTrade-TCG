@@ -29,7 +29,7 @@
                     <td class="px-4 py-3">{{ $o->user?->name }}</td>
                     <td class="px-4 py-3"><span class="rounded-full bg-{{ $o->status_color }}-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-{{ $o->status_color }}-700">{{ $o->status }}</span></td>
                     <td class="px-4 py-3 text-xs">{{ $o->payment_status }}</td>
-                    <td class="px-4 py-3 text-right font-mono">${{ number_format((float) $o->total, 2) }}</td>
+                    <td class="px-4 py-3 text-right font-mono">@idr($o->total)</td>
                     <td class="px-4 py-3 text-xs text-ink-500">{{ $o->created_at->diffForHumans() }}</td>
                 </tr>
             @empty

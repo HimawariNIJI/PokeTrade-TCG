@@ -14,9 +14,9 @@
                         </span>
                         <div class="min-w-0 flex-1">
                             <p class="text-sm font-bold">{{ $item->name_snapshot }}</p>
-                            <p class="text-xs text-ink-500">Qty {{ $item->quantity }} × ${{ number_format((float) $item->price_snapshot, 2) }}</p>
+                            <p class="text-xs text-ink-500">Qty {{ $item->quantity }} × @idr($item->price_snapshot)</p>
                         </div>
-                        <span class="font-mono font-bold">${{ number_format((float) $item->subtotal, 2) }}</span>
+                        <span class="font-mono font-bold">@idr($item->subtotal)</span>
                     </li>
                 @endforeach
             </ul>
@@ -50,7 +50,7 @@
 
         <div class="rounded-3xl border border-ink-200 bg-white p-6">
             <h3 class="font-display text-sm font-black">Total</h3>
-            <p class="mt-2 font-display text-3xl font-black prism-text">${{ number_format((float) $order->total, 2) }}</p>
+            <p class="mt-2 font-display text-3xl font-black prism-text">@idr($order->total)</p>
             <p class="text-xs text-ink-500">{{ $order->payment_method ?? '—' }}</p>
         </div>
     </aside>

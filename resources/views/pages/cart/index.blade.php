@@ -52,7 +52,7 @@
                                 {{ $isCard ? 'Pokémon TCG card' : 'Merch · ' . ucfirst($it?->category ?? '') }}
                             </p>
                             <p class="mt-2 font-display text-lg font-bold text-ink-900">
-                                ${{ number_format((float) $line->price_snapshot, 2) }}
+                                @idr($line->price_snapshot)
                             </p>
                         </div>
 
@@ -79,14 +79,14 @@
                 <div class="sticky top-24 space-y-4 rounded-3xl border border-ink-200 bg-white p-6">
                     <h2 class="font-display text-xl font-black text-ink-900">Order summary</h2>
                     <dl class="space-y-2 text-sm">
-                        <div class="flex justify-between"><dt class="text-ink-500">Subtotal</dt><dd class="font-mono font-semibold">${{ number_format((float) ($cart->subtotal ?? 0), 2) }}</dd></div>
+                        <div class="flex justify-between"><dt class="text-ink-500">Subtotal</dt><dd class="font-mono font-semibold">@idr(($cart->subtotal ?? 0))</dd></div>
                         <div class="flex justify-between"><dt class="text-ink-500">Shipping</dt><dd class="font-mono text-ink-500">calculated at checkout</dd></div>
                         <div class="flex justify-between"><dt class="text-ink-500">Tax</dt><dd class="font-mono text-ink-500">—</dd></div>
                     </dl>
                     <div class="border-t border-ink-100 pt-4">
                         <div class="flex items-baseline justify-between">
                             <span class="font-display text-base font-bold">Total</span>
-                            <span class="font-display text-2xl font-black prism-text">${{ number_format((float) ($cart->subtotal ?? 0), 2) }}</span>
+                            <span class="font-display text-2xl font-black prism-text">@idr(($cart->subtotal ?? 0))</span>
                         </div>
                     </div>
                     <x-prism-button :href="route('checkout.show')" size="lg" class="w-full">
