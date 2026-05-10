@@ -9,13 +9,6 @@
                 <p class="mt-4 max-w-sm text-sm leading-relaxed text-ink-500">
                     A modern marketplace for the Pokémon TCG <em>Scarlet &amp; Violet — Prismatic Evolutions</em> expansion. Buy, sell, auction, and trade illustration rares and Eevee's whole shimmering family.
                 </p>
-                <div class="mt-5 flex gap-2">
-                    @foreach(['Discord', 'X', 'Instagram'] as $s)
-                        <a href="#" class="inline-flex h-9 items-center rounded-full border border-ink-200 px-3 text-xs font-semibold text-ink-700 hover:border-prism-violet hover:text-prism-violet">
-                            {{ $s }}
-                        </a>
-                    @endforeach
-                </div>
             </div>
 
             <div class="md:col-span-2">
@@ -54,9 +47,8 @@
             </div>
         </div>
 
-        <div class="mt-12 flex flex-col items-center justify-between gap-3 border-t border-ink-100 pt-6 text-xs text-ink-500 md:flex-row">
+        <div class="mt-12 border-t border-ink-100 pt-6 text-center text-xs text-ink-500">
             <p>© {{ now()->year }} PokeTrade — A student project. Not affiliated with The Pokémon Company.</p>
-            <p class="font-mono">Card data via pokemontcg.io · Built with Laravel + Tailwind</p>
         </div>
     </div>
 </footer>

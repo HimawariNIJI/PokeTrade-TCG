@@ -6,12 +6,10 @@
 
 /* ============================================================
    PokeTrade — Prismatic Evolutions design system
-   Inspired by tcg.pokemon.com + the Prismatic Evolutions
-   expansion's iridescent, rainbow-foil aesthetic.
+   Restrained, editorial, smooth motion.
    ============================================================ */
 
 @theme {
-    /* Display + body fonts */
     --font-display: "Outfit", "Inter", ui-sans-serif, system-ui, sans-serif;
     --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
     --font-mono: "JetBrains Mono", ui-monospace, monospace;
@@ -24,7 +22,7 @@
     --color-prism-sky:  #6ad7ff;
     --color-prism-violet: #b46bff;
 
-    /* Neutral surface — clean Pokemon TCG white-on-white */
+    /* Neutral surface */
     --color-ink-50:  #fafafb;
     --color-ink-100: #f3f4f6;
     --color-ink-200: #e5e7eb;
@@ -33,7 +31,7 @@
     --color-ink-700: #2c3440;
     --color-ink-900: #0d1220;
 
-    /* Pokemon TCG type colors (for type chips on cards) */
+    /* Pokémon TCG type colors */
     --color-type-grass:    #5fbf5f;
     --color-type-fire:     #f08030;
     --color-type-water:    #5fa9f0;
@@ -46,33 +44,24 @@
     --color-type-dragon:   #7d3fff;
     --color-type-colorless:#a8a878;
 
-    /* Animations */
-    --animate-shimmer: shimmer 6s linear infinite;
-    --animate-tilt: tilt 8s ease-in-out infinite;
-    --animate-float: float 6s ease-in-out infinite;
-    --animate-rainbow-pan: rainbow-pan 4s linear infinite;
+    /* Motion — restrained, no constant loops */
+    --animate-rainbow-pan: rainbow-pan 8s linear infinite;
+    --animate-flip-in: flip-in 700ms cubic-bezier(.2,.8,.2,1) forwards;
 }
 
-@keyframes shimmer {
-    0%   { background-position: 0% 50%; }
-    50%  { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-@keyframes tilt {
-    0%, 100% { transform: rotate(-1deg); }
-    50%      { transform: rotate(1deg); }
-}
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-10px); }
-}
 @keyframes rainbow-pan {
     0%   { background-position: 0% 50%; }
     100% { background-position: 200% 50%; }
 }
 
+/* Used once on element entry — never on idle */
+@keyframes flip-in {
+    0%   { transform: rotateY(180deg); }
+    100% { transform: rotateY(0deg); }
+}
+
 /* ============================================================
-   Custom utilities — used across the app
+   Brand utilities
    ============================================================ */
 
 @utility prism-text {
@@ -106,74 +95,137 @@
     animation: var(--animate-rainbow-pan);
 }
 
-@utility prism-border {
-    position: relative;
-    isolation: isolate;
-}
-@utility prism-border-inner {
-    /* Apply this to a child or use the ::before pattern below */
-    background: linear-gradient(135deg,
-        var(--color-prism-pink),
-        var(--color-prism-gold),
-        var(--color-prism-mint),
-        var(--color-prism-sky),
-        var(--color-prism-violet)
-    );
-}
+/* ============================================================
+   CARD — smooth hover, diagonal gleam (top-left → bottom-right)
+   ============================================================ */
 
-/* Holographic card sheen — the signature "prismatic" effect */
-@utility holo-sheen {
+@utility card-surface {
+    /* The polished surface every card image sits on. Hover is a
+       gentle, single transition — no rotation, no rubber-band. */
     position: relative;
     overflow: hidden;
-}
-.holo-sheen::after {
-    content: "";
-    position: absolute;
-    inset: -50%;
-    background: conic-gradient(
-        from 180deg at 50% 50%,
-        rgba(255, 106, 213, 0.0)   0deg,
-        rgba(255, 216, 107, 0.35)  60deg,
-        rgba(106, 255, 193, 0.35) 120deg,
-        rgba(106, 215, 255, 0.35) 180deg,
-        rgba(180, 107, 255, 0.35) 240deg,
-        rgba(255, 106, 213, 0.35) 300deg,
-        rgba(255, 106, 213, 0.0)  360deg
-    );
-    mix-blend-mode: color-dodge;
-    opacity: 0;
-    transition: opacity 350ms ease;
-    pointer-events: none;
-}
-.holo-sheen:hover::after { opacity: .9; animation: rainbow-pan 6s linear infinite; }
-
-/* Card tilt on hover (Pokemon TCG-style) */
-@utility card-tilt {
-    transition: transform 350ms cubic-bezier(.2,.8,.2,1), box-shadow 350ms;
-    transform-style: preserve-3d;
+    border-radius: 1rem;
+    background: #ffffff;
+    box-shadow:
+        0 1px 2px rgba(13, 18, 32, .04),
+        0 8px 16px -8px rgba(13, 18, 32, .12);
+    transition:
+        transform 400ms cubic-bezier(.22, 1, .36, 1),
+        box-shadow 400ms cubic-bezier(.22, 1, .36, 1);
     will-change: transform;
 }
-.card-tilt:hover {
-    transform: translateY(-6px) rotate(-1.5deg) scale(1.03);
-    box-shadow:
-        0 20px 40px -10px rgba(180, 107, 255, .35),
-        0 10px 20px -10px rgba(106, 215, 255, .35);
+
+/* Diagonal gleam — strict top-left to bottom-right linear sweep.
+   Idle: parked off-screen at the top-left.
+   Hover: travels across once. No infinite loop. */
+.card-surface::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        transparent 0%,
+        transparent 35%,
+        rgba(255, 255, 255, 0.55) 50%,
+        transparent 65%,
+        transparent 100%
+    );
+    background-size: 250% 250%;
+    background-position: 100% 100%;
+    transition: background-position 700ms cubic-bezier(.22, 1, .36, 1);
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    z-index: 2;
 }
 
-/* Halftone dot background — matches Prismatic Evolutions key art */
+.card-surface:hover {
+    transform: translateY(-4px) scale(1.015);
+    box-shadow:
+        0 4px 8px rgba(13, 18, 32, .06),
+        0 24px 48px -12px rgba(180, 107, 255, .25);
+}
+.card-surface:hover::before {
+    background-position: 0% 0%;
+}
+
+/* ============================================================
+   CARD FLIP — 3D rotateY on click toggle
+   Use with Alpine: x-data="{ flipped: false }" and toggle on click
+   ============================================================ */
+
+@utility card-flip {
+    perspective: 1200px;
+}
+
+@utility card-flip-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 700ms cubic-bezier(.22, 1, .36, 1);
+    transform-style: preserve-3d;
+}
+
+@utility card-flipped {
+    transform: rotateY(180deg);
+}
+
+@utility card-face {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+@utility card-face-back {
+    transform: rotateY(180deg);
+}
+
+/* ============================================================
+   PokeTrade card back — original CSS-rendered design
+   (avoids any external/copyrighted card-back imagery)
+   ============================================================ */
+
+@utility cardback-art {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(ellipse at 30% 25%, rgba(255, 216, 107, .25) 0%, transparent 55%),
+        radial-gradient(ellipse at 75% 80%, rgba(106, 215, 255, .25) 0%, transparent 55%),
+        linear-gradient(135deg, #1a1230 0%, #2d1a4a 50%, #1a1230 100%);
+    overflow: hidden;
+}
+.cardback-art::before {
+    /* halftone dot pattern */
+    content: "";
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px);
+    background-size: 12px 12px;
+    pointer-events: none;
+}
+.cardback-art::after {
+    /* diagonal prismatic ribbon — subtle */
+    content: "";
+    position: absolute;
+    inset: -50% -50% -50% -50%;
+    background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%);
+    pointer-events: none;
+}
+
+/* Halftone helper for hero/about backgrounds */
 @utility halftone {
     background-image: radial-gradient(rgba(0,0,0,.06) 1px, transparent 1px);
     background-size: 14px 14px;
 }
 
-/* Subtle ticket / coupon shape (used for nav cta and sale chips) */
-@utility ticket {
-    clip-path: polygon(
-        4% 0, 96% 0, 100% 50%, 96% 100%, 4% 100%, 0 50%
-    );
-}
+/* ============================================================
+   Base
+   ============================================================ */
 
-/* Custom focus ring */
 @layer base {
     :where(button, a, input, select, textarea):focus-visible {
         outline: 2px solid var(--color-prism-violet);
@@ -189,9 +241,16 @@
         font-family: var(--font-display);
         letter-spacing: -0.01em;
     }
+    /* Honor reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
 }
 
-/* Scrollbar polish on light backgrounds */
 @layer base {
     ::-webkit-scrollbar { width: 10px; height: 10px; }
     ::-webkit-scrollbar-track { background: var(--color-ink-100); }
