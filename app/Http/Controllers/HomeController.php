@@ -37,6 +37,33 @@ class HomeController extends Controller
 
     public function about()
     {
-        return view('pages.about');
+        $eeveelutionOrder = [
+            'Eevee ex', 'Vaporeon ex', 'Jolteon ex', 'Flareon ex',
+            'Espeon ex', 'Umbreon ex', 'Leafeon ex', 'Glaceon ex', 'Sylveon ex',
+        ];
+
+        $sirCards = Card::query()
+            ->where('rarity', 'Special Illustration Rare')
+            ->whereIn('name', $eeveelutionOrder)
+            ->get()
+            ->keyBy('name');
+
+        $eeveelutions = collect($eeveelutionOrder)
+            ->map(fn ($name) => $sirCards->get($name))
+            ->filter()
+            ->values();
+
+        $totalCards = Card::query()->count();
+        $sirCount = Card::query()->where('rarity', 'Special Illustration Rare')->count();
+        $hyperRareCount = Card::query()->where('rarity', 'Hyper Rare')->count();
+        $artistCount = Card::query()->whereNotNull('artist')->distinct('artist')->count('artist');
+
+        return view('pages.about', [
+            'eeveelutions' => $eeveelutions,
+            'totalCards' => $totalCards,
+            'sirCount' => $sirCount,
+            'hyperRareCount' => $hyperRareCount,
+            'artistCount' => $artistCount,
+        ]);
     }
 }
