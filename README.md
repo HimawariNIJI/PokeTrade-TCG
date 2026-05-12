@@ -1,58 +1,210 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PokeTrade-TCG — Setup Guide
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel 13 + Tailwind 4 + Alpine.js storefront for Pokémon TCG cards. Cards are pulled from the public [pokemontcg.io](https://pokemontcg.io) API (Prismatic Evolutions set, `sv8pt5`).
 
-## About Laravel
+This guide gets a fresh machine from `git clone` to a working local site.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 1. Prerequisites
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Install these first if you don't have them:
 
-## Learning Laravel
+| Tool | Version | Why |
+|---|---|---|
+| [Laravel Herd](https://herd.laravel.com) | latest | Serves the site at `*.test`. Bundles PHP, Composer, Nginx. |
+| PHP | `^8.3` | Comes with Herd. Verify: `php -v` |
+| Composer | `^2` | Comes with Herd. Verify: `composer -V` |
+| Node | `^20` | Build the frontend. Verify: `node -v` |
+| npm | `^10` | Verify: `npm -v` |
+| Git | any | Verify: `git --version` |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Herd is the recommended way to serve the site — everything below assumes it. If you can't use Herd, see [Alternative: `composer run dev`](#alternative-no-herd) at the bottom.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## 2. Clone and install
 
 ```bash
-composer require laravel/boost --dev
+git clone <repo-url> PokeTrade-TCG
+cd PokeTrade-TCG
 
-php artisan boost:install
+# PHP deps
+composer install
+
+# JS deps
+npm install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+---
 
-## Contributing
+## 3. Environment + database
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+# Copy env template and generate the app key
+cp .env.example .env
+php artisan key:generate
 
-## Code of Conduct
+# Create the SQLite database file
+touch database/database.sqlite
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Run migrations
+php artisan migrate
+```
 
-## Security Vulnerabilities
+The project uses **SQLite by default** (set in `.env.example` as `DB_CONNECTION=sqlite`). No MySQL/Postgres setup needed.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## 4. Seed cards and demo data
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This step fetches **180 Prismatic Evolutions cards** from pokemontcg.io and creates demo users + shop items. Needs internet on first run.
+
+```bash
+php artisan db:seed
+```
+
+Default accounts created by the seeder:
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | `admin@poketrade.test` | `password` |
+| Customer | `trainer@poketrade.test` | `password` |
+
+> Cards have remote image URLs (`https://images.pokemontcg.io/...`), so an internet connection is also needed to view them in the browser.
+
+---
+
+## 5. Create the storage symlink
+
+Shop item images live under `storage/app/public/`. Laravel needs a public symlink for them to load:
+
+```bash
+php artisan storage:link
+```
+
+You only need to run this once per clone.
+
+---
+
+## 6. Build frontend assets
+
+```bash
+npm run build
+```
+
+This builds Tailwind CSS + JS into `public/build/`. Required for Herd serving — without it you'll get a `Vite manifest not found` error.
+
+For **active frontend development** use `npm run dev` instead — it runs the Vite dev server with hot-reload and Laravel auto-detects it via `public/hot`.
+
+---
+
+## 7. Serve with Herd
+
+From the project root:
+
+```bash
+herd link poketrade-tcg
+```
+
+That symlinks the project into Herd and updates `APP_URL` in `.env` to `http://poketrade-tcg.test`. Open it:
+
+```bash
+herd open
+```
+
+Optional — HTTPS:
+
+```bash
+herd secure        # site becomes https://poketrade-tcg.test
+herd unsecure      # revert
+```
+
+To remove the site later: `herd unlink poketrade-tcg`.
+
+---
+
+## TL;DR — full setup in one block
+
+```bash
+git clone <repo-url> PokeTrade-TCG
+cd PokeTrade-TCG
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate
+php artisan db:seed
+php artisan storage:link
+npm run build
+herd link poketrade-tcg
+herd open
+```
+
+---
+
+## Day-to-day workflow
+
+| Task | Command |
+|---|---|
+| Frontend dev with hot-reload | `npm run dev` (leave running) |
+| Rebuild assets for Herd | `npm run build` |
+| Run tests (Pest) | `composer test` |
+| Format PHP code | `vendor/bin/pint` |
+| Fresh DB + re-seed | `php artisan migrate:fresh --seed` |
+| Re-import cards only | `php artisan db:seed --class=CardSeeder` |
+| Tail Laravel logs | `php artisan pail` |
+| Open Tinker REPL | `php artisan tinker` |
+
+---
+
+## Project layout (orientation)
+
+```
+app/
+  Http/Controllers/   — Card, Shop, Cart, Checkout, Auction, Trade, Admin/*
+  Models/             — Card, ShopItem, Cart, Order, Auction, Trade, User, Wishlist
+database/
+  migrations/         — schema
+  seeders/CardSeeder  — pulls 180 cards from pokemontcg.io
+  seeders/ShopItemSeeder
+resources/
+  views/              — Blade templates (pages/, components/, admin/, layouts/)
+  css/, js/           — Tailwind 4 + Alpine.js entry points
+routes/web.php        — all HTTP routes
+```
+
+---
+
+## Troubleshooting
+
+**`Vite manifest not found at: public/build/manifest.json`**
+→ Run `npm run build` (or start `npm run dev` for hot-reload).
+
+**Card images are blank**
+→ Card data wasn't seeded. Run `php artisan db:seed --class=CardSeeder`. Needs internet — images are loaded from `images.pokemontcg.io`.
+
+**Shop item images broken (404 on `/storage/...`)**
+→ Symlink missing. Run `php artisan storage:link`.
+
+**`SQLSTATE[HY000]: ... no such table`**
+→ Migrations didn't run. `php artisan migrate` (or `migrate:fresh --seed` to start over).
+
+**`http://poketrade-tcg.test` doesn't resolve**
+→ Re-link: `herd link poketrade-tcg`. Confirm with `herd parked` / `herd links`.
+
+**500 error after pulling new code**
+→ Clear caches: `php artisan optimize:clear`. If new migrations were added: `php artisan migrate`. If composer/npm deps changed: `composer install && npm install && npm run build`.
+
+---
+
+## <a id="alternative-no-herd"></a>Alternative: run without Herd
+
+If you can't or don't want to use Herd:
+
+```bash
+composer run dev
+```
+
+This runs `php artisan serve`, the queue worker, log tailer, and `npm run dev` concurrently. Site will be at `http://127.0.0.1:8000`. You'll want to set `APP_URL=http://127.0.0.1:8000` in `.env` before starting.
