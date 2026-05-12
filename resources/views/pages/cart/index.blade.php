@@ -33,7 +33,7 @@
                         $it = $line->itemable;
                         $isCard = $it instanceof \App\Models\Card;
                         $name = $it?->name ?? 'Unknown item';
-                        $img = $isCard ? $it?->image_small : ($it?->image ? asset('storage/' . $it->image) : null);
+                        $img = $isCard ? $it?->image_small : ($it?->image ? \Illuminate\Support\Facades\Storage::disk('public')->url($it->image) : null);
                         $href = $isCard ? route('cards.show', $it) : route('shop.show', $it);
                     @endphp
                     <article class="flex items-center gap-4 rounded-2xl border border-ink-200 bg-white p-4">
@@ -56,16 +56,20 @@
                             </p>
                         </div>
 
-                        <form method="POST" action="{{ route('cart.update', $line->id) }}" class="flex items-center gap-2">
+                        <form method="POST" action="{{ route('cart.update') }}" class="flex items-center gap-2">
                             @csrf @method('PATCH')
-                            <button type="button" class="h-8 w-8 rounded-full border border-ink-200 text-ink-700 hover:border-ink-900">−</button>
-                            <input type="number" name="quantity" value="{{ $line->quantity }}" min="1" max="99"
+                            <input type="hidden" name="item_type" value="{{ $line->itemable_type === 'App\\Models\\Card' ? 'card' : 'shop_item' }}">
+                            <input type="hidden" name="item_id" value="{{ $line->itemable_id }}">
+                            <button type="button" class="h-8 w-8 rounded-full border border-ink-200 text-ink-700 hover:border-ink-900" onclick="const input = this.nextElementSibling; if(input.value >= 1) { input.value--; this.form.submit(); }">ー</button>
+                            <input type="number" name="quantity" value="{{ $line->quantity }}" min="0" max="99"
                                    class="w-16 rounded-full border-ink-200 text-center text-sm focus:border-prism-violet focus:ring-prism-violet" />
-                            <button type="button" class="h-8 w-8 rounded-full border border-ink-200 text-ink-700 hover:border-ink-900">+</button>
+                            <button type="button" class="h-8 w-8 rounded-full border border-ink-200 text-ink-700 hover:border-ink-900" onclick="const input = this.previousElementSibling; if(input.value < {{ $line->itemable->stock }}) { input.value++; this.form.submit(); } else { alert('Cannot add more items. Total quantity would exceed available stock of {{ $line->itemable->stock }} units.'); }">＋</button>
                         </form>
 
-                        <form method="POST" action="{{ route('cart.remove', $line->id) }}">
+                        <form method="POST" action="{{ route('cart.remove') }}">
                             @csrf @method('DELETE')
+                            <input type="hidden" name="item_type" value="{{ $line->itemable_type === 'App\\Models\\Card' ? 'card' : 'shop_item' }}">
+                            <input type="hidden" name="item_id" value="{{ $line->itemable_id }}">
                             <button type="submit" class="text-ink-300 hover:text-rose-600" title="Remove">
                                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
                             </button>
