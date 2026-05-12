@@ -24,11 +24,13 @@
             @foreach($navLinks as $link)
                 @php $active = request()->routeIs($link['route']); @endphp
                 <a href="{{ route($link['route']) }}"
-                   class="relative rounded-full px-4 py-2 text-sm font-semibold transition
-                          {{ $active ? 'text-ink-900' : 'text-ink-700 hover:text-ink-900' }}">
+                   class="group relative rounded-full px-4 py-2 text-sm font-semibold transition
+                          {{ $active ? 'text-ink-900' : 'text-ink-700 hover:text-ink-900 hover:bg-ink-900/[0.06]' }}">
                     @if($active)
                         <span class="absolute inset-0 rounded-full bg-ink-900/[0.06]"></span>
                         <span class="absolute -bottom-0.5 left-1/2 h-[3px] w-8 -translate-x-1/2 rounded-full prism-bg"></span>
+                    @else
+                        <span class="pointer-events-none absolute -bottom-0.5 left-1/2 h-[3px] w-0 -translate-x-1/2 rounded-full prism-bg transition-all duration-300 group-hover:w-8"></span>
                     @endif
                     <span class="relative">{{ $link['label'] }}</span>
                 </a>
