@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use Illuminate\Http\Request;
-use App\Models\Card;
 use App\Models\ShopItem;
 
 class CartController extends Controller
@@ -20,7 +19,7 @@ class CartController extends Controller
 
     /**
      * TODO(team-backend): add validation, stock checks, polymorphic resolution
-     * to either Card or ShopItem, snapshot price, increment quantity if exists.
+     * snapshot price, increment quantity if exists.
      */
     public function add(Request $request)
     {
@@ -33,16 +32,12 @@ class CartController extends Controller
         $quantity = $request->quantity;
 
         switch ($request->item_type) {
-            case 'card':
-                $modelClass = Card::class;
-                break;
-
             case 'shop_item':
                 $modelClass = ShopItem::class;
                 break;
 
             default:
-                return back()->with('error', 'Invalid item type.');
+                return back()->with('status', 'Invalid item type.');
         }
 
         $product = $modelClass::findOrFail($request->item_id);
@@ -59,7 +54,7 @@ class CartController extends Controller
         $totalQuantity = $existingQuantity + $quantity;
 
         if ($totalQuantity > $product->stock) {
-            return back()->with('error', 'Requested quantity exceeds stock.');
+            return back()->with('status', 'Requested quantity exceeds stock.');
         }
 
         if ($cartItem) {
@@ -92,26 +87,28 @@ class CartController extends Controller
 
         // If quantity is 0 or less, remove from cart
         if ($quantity < 1) {
-            return $this->remove($request);
+            $this->remove($request);
+            return back()->with('status', 'Item removed from cart.');
         }
 
-        switch ($request->item_type) {
-            case 'card':
-                $modelClass = Card::class;
-                break;
 
+
+        switch ($request->item_type) {
             case 'shop_item':
                 $modelClass = ShopItem::class;
                 break;
 
             default:
-                return back()->with('error', 'Invalid item type.');
+                return back()->with('status', 'Invalid item type.');
         }
 
         $product = $modelClass::findOrFail($request->item_id);
 
         if ($quantity > $product->stock) {
-            return redirect()->back()->with('error', 'Requested quantity exceeds available stock.');
+            return redirect()->back()->with(
+                'status',
+                'Requested quantity exceeds available stock.'
+            );
         }
 
         $cart = $request->user()->cart()->firstOrCreate([]);
@@ -120,8 +117,9 @@ class CartController extends Controller
             ->where('itemable_type', $modelClass)
             ->first();
 
+
         if (!$cartItem) {
-            return back()->with('error', 'Item not found in cart.');
+            return back()->with('status', 'Item not found in cart.');
         }
 
         $cartItem->update([
@@ -138,28 +136,24 @@ class CartController extends Controller
         ]);
 
         switch ($request->item_type) {
-            case 'card':
-                $modelClass = Card::class;
-                break;
-
             case 'shop_item':
                 $modelClass = ShopItem::class;
                 break;
 
             default:
-                return back()->with('error', 'Invalid item type.');
+                return back()->with('status', 'Invalid item type.');
         }
 
         $product = $modelClass::findOrFail($request->item_id);
         $cart = $request->user()->cart()->firstOrCreate([]);
-        
+
         $cartItem = $cart->items()
             ->where('itemable_id', $product->id)
             ->where('itemable_type', $modelClass)
             ->first();
 
         if (!$cartItem) {
-            return back()->with('error', 'Item not found in cart.');
+            return back()->with('status', 'Item not found in cart.');
         }
 
         $cartItem->delete();
