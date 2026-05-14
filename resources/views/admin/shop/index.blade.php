@@ -38,8 +38,13 @@
                         <td class="px-4 py-3 text-right font-mono">@idr($item->price)</td>
                         <td class="px-4 py-3 text-right font-mono">{{ $item->stock }}</td>
                         <td class="px-4 py-3 text-center">@if($item->featured) ★ @endif</td>
-                        <td class="px-4 py-3 text-right">
+                        <td class="px-4 py-3 text-right space-x-2">
                             <a href="{{ route('admin.shop.edit', $item) }}" class="text-xs font-semibold hover:text-prism-violet">Edit</a>
+                            <form method="POST" action="{{ route('admin.shop.destroy', $item) }}" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-800" onclick="return confirm('Are you sure you want to delete this item?')">Delete</button>
+                            </form>
                         </td>
                     </tr>
                 @endforeach

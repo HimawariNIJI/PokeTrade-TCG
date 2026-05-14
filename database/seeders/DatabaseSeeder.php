@@ -36,6 +36,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CardSeeder::class,
             ShopItemSeeder::class,
+            OrderSeeder::class,
+            OrderItemSeeder::class,
         ]);
     }
 }
