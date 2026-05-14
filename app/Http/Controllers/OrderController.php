@@ -27,4 +27,31 @@ class OrderController extends Controller
             'order' => $order->load('items.itemable'),
         ]);
     }
+    public function cancel(Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if (
+            $order->status !== 'pending' ||
+            $order->payment_status !== 'unpaid'
+        ) {
+            return back()->with('status', 'This order cannot be cancelled.');
+        }
+
+        foreach ($order->items as $orderItem) {
+            $product = $orderItem->itemable;
+            if ($product) {
+                $product->increment('stock', $orderItem->quantity);
+            }
+        }
+
+        $order->update([
+            'status' => 'cancelled',
+            'payment_status' => 'failed',
+        ]);
+
+        return back()->with('status', 'Order cancelled successfully.');
+    }
 }

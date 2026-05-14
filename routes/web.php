@@ -52,9 +52,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/cart/items', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/items', [CartController::class, 'remove'])->name('cart.remove');
 
-    // Checkout
+    // Checkout & Payment
     Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
     Route::post('/checkout', [CheckoutController::class, 'place'])->name('checkout.place');
+    Route::get('/payment/{order:code}', [CheckoutController::class, 'paymentStatus'])->name('payment_status');
+    Route::get('/orders/{order:code}/payment', [CheckoutController::class, 'showPayment'])->name('payment_show');
+    Route::patch('/orders/{order:code}/cancel', [OrderController::class, 'cancel'])->name('orders_cancel');
 
     // Orders
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
