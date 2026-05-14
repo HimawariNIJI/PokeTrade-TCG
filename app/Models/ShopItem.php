@@ -10,12 +10,19 @@ class ShopItem extends Model
 {
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope('not_deleted', function ($query) {
+            $query->where('is_deleted', false);
+        });
+    }
+
     public const CATEGORIES = ['booster', 'bundle', 'accessory', 'plush', 'other'];
 
     protected $fillable = [
         'name', 'slug', 'description', 'category',
         'price', 'stock', 'image',
-        'featured', 'is_active',
+        'featured', 'is_active', 'is_deleted',
     ];
 
     protected $casts = [

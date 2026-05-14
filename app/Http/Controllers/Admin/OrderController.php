@@ -26,11 +26,47 @@ class OrderController extends Controller
     }
 
     /**
-     * TODO(team-backend): validate new status against allowed transitions,
-     * stamp paid_at / shipped_at / delivered_at when crossing those states.
+     * Validate status changes and stamp tracking timestamps.
      */
     public function updateStatus(Request $request, Order $order)
     {
-        return back()->with('status', 'Order status updated (stub).');
+        $validated = $request->validate([
+            'status' => 'required|in:' . implode(',', Order::STATUSES),
+            'payment_status' => 'required|in:' . implode(',', Order::PAYMENT_STATUSES),
+        ]);
+
+        $status = $validated['status'];
+        $paymentStatus = $validated['payment_status'];
+
+        $attributes = [
+            'status' => $status,
+            'payment_status' => $paymentStatus,
+        ];
+
+        if ($paymentStatus === 'paid') {
+            $attributes['paid_at'] = $order->paid_at ?? now();
+        } else {
+            $attributes['paid_at'] = null;
+        }
+
+        if ($status === 'shipped') {
+            $attributes['shipped_at'] = $order->shipped_at ?? now();
+            $attributes['delivered_at'] = null;
+        } elseif ($status === 'delivered') {
+            $attributes['shipped_at'] = $order->shipped_at ?? now();
+            $attributes['delivered_at'] = $order->delivered_at ?? now();
+        } else {
+            $attributes['shipped_at'] = null;
+            $attributes['delivered_at'] = null;
+        }
+
+        if ($status === 'cancelled') {
+            $attributes['shipped_at'] = null;
+            $attributes['delivered_at'] = null;
+        }
+
+        $order->update($attributes);
+
+        return back()->with('status', 'Order status updated successfully.');
     }
 }
