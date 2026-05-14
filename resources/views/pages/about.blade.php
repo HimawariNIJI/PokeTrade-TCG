@@ -43,21 +43,21 @@
         </a>
     </div>
 
-    <div class="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-9 lg:gap-x-3">
+    <div class="mx-auto grid max-w-[760px] grid-cols-3 gap-x-2 gap-y-6 sm:grid-cols-5 lg:grid-cols-9 lg:gap-x-1.5">
         @foreach($eeveelutions as $i => $card)
             @php
                 $rot = [-4, 3, -2, 4, -3, 2, -4, 3, -2][$i] ?? 0;
-                $type = $card->types[0] ?? 'Colorless';
+                $type = $card->types[0] ?? 'Normal';
             @endphp
             <a href="{{ route('cards.show', $card) }}"
                class="group relative block"
                style="transform: rotate({{ $rot }}deg);">
-                <div class="absolute -inset-2 -z-10 rounded-2xl prism-bg opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-40"></div>
-                <div class="overflow-hidden rounded-xl bg-white shadow-md ring-1 ring-ink-200/60 transition duration-300 group-hover:-translate-y-2 group-hover:shadow-2xl">
+                <div class="absolute -inset-1 -z-10 rounded-md prism-bg opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-40"></div>
+                <div class="overflow-hidden rounded-md bg-white shadow-sm ring-1 ring-ink-200/60 transition duration-300 group-hover:-translate-y-1 group-hover:shadow-lg">
                     <img src="{{ $card->image_small }}" alt="{{ $card->name }}" class="block w-full" loading="lazy" />
                 </div>
-                <div class="mt-3 flex flex-col items-center gap-1.5 text-center">
-                    <p class="font-display text-sm font-black text-ink-900 line-clamp-1">{{ str_replace(' ex', '', $card->name) }}</p>
+                <div class="mt-1.5 flex flex-col items-center gap-1 text-center">
+                    <p class="font-display text-[10px] font-black leading-tight text-ink-900 line-clamp-1">{{ str_replace(' ex', '', $card->name) }}</p>
                     <x-type-chip :type="$type" size="sm" />
                 </div>
             </a>
@@ -99,57 +99,107 @@
      ===================================================== --}}
 @php
     $team = [
-        ['name' => 'Kevin Febrian Setiadi',     'nim' => '0706022410001', 'photo' => 'kevin.jpeg',    'rot' => -3],
-        ['name' => 'Caroline Netanya Christianti','nim' => '0706022410041', 'photo' => 'caroline.jpeg', 'rot' => 2],
-        ['name' => 'Ethan Cannavaro Lauda',     'nim' => '0706022410002', 'photo' => 'ethan.jpeg',    'rot' => -2],
-        ['name' => 'Charlene Athena Tjahjadi',  'nim' => '0706022410012', 'photo' => 'charlene.jpeg', 'rot' => 3],
+        [
+            'name' => 'Kevin Febrian Setiadi',
+            'nim' => '0706022410001',
+            'photo' => 'kevin.jpeg',
+            'role' => 'Backend',
+            'bio' => 'Business logic, models, and the trade/auction flows that hold the marketplace together.',
+        ],
+        [
+            'name' => 'Caroline Netanya Christianti',
+            'nim' => '0706022410041',
+            'photo' => 'caroline.jpeg',
+            'role' => 'Catalog',
+            'bio' => 'Card ingestion from pokemontcg.io, pricing logic, and the booster-pack opening engine.',
+        ],
+        [
+            'name' => 'Ethan Cannavaro Lauda',
+            'nim' => '0706022410002',
+            'photo' => 'ethan.jpeg',
+            'role' => 'Infrastructure',
+            'bio' => 'Routing, auth, websockets for live bids, and keeping the deploy pipeline running.',
+        ],
+        [
+            'name' => 'Charlene Athena Tjahjadi',
+            'nim' => '0706022410012',
+            'photo' => 'charlene.jpeg',
+            'role' => 'Frontend',
+            'bio' => 'Every pixel — Tailwind tokens, prismatic foil treatments, animations, the entire UI.',
+        ],
     ];
 @endphp
 
-<section class="relative mx-auto max-w-[1400px] px-4 py-24 md:px-8">
-    <div class="mb-14 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
-        <div class="max-w-xl">
-            <p class="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-500">The team</p>
-            <h2 class="mt-2 font-display text-4xl font-black tracking-tight md:text-5xl">
-                The developer team<br/><span class="prism-text">behind this project.</span>
-            </h2>
-            <p class="mt-4 text-sm text-ink-700 md:text-base">
-                Four students, one binder — every part of PokeTrade was built by the trainers below.
-            </p>
-        </div>
+<section class="relative mx-auto max-w-[1200px] px-4 py-16 md:px-8 md:py-20">
+    <div class="mb-10 text-center">
+        <p class="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-500">The team</p>
+        <h2 class="mt-2 font-display text-3xl font-black tracking-tight md:text-4xl">
+            The developer team <span class="prism-text">behind this project</span>
+        </h2>
+        <p class="mx-auto mt-3 max-w-xl text-sm text-ink-700">
+            Four trainers — tap a card to flip it and read the dossier.
+        </p>
     </div>
 
-    <div class="grid grid-cols-2 gap-x-5 gap-y-12 sm:gap-x-8 lg:grid-cols-4 lg:gap-x-6">
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-5">
         @foreach($team as $member)
-            <article class="group relative" style="transform: rotate({{ $member['rot'] }}deg);">
-                <div class="absolute -inset-3 -z-10 rounded-3xl prism-bg opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-40"></div>
+            <div x-data="{ flipped: false }"
+                 class="card-flip cursor-pointer"
+                 @click="flipped = !flipped"
+                 role="button"
+                 tabindex="0"
+                 @keydown.enter.prevent="flipped = !flipped"
+                 @keydown.space.prevent="flipped = !flipped"
+                 :aria-pressed="flipped">
+                <div class="card-flip-inner aspect-[245/342]" :class="flipped ? 'card-flipped' : ''">
 
-                <div class="relative aspect-[4/5] overflow-hidden rounded-2xl bg-ink-100 shadow-lg ring-1 ring-ink-200 transition duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl">
-                    <img src="{{ asset('images/team/' . $member['photo']) }}"
-                         alt="{{ $member['name'] }}"
-                         class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                         loading="lazy" />
-
-                    {{-- prismatic foil sheen on hover --}}
-                    <div class="pointer-events-none absolute inset-0 prism-bg opacity-0 mix-blend-overlay transition-opacity duration-500 group-hover:opacity-30"></div>
-
-                    {{-- bottom gradient + NIM badge --}}
-                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink-900/90 via-ink-900/40 to-transparent p-4">
-                        <p class="font-mono text-[10px] font-bold uppercase tracking-widest text-white/70">NIM</p>
-                        <p class="font-mono text-sm font-bold text-white">{{ $member['nim'] }}</p>
+                    {{-- FRONT: portrait with name strip --}}
+                    <div class="card-face bg-ink-100">
+                        <img src="/images/team/{{ $member['photo'] }}?v=2"
+                             alt="{{ $member['name'] }}"
+                             class="h-full w-full object-cover" />
+                        <div class="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-ink-900 via-ink-900/70 to-transparent p-4 pt-12">
+                            <p class="font-mono text-[9px] font-bold uppercase tracking-widest text-white/70">{{ $member['role'] }}</p>
+                            <h3 class="mt-0.5 font-display text-base font-black leading-tight text-white">
+                                {{ $member['name'] }}
+                            </h3>
+                        </div>
+                        <div class="absolute right-3 top-3 z-10 rounded-full bg-white/90 px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-widest text-ink-900 shadow-sm backdrop-blur">
+                            Tap to flip
+                        </div>
                     </div>
-                </div>
 
-                <div class="mt-4 px-1">
-                    <h3 class="font-display text-lg font-black leading-tight text-ink-900 md:text-xl">
-                        {{ $member['name'] }}
-                    </h3>
-                    <div class="mt-2 inline-flex items-center gap-2">
-                        <span class="h-px w-6 prism-bg"></span>
-                        <span class="text-[10px] font-bold uppercase tracking-widest text-ink-500">Trainer</span>
+                    {{-- BACK: prism dossier --}}
+                    <div class="card-face card-face-back prism-bg flex flex-col p-5 text-white">
+                        <div class="absolute inset-0 bg-ink-900/55"></div>
+                        <div class="relative flex h-full flex-col">
+                            <div class="flex items-center justify-between">
+                                <p class="font-mono text-[9px] font-bold uppercase tracking-widest text-white/70">Dossier</p>
+                                <span class="rounded-full bg-white/15 px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-widest backdrop-blur">{{ $member['role'] }}</span>
+                            </div>
+
+                            <h3 class="mt-4 font-display text-lg font-black leading-tight">
+                                {{ $member['name'] }}
+                            </h3>
+
+                            <div class="mt-2 inline-flex items-center gap-2">
+                                <span class="h-px w-5 bg-white/60"></span>
+                                <p class="font-mono text-[11px] font-bold tracking-wider">{{ $member['nim'] }}</p>
+                            </div>
+
+                            <p class="mt-4 text-[12px] leading-relaxed text-white/85">
+                                {{ $member['bio'] }}
+                            </p>
+
+                            <div class="mt-auto flex items-center justify-between pt-4 text-[9px] font-bold uppercase tracking-widest text-white/60">
+                                <span>PokeTrade · 2026</span>
+                                <span>Tap to flip back ↺</span>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
-            </article>
+            </div>
         @endforeach
     </div>
 </section>

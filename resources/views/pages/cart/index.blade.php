@@ -18,7 +18,7 @@
         <x-empty-state
             icon="◇"
             title="Your cart is empty"
-            message="Browse the card shop or pick up some boosters from the merch shop to get started.">
+            message="Pick up some boosters or merch from the shop to get started.">
             <div class="flex flex-wrap justify-center gap-3">
                 <x-prism-button :href="route('shop.index')" size="md">Shop Here!</x-prism-button>
             </div>

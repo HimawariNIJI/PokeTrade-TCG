@@ -14,7 +14,7 @@
             <div class="md:col-span-2">
                 <h4 class="font-display text-sm font-bold uppercase tracking-widest text-ink-900">Shop</h4>
                 <ul class="mt-3 space-y-2 text-sm text-ink-500">
-                    <li><a href="{{ route('cards.index') }}" class="hover:text-ink-900">Card Shop</a></li>
+                    <li><a href="{{ route('cards.index') }}" class="hover:text-ink-900">Cards</a></li>
                     <li><a href="{{ route('shop.index') }}" class="hover:text-ink-900">Merch</a></li>
                     <li><a href="{{ route('auctions.index') }}" class="hover:text-ink-900">Auctions</a></li>
                     <li><a href="{{ route('packs.index') }}" class="hover:text-ink-900">Open Pack</a></li>

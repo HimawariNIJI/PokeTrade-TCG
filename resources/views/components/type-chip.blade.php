@@ -1,4 +1,4 @@
-@props(['type' => 'Colorless', 'size' => 'md'])
+@props(['type' => 'Normal', 'size' => 'md'])
 
 @php
     $key = strtolower($type);
@@ -13,10 +13,10 @@
         'metal'     => 'bg-type-metal',
         'fairy'     => 'bg-type-fairy',
         'dragon'    => 'bg-type-dragon',
-        'colorless' => 'bg-type-colorless',
+        'normal'    => 'bg-type-normal',
     ];
     $bg = $colors[$key] ?? 'bg-ink-500';
-    $textColor = in_array($key, ['lightning', 'fairy', 'colorless']) ? 'text-ink-900' : 'text-white';
+    $textColor = in_array($key, ['lightning', 'fairy', 'normal']) ? 'text-ink-900' : 'text-white';
     $padding = $size === 'sm' ? 'px-2 py-0.5 text-[10px]' : 'px-2.5 py-1 text-xs';
 @endphp
 

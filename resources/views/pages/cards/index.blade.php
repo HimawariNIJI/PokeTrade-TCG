@@ -12,19 +12,19 @@
         <div class="flex flex-wrap items-end justify-between gap-6">
             <div>
                 <span class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink-700 backdrop-blur">
-                    Scarlet &amp; Violet · Prismatic Evolutions
+                    Scarlet &amp; Violet · Standard Format
                 </span>
                 <h1 class="mt-4 font-display text-5xl font-black tracking-tight md:text-6xl">
-                    The <span class="prism-text">Card Shop</span>.
+                    <span class="prism-text">Cards</span>.
                 </h1>
                 <p class="mt-3 max-w-2xl text-ink-700">
-                    All 180 cards from the set, with live market prices and our house pricing. Filter, search, sort, and add to cart.
+                    Browse every Standard-legal Pokémon TCG card with live market prices. Filter by set, type, rarity, and regulation — and save cards to your watchlist to track their value.
                 </p>
             </div>
 
             <div class="rounded-2xl border border-ink-200 bg-white px-4 py-3 text-right">
                 <p class="text-[11px] uppercase tracking-widest text-ink-500">Showing</p>
-                <p class="font-display text-2xl font-black text-ink-900">{{ $cards->total() }}<span class="text-ink-500"> / 180</span></p>
+                <p class="font-display text-2xl font-black text-ink-900">{{ number_format($cards->total()) }}<span class="text-ink-500"> cards</span></p>
             </div>
         </div>
     </div>
@@ -42,6 +42,13 @@
                    value="{{ request('q') }}" placeholder="Search by name (Eevee, Umbreon ex…)"
                    class="w-full rounded-full border-ink-200 pl-10 pr-4 text-sm focus:border-prism-violet focus:ring-prism-violet" />
         </label>
+
+        <select name="set" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
+            <option value="">All sets</option>
+            @foreach($allSets as $s)
+                <option value="{{ $s->set_id }}" @selected(request('set') === $s->set_id)>{{ $s->set_name }}</option>
+            @endforeach
+        </select>
 
         <select name="supertype" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
             <option value="">All categories</option>
@@ -64,32 +71,47 @@
             @endforeach
         </select>
 
-        <select name="sort" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
-            <option value="number"     @selected(request('sort', 'number') === 'number')>Sort: by number</option>
-            <option value="name"       @selected(request('sort') === 'name')>Sort: by name</option>
-            <option value="price_asc"  @selected(request('sort') === 'price_asc')>Price: low → high</option>
-            <option value="price_desc" @selected(request('sort') === 'price_desc')>Price: high → low</option>
-            <option value="rarity"     @selected(request('sort') === 'rarity')>Sort: by rarity</option>
+        <select name="regulation" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
+            <option value="">All regulations</option>
+            @foreach($allRegMarks as $m)
+                <option value="{{ $m }}" @selected(request('regulation') === $m)>Reg. {{ $m }}</option>
+            @endforeach
         </select>
 
-        <button type="submit" class="rounded-full bg-ink-900 px-5 py-2 text-sm font-bold text-white hover:bg-ink-700">
-            Apply
-        </button>
-        <a href="{{ route('cards.index') }}" class="text-sm text-ink-500 hover:text-ink-900">Reset</a>
+        <div class="ml-auto flex flex-wrap items-center gap-3">
+            <select name="sort" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
+                <option value="number"     @selected(request('sort', 'number') === 'number')>Sort: by number</option>
+                <option value="name"       @selected(request('sort') === 'name')>Sort: by name</option>
+                <option value="price_asc"  @selected(request('sort') === 'price_asc')>Price: low → high</option>
+                <option value="price_desc" @selected(request('sort') === 'price_desc')>Price: high → low</option>
+                <option value="rarity"     @selected(request('sort') === 'rarity')>Sort: by rarity</option>
+            </select>
+
+            <button type="submit" class="rounded-full bg-ink-900 px-5 py-2 text-sm font-bold text-white hover:bg-ink-700">
+                Apply
+            </button>
+            <a href="{{ route('cards.index') }}" class="text-sm text-ink-500 hover:text-ink-900">Reset</a>
+        </div>
     </div>
 </form>
 
 {{-- =====================================================
      ACTIVE FILTER CHIPS
      ===================================================== --}}
-@if(request()->hasAny(['q', 'type', 'supertype', 'rarity']))
+@if(request()->hasAny(['q', 'type', 'supertype', 'rarity', 'set', 'regulation']))
     <div class="mx-auto max-w-[1400px] px-4 pt-4 md:px-8">
         <div class="flex flex-wrap items-center gap-2 text-xs">
             <span class="text-ink-500">Active filters:</span>
-            @foreach(['q' => 'Search', 'supertype' => 'Category', 'type' => 'Type', 'rarity' => 'Rarity'] as $key => $label)
+            @foreach(['q' => 'Search', 'set' => 'Set', 'supertype' => 'Category', 'type' => 'Type', 'rarity' => 'Rarity', 'regulation' => 'Reg.'] as $key => $label)
                 @if(request($key))
+                    @php
+                        $value = request($key);
+                        if ($key === 'set') {
+                            $value = $allSets->firstWhere('set_id', $value)?->set_name ?? $value;
+                        }
+                    @endphp
                     <span class="inline-flex items-center gap-1.5 rounded-full bg-ink-900 px-3 py-1 font-semibold text-white">
-                        {{ $label }}: {{ request($key) }}
+                        {{ $label }}: {{ $value }}
                         <a href="{{ request()->fullUrlWithoutQuery($key) }}" class="text-white/60 hover:text-white">×</a>
                     </span>
                 @endif

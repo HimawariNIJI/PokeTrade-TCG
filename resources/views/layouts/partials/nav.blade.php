@@ -1,7 +1,7 @@
 @php
     $navLinks = [
         ['route' => 'home',           'label' => 'Home'],
-        ['route' => 'cards.index',    'label' => 'Card Shop'],
+        ['route' => 'cards.index',    'label' => 'Cards'],
         ['route' => 'shop.index',     'label' => 'Merch'],
         ['route' => 'auctions.index', 'label' => 'Auctions'],
         ['route' => 'packs.index',    'label' => 'Open Pack'],

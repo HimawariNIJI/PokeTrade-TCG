@@ -13,7 +13,7 @@
         <nav class="mb-6 text-xs text-ink-500">
             <a href="{{ route('home') }}" class="hover:text-ink-900">Home</a>
             <span class="mx-2">/</span>
-            <a href="{{ route('cards.index') }}" class="hover:text-ink-900">Card Shop</a>
+            <a href="{{ route('cards.index') }}" class="hover:text-ink-900">Cards</a>
             <span class="mx-2">/</span>
             <span class="text-ink-900">{{ $card->name }}</span>
         </nav>
@@ -192,7 +192,7 @@
                     <h3 class="text-[10px] font-bold uppercase tracking-widest text-ink-500">Weakness</h3>
                     <div class="mt-2 flex flex-wrap items-center gap-2">
                         @foreach($card->weaknesses as $w)
-                            <x-type-chip :type="$w['type'] ?? 'Colorless'" />
+                            <x-type-chip :type="$w['type'] ?? 'Normal'" />
                             <span class="font-mono text-sm font-bold text-rose-700">{{ $w['value'] ?? '' }}</span>
                         @endforeach
                     </div>
@@ -204,7 +204,7 @@
                     <h3 class="text-[10px] font-bold uppercase tracking-widest text-ink-500">Resistance</h3>
                     <div class="mt-2 flex flex-wrap items-center gap-2">
                         @foreach($card->resistances as $r)
-                            <x-type-chip :type="$r['type'] ?? 'Colorless'" />
+                            <x-type-chip :type="$r['type'] ?? 'Normal'" />
                             <span class="font-mono text-sm font-bold text-emerald-700">{{ $r['value'] ?? '' }}</span>
                         @endforeach
                     </div>

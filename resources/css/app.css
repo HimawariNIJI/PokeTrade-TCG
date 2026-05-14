@@ -42,7 +42,7 @@
     --color-type-metal:    #9098a0;
     --color-type-fairy:    #ee99ac;
     --color-type-dragon:   #7d3fff;
-    --color-type-colorless:#a8a878;
+    --color-type-normal:#a8a878;
 
     /* Motion — restrained, no constant loops */
     --animate-rainbow-pan: rainbow-pan 8s linear infinite;

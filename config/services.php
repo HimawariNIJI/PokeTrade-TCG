@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'pokemontcg' => [
+        'key' => env('POKEMONTCG_API_KEY'),
+    ],
+
 ];

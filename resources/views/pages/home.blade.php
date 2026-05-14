@@ -33,7 +33,7 @@
 
             <div class="mt-8 flex flex-wrap gap-3">
                 <x-prism-button :href="route('cards.index')" size="lg">
-                    Browse the card shop
+                    Browse cards
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
                 </x-prism-button>
                 <x-prism-button :href="route('auctions.index')" variant="ghost" size="lg">Live auctions</x-prism-button>
@@ -164,7 +164,7 @@
                 </div>
             </div>
             <a href="{{ route('cards.index') }}" class="mt-8 inline-flex items-center gap-2 font-display text-sm font-bold text-ink-900 hover:text-prism-violet">
-                Open the card shop
+                Open the catalog
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
             </a>
         </div>
