@@ -107,6 +107,18 @@ class AuctionController extends Controller
     {
         $statuses = [1 => 'live', 2 => 'scheduled', 3 => 'ended'];
         $names    = [1 => 'Charizard ex', 2 => 'Pikachu VMAX', 3 => 'Mewtwo GX'];
+        $status   = $statuses[$id] ?? 'live';
+
+        // A scheduled auction has not opened for bidding yet — so it carries no
+        // bids, no current bid, and no leader. Live and ended auctions do.
+        $hasBids = $status !== 'scheduled';
+
+        // Timing consistent with the status.
+        $timing = match ($status) {
+            'scheduled' => ['starts' => Carbon::now()->addDay(),    'ends' => Carbon::now()->addDays(2)],
+            'ended'     => ['starts' => Carbon::now()->subDays(2),  'ends' => Carbon::now()->subHours(3)],
+            default     => ['starts' => Carbon::now()->subHours(3), 'ends' => Carbon::now()->addHours(2)->addMinutes(14)],
+        };
 
         $card = new Card([
             'name'        => $names[$id] ?? 'Eevee ex',
@@ -120,31 +132,37 @@ class AuctionController extends Controller
         $auction = new Auction([
             'card_id'       => $card->id,
             'starting_bid'  => 500000,
-            'current_bid'   => 4250000,
+            'current_bid'   => $hasBids ? 4250000 : 0,
             'bid_increment' => 50000,
             'buy_now_price' => 9000000,
-            'starts_at'     => Carbon::now()->subHours(3),
-            'ends_at'       => Carbon::now()->addHours(2)->addMinutes(14),
-            'status'        => $statuses[$id] ?? 'live',
+            'starts_at'     => $timing['starts'],
+            'ends_at'       => $timing['ends'],
+            'status'        => $status,
         ]);
-        $auction->id                = $id;
-        $auction->current_leader_id = 901;
+        $auction->id = $id;
         // is_highlighted is not a real column yet (see TODO above); setting it
         // directly on the in-memory model makes it readable in the views.
         $auction->is_highlighted = ($id === 1);
         $auction->setRelation('card', $card);
-
-        $leader = (new User(['name' => 'ashketchum_id']));
-        $leader->id = 901;
-        $auction->setRelation('currentLeader', $leader);
 
         $seller = new User(['name' => 'PokeTrade Admin']);
         $seller->id = 900;
         $auction->seller_id = 900;
         $auction->setRelation('seller', $seller);
 
-        $bidders = [901 => 'ashketchum_id', 902 => 'misty_water', 903 => 'brock_rock', 904 => 'gary_oak'];
-        $amounts = [4250000, 4100000, 3900000, 3500000];
+        if (! $hasBids) {
+            $auction->current_leader_id = null;
+            $auction->setRelation('currentLeader', null);
+            $auction->setRelation('bids', collect());
+
+            return $auction;
+        }
+
+        $bidders  = [901 => 'ashketchum_id', 902 => 'misty_water', 903 => 'brock_rock', 904 => 'gary_oak'];
+        $amounts  = [4250000, 4100000, 3900000, 3500000];
+        // Bids land before the auction's effective "now": shortly before it
+        // ended (ended auctions) or within the last half hour (live auctions).
+        $bidBase  = $status === 'ended' ? $timing['ends']->copy() : Carbon::now();
 
         $bids = collect();
         $i = 0;
@@ -154,12 +172,17 @@ class AuctionController extends Controller
 
             $bid = new Bid(['auction_id' => $id, 'user_id' => $uid, 'amount' => $amounts[$i]]);
             $bid->id = $id * 10 + $i;
-            $bid->created_at = Carbon::now()->subMinutes(($i + 1) * 7);
+            $bid->created_at = $bidBase->copy()->subMinutes(($i + 1) * 7);
             $bid->setRelation('user', $user);
 
             $bids->push($bid);
             $i++;
         }
+
+        $auction->current_leader_id = 901;
+        $leader = new User(['name' => 'ashketchum_id']);
+        $leader->id = 901;
+        $auction->setRelation('currentLeader', $leader);
         $auction->setRelation('bids', $bids);
 
         return $auction;
