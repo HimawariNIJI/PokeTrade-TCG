@@ -1,8 +1,25 @@
 # Admin Auction Bidding Feature — Design
 
 **Date:** 2026-05-16
-**Status:** Approved (design); ready for implementation planning
+**Status:** Implemented (with the revision below)
 **Scope:** Frontend only (Blade views + Alpine.js) with stub routes/controllers. Backend dev owns persistence, validation, real-time, and the migration.
+
+> **Revision — 2026-05-16 (post-implementation correction).**
+> The "highlight" concept was originally specified as a per-auction *winning bidder*
+> (`current_leader_id` + a `highlight_mode` of auto/manual). That was wrong. The
+> corrected concept, now implemented:
+>
+> - **Highlight is auction-level.** Exactly one *auction* is "highlighted" — featured
+>   in a flashy hero banner at the top of the public `/auctions` listing.
+> - **Default (auto):** the live auction with the highest `current_bid`.
+> - **Manual override:** an admin toggles **"Highlight this auction on the listing"**
+>   on that auction's edit page. Backend model: a per-auction `is_highlighted`
+>   boolean; when set true, all other auctions are cleared so only one is highlighted.
+> - Each auction *detail* page always shows its **top 3 bidders**.
+> - The `highlight`/`highlight.reset` routes, the per-bid highlight controls, and the
+>   `highlight_mode` column described below are **superseded** — replaced by the
+>   `is_highlighted` boolean and the edit-page toggle. Where sections 2, 3, 5.1, 5.4,
+>   6, 7 below mention the old model, read them through this revision.
 
 ## 1. Problem & Goal
 
@@ -18,7 +35,7 @@ This feature **extends the existing auction system**. It does not create a paral
 |---|---|
 | Deliverable scope | Blade views + Alpine.js **plus** stub routes & controller methods returning hardcoded sample data with `// TODO(backend)` markers. Everything renders in a browser immediately. |
 | Existing system | Extend the existing `Auction`/`Bid` models, tables, and public pages. No duplicate data models. |
-| Highlighted bid | Default = highest bid auto-highlighted. Admin can set a specific bid as the highlight. A **sticky override** model: mode is `auto` or `manual`; manual sticks to the chosen bidder even if a higher bid arrives, until the admin clicks "Reset to auto". In **both** modes the highlighted bidder is the single value `auctions.current_leader_id`; `highlight_mode` only records *how* that value is chosen. The admin edit panel and the public page both read `current_leader_id` as the source of truth. |
+| Highlighted auction *(see revision note above — supersedes the original "highlighted bid" decision)* | Exactly one **auction** is highlighted/featured on the public `/auctions` listing. Default = the live auction with the highest `current_bid`. Manual override = an admin toggles "Highlight this auction on the listing" on the auction's edit page. Backend model: per-auction `is_highlighted` boolean, one true at a time. |
 | Public page style | Direction A — "Neon Arena": loud, gamified, prism neon gradients, pulsing bid counter, top-bidder leaderboard, live bid feed. |
 
 ## 3. Out of Scope (backend dev owns)
