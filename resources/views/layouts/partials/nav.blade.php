@@ -8,7 +8,20 @@
         ['route' => 'about',          'label' => 'About'],
     ];
 @endphp
-
+@auth
+    @php
+        $wishlistAuctionNotifications = auth()->user()
+            ->wishlistedCards()
+            ->whereHas('auctions', function ($query) {
+                $query->where('status', 'live');
+            })
+            ->with(['auctions' => function ($query) {
+                $query->where('status', 'live');
+            }])
+            ->take(5)
+            ->get();
+    @endphp
+@endauth
 <header x-data="{ open: false, scrolled: window.scrollY > 8 }"
         @scroll.window="scrolled = window.scrollY > 8"
         class="sticky top-0 z-40 transition"

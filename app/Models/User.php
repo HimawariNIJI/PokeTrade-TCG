@@ -48,10 +48,11 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
-    public function wishlistedCards(): BelongsToMany
-    {
-        return $this->belongsToMany(Card::class, 'wishlists')->withTimestamps();
-    }
+    public function wishlistedCards()
+{
+    return $this->belongsToMany(Card::class, 'wishlists')
+        ->withTimestamps();
+}
 
     public function bids(): HasMany
     {
