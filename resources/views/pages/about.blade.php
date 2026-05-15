@@ -43,18 +43,16 @@
         </a>
     </div>
 
-    <div class="mx-auto grid max-w-[760px] grid-cols-3 gap-x-2 gap-y-6 sm:grid-cols-5 lg:grid-cols-9 lg:gap-x-1.5">
+    <div class="grid w-full grid-cols-3 gap-x-3 gap-y-6 sm:grid-cols-5 lg:grid-cols-9 lg:gap-x-3">
         @foreach($eeveelutions as $i => $card)
             @php
-                $rot = [-4, 3, -2, 4, -3, 2, -4, 3, -2][$i] ?? 0;
                 $type = $card->types[0] ?? 'Normal';
             @endphp
             <a href="{{ route('cards.show', $card) }}"
-               class="group relative block"
-               style="transform: rotate({{ $rot }}deg);">
+               class="group relative block">
                 <div class="absolute -inset-1 -z-10 rounded-md prism-bg opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-40"></div>
                 <div class="overflow-hidden rounded-md bg-white shadow-sm ring-1 ring-ink-200/60 transition duration-300 group-hover:-translate-y-1 group-hover:shadow-lg">
-                    <img src="{{ $card->image_small }}" alt="{{ $card->name }}" class="block w-full" loading="lazy" />
+                    <img src="{{ $card->image_large ?? $card->image_small }}" alt="{{ $card->name }}" class="block w-full" loading="lazy" />
                 </div>
                 <div class="mt-1.5 flex flex-col items-center gap-1 text-center">
                     <p class="font-display text-[10px] font-black leading-tight text-ink-900 line-clamp-1">{{ str_replace(' ex', '', $card->name) }}</p>
@@ -141,7 +139,7 @@
         </p>
     </div>
 
-    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-5">
+    <div class="grid grid-cols-4 gap-4 sm:gap-5">
         @foreach($team as $member)
             <div x-data="{ flipped: false }"
                  class="card-flip cursor-pointer"
