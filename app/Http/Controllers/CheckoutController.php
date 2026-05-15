@@ -36,6 +36,7 @@ class CheckoutController extends Controller
             'shipping_address' => 'required|string|max:255',
             'shipping_city' => 'required|string|max:100',
             'shipping_postal_code' => 'required|string|max:16',
+            'payment_method' => 'required|in:midtrans',
         ], [
             'shipping_phone.regex' => 'Please enter a valid phone number.',
         ]);

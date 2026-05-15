@@ -63,10 +63,9 @@
 
                 <fieldset class="rounded-3xl border border-ink-200 bg-white p-6">
                     <legend class="px-2 font-display text-lg font-black text-ink-900">Payment method</legend>
-                    <p class="mb-3 text-xs text-ink-500">Sandbox-only. No real charges.
-                        <strong>TODO(team-backend):</strong> wire Midtrans/Stripe sandbox.</p>
-                    <div class="grid gap-3 md:grid-cols-3">
-                        @foreach ([['value' => 'midtrans', 'label' => 'Midtrans (sandbox)', 'sub' => 'GoPay, OVO, BCA VA'], ['value' => 'stripe', 'label' => 'Stripe (test)', 'sub' => '4242 4242 4242 4242'], ['value' => 'cod', 'label' => 'Cash on delivery', 'sub' => 'Pay on arrival']] as $i => $pm)
+                    <p class="mb-3 text-xs text-ink-500">Sandbox-only. No real charges.</p>
+                    <div class="grid gap-3">
+                        @foreach ([['value' => 'midtrans', 'label' => 'Midtrans (sandbox)', 'sub' => 'GoPay, OVO, BCA VA']] as $i => $pm)
                             <label
                                 class="cursor-pointer rounded-2xl border-2 border-ink-200 p-4 hover:border-prism-violet [&:has(input:checked)]:border-ink-900 [&:has(input:checked)]:bg-ink-900 [&:has(input:checked)]:text-white">
                                 <input type="radio" name="payment_method" value="{{ $pm['value'] }}" class="sr-only"
