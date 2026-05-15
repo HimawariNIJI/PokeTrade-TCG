@@ -93,6 +93,7 @@ class AuctionController extends Controller
 
     public function highlight(Request $request, $auction)
     {
+        // TODO(backend): read the chosen bid via $request->input('bid_id').
         return back()->with('status', 'Highlighted bidder updated (stub) — backend wiring pending.');
     }
 
@@ -145,6 +146,11 @@ class AuctionController extends Controller
         $leader->id = 901;
         $auction->setRelation('currentLeader', $leader);
 
+        $seller = new User(['name' => 'PokeTrade Admin']);
+        $seller->id = 900;
+        $auction->seller_id = 900;
+        $auction->setRelation('seller', $seller);
+
         $bidders = [901 => 'ashketchum_id', 902 => 'misty_water', 903 => 'brock_rock', 904 => 'gary_oak'];
         $amounts = [4250000, 4100000, 3900000, 3500000];
 
@@ -169,6 +175,7 @@ class AuctionController extends Controller
 
     private function sampleCards(): array
     {
+        // Returns plain array maps (NOT Eloquent models) — consumed as JSON by cardSearch().
         $sets = ['Obsidian Flames', 'Paldea Evolved', '151', 'Paradox Rift'];
         $rarities = ['Illustration Rare', 'Special Illustration Rare', 'Ultra Rare', 'Double Rare'];
         $names = [
