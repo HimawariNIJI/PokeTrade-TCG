@@ -17,12 +17,31 @@ function adminUser(): User
     return $user;
 }
 
-test('admin auctions index renders the auction table', function () {
+test('admin auctions index lists real auctions', function () {
+    $seller = User::factory()->create();
+    $card = Card::create([
+        'api_id'      => 'test-index-001',
+        'name'        => 'Blastoise ex',
+        'slug'        => 'blastoise-ex-index-test',
+        'supertype'   => 'Pokémon',
+        'image_small' => 'https://images.pokemontcg.io/sv3/9.png',
+    ]);
+    Auction::create([
+        'card_id'       => $card->id,
+        'seller_id'     => $seller->id,
+        'starting_bid'  => 100000,
+        'current_bid'   => 300000,
+        'bid_increment' => 25000,
+        'starts_at'     => now()->subHour(),
+        'ends_at'       => now()->addHours(4),
+        'status'        => 'live',
+    ]);
+
     $this->actingAs(adminUser())
         ->get('/admin/auctions')
         ->assertOk()
         ->assertSee('New Auction')
-        ->assertSee('Charizard ex');
+        ->assertSee('Blastoise ex');
 });
 
 test('admin auction create page renders with the card picker', function () {
@@ -34,8 +53,27 @@ test('admin auction create page renders with the card picker', function () {
 });
 
 test('admin auction edit page renders the highlight toggle', function () {
+    $seller = User::factory()->create();
+    $card = Card::create([
+        'api_id'      => 'test-edit-001',
+        'name'        => 'Venusaur ex',
+        'slug'        => 'venusaur-ex-edit-test',
+        'supertype'   => 'Pokémon',
+        'image_small' => 'https://images.pokemontcg.io/sv3/1.png',
+    ]);
+    $auction = Auction::create([
+        'card_id'       => $card->id,
+        'seller_id'     => $seller->id,
+        'starting_bid'  => 100000,
+        'current_bid'   => 0,
+        'bid_increment' => 25000,
+        'starts_at'     => now()->addDay(),
+        'ends_at'       => now()->addDays(2),
+        'status'        => 'scheduled',
+    ]);
+
     $this->actingAs(adminUser())
-        ->get('/admin/auctions/1/edit')
+        ->get("/admin/auctions/{$auction->id}/edit")
         ->assertOk()
         ->assertSee('Highlight this auction')
         ->assertSee('Top bidders')

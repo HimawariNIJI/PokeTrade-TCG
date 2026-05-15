@@ -4,38 +4,32 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Auction;
-use App\Models\Bid;
 use App\Models\Card;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 
 /**
- * Admin auction management — FRONTEND STUB.
+ * Admin auction management.
  *
- * The auction read/write methods return hardcoded in-memory sample data so the
- * Blade views are clickable without auction records. `cardSearch()` is real —
- * it queries the seeded `cards` table so the card picker shows correct
- * name/image pairs. Method params are intentionally NOT type-hinted as
- * `Auction`, so route-model binding does not run while there are no auction
- * DB records.
+ * Read paths are wired to the database: index() lists real auctions, edit()
+ * loads a real auction, and cardSearch() queries the real `cards` table.
  *
- * TODO(backend): replace each auction method body:
- *   index()      -> Auction::with('card','currentLeader')->latest()->paginate()
- *   create()     -> unchanged (renders an empty form)
- *   store()      -> validate (see rules below), create Auction, set status
- *   edit()       -> type-hint `Auction $auction`; load bids.user
- *   update()     -> validate + persist edits, INCLUDING the is_highlighted
- *                   toggle; when it is set true, clear is_highlighted on every
- *                   other auction so only one auction is highlighted at a time
- *   destroy()    -> delete or cancel the auction
+ * The write paths — store(), update(), destroy() — are still STUBS: they flash
+ * a message and redirect WITHOUT persisting. They are the remaining backend
+ * work (validation, the is_highlighted migration, status transitions).
+ *
+ * TODO(backend): implement the write methods:
+ *   store()   -> validate (see rules below), create the Auction, set status
+ *   update()  -> validate + persist edits, INCLUDING the is_highlighted toggle;
+ *                when it is set true, clear is_highlighted on every other
+ *                auction so only one auction is highlighted at a time
+ *   destroy() -> delete or cancel the auction
  *
  * TODO(backend): add a migration adding `is_highlighted` (boolean, default
  * false) to the `auctions` table. It flags the single auction featured in the
  * hero banner on the public /auctions listing. When no auction has
  * is_highlighted = true, the listing falls back to the live auction with the
- * highest current_bid.
+ * highest current_bid. Until this column exists, the edit-form highlight
+ * toggle always reads as off.
  *
  * TODO(backend): suggested validation rules for store()/update():
  *   'card_id'       => 'required|exists:cards,id'
@@ -49,7 +43,12 @@ class AuctionController extends Controller
 {
     public function index()
     {
-        return view('admin.auctions.index', ['auctions' => $this->sampleAuctions()]);
+        $auctions = Auction::query()
+            ->with('card', 'currentLeader')
+            ->latest()
+            ->get();
+
+        return view('admin.auctions.index', ['auctions' => $auctions]);
     }
 
     public function create()
@@ -60,24 +59,26 @@ class AuctionController extends Controller
     public function store(Request $request)
     {
         return redirect()->route('admin.auctions.index')
-            ->with('status', 'Auction published (stub) — backend wiring pending.');
+            ->with('status', 'Auction publishing is not wired up yet — backend pending.');
     }
 
-    public function edit($auction)
+    public function edit(Auction $auction)
     {
-        return view('admin.auctions.edit', ['auction' => $this->sampleAuction((int) $auction)]);
+        $auction->load('card', 'bids.user');
+
+        return view('admin.auctions.edit', ['auction' => $auction]);
     }
 
-    public function update(Request $request, $auction)
-    {
-        return redirect()->route('admin.auctions.index')
-            ->with('status', 'Auction updated (stub) — backend wiring pending.');
-    }
-
-    public function destroy($auction)
+    public function update(Request $request, Auction $auction)
     {
         return redirect()->route('admin.auctions.index')
-            ->with('status', 'Auction removed (stub) — backend wiring pending.');
+            ->with('status', 'Auction editing is not wired up yet — backend pending.');
+    }
+
+    public function destroy(Auction $auction)
+    {
+        return redirect()->route('admin.auctions.index')
+            ->with('status', 'Auction deletion is not wired up yet — backend pending.');
     }
 
     /**
@@ -95,99 +96,5 @@ class AuctionController extends Controller
             ->get(['id', 'name', 'set_name', 'rarity', 'image_small']);
 
         return response()->json(['data' => $cards]);
-    }
-
-    // ================================================================
-    // Sample data — TODO(backend): delete this entire section.
-    // ================================================================
-
-    private function sampleAuctions(): Collection
-    {
-        return collect([1, 2, 3])->map(fn ($id) => $this->sampleAuction($id));
-    }
-
-    private function sampleAuction(int $id): Auction
-    {
-        $statuses = [1 => 'live', 2 => 'scheduled', 3 => 'ended'];
-        $names    = [1 => 'Charizard ex', 2 => 'Pikachu VMAX', 3 => 'Mewtwo GX'];
-        $status   = $statuses[$id] ?? 'live';
-
-        // A scheduled auction has not opened for bidding yet — so it carries no
-        // bids, no current bid, and no leader. Live and ended auctions do.
-        $hasBids = $status !== 'scheduled';
-
-        // Timing consistent with the status.
-        $timing = match ($status) {
-            'scheduled' => ['starts' => Carbon::now()->addDay(),    'ends' => Carbon::now()->addDays(2)],
-            'ended'     => ['starts' => Carbon::now()->subDays(2),  'ends' => Carbon::now()->subHours(3)],
-            default     => ['starts' => Carbon::now()->subHours(3), 'ends' => Carbon::now()->addHours(2)->addMinutes(14)],
-        };
-
-        $card = new Card([
-            'name'        => $names[$id] ?? 'Eevee ex',
-            'set_name'    => 'Obsidian Flames',
-            'rarity'      => 'Illustration Rare',
-            'image_small' => 'https://images.pokemontcg.io/sv3/6.png',
-            'image_large' => 'https://images.pokemontcg.io/sv3/6_hires.png',
-        ]);
-        $card->id = 100 + $id;
-
-        $auction = new Auction([
-            'card_id'       => $card->id,
-            'starting_bid'  => 500000,
-            'current_bid'   => $hasBids ? 4250000 : 0,
-            'bid_increment' => 50000,
-            'buy_now_price' => 9000000,
-            'starts_at'     => $timing['starts'],
-            'ends_at'       => $timing['ends'],
-            'status'        => $status,
-        ]);
-        $auction->id = $id;
-        // is_highlighted is not a real column yet (see TODO above); setting it
-        // directly on the in-memory model makes it readable in the views.
-        $auction->is_highlighted = ($id === 1);
-        $auction->setRelation('card', $card);
-
-        $seller = new User(['name' => 'PokeTrade Admin']);
-        $seller->id = 900;
-        $auction->seller_id = 900;
-        $auction->setRelation('seller', $seller);
-
-        if (! $hasBids) {
-            $auction->current_leader_id = null;
-            $auction->setRelation('currentLeader', null);
-            $auction->setRelation('bids', collect());
-
-            return $auction;
-        }
-
-        $bidders  = [901 => 'ashketchum_id', 902 => 'misty_water', 903 => 'brock_rock', 904 => 'gary_oak'];
-        $amounts  = [4250000, 4100000, 3900000, 3500000];
-        // Bids land before the auction's effective "now": shortly before it
-        // ended (ended auctions) or within the last half hour (live auctions).
-        $bidBase  = $status === 'ended' ? $timing['ends']->copy() : Carbon::now();
-
-        $bids = collect();
-        $i = 0;
-        foreach ($bidders as $uid => $name) {
-            $user = new User(['name' => $name]);
-            $user->id = $uid;
-
-            $bid = new Bid(['auction_id' => $id, 'user_id' => $uid, 'amount' => $amounts[$i]]);
-            $bid->id = $id * 10 + $i;
-            $bid->created_at = $bidBase->copy()->subMinutes(($i + 1) * 7);
-            $bid->setRelation('user', $user);
-
-            $bids->push($bid);
-            $i++;
-        }
-
-        $auction->current_leader_id = 901;
-        $leader = new User(['name' => 'ashketchum_id']);
-        $leader->id = 901;
-        $auction->setRelation('currentLeader', $leader);
-        $auction->setRelation('bids', $bids);
-
-        return $auction;
     }
 }
