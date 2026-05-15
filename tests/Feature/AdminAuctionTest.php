@@ -42,7 +42,17 @@ test('admin auction edit page renders the highlight toggle', function () {
         ->assertSee('Save changes');
 });
 
-test('card search stub returns json results', function () {
+test('card search returns matching cards from the catalogue', function () {
+    Card::create([
+        'api_id'      => 'test-search-001',
+        'name'        => 'Charizard ex',
+        'slug'        => 'charizard-ex-search-test',
+        'supertype'   => 'Pokémon',
+        'set_name'    => 'Obsidian Flames',
+        'rarity'      => 'Special Illustration Rare',
+        'image_small' => 'https://images.pokemontcg.io/sv3/6.png',
+    ]);
+
     $this->actingAs(adminUser())
         ->getJson('/admin/auctions/cards/search?q=char')
         ->assertOk()

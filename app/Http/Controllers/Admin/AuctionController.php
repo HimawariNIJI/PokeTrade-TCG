@@ -14,12 +14,14 @@ use Illuminate\Support\Collection;
 /**
  * Admin auction management — FRONTEND STUB.
  *
- * Every method returns hardcoded in-memory sample data so the Blade views
- * are fully clickable without a database. Method params are intentionally
- * NOT type-hinted as `Auction`, so route-model binding does not run while
- * there are no DB records.
+ * The auction read/write methods return hardcoded in-memory sample data so the
+ * Blade views are clickable without auction records. `cardSearch()` is real —
+ * it queries the seeded `cards` table so the card picker shows correct
+ * name/image pairs. Method params are intentionally NOT type-hinted as
+ * `Auction`, so route-model binding does not run while there are no auction
+ * DB records.
  *
- * TODO(backend): replace each method body:
+ * TODO(backend): replace each auction method body:
  *   index()      -> Auction::with('card','currentLeader')->latest()->paginate()
  *   create()     -> unchanged (renders an empty form)
  *   store()      -> validate (see rules below), create Auction, set status
@@ -28,7 +30,6 @@ use Illuminate\Support\Collection;
  *                   toggle; when it is set true, clear is_highlighted on every
  *                   other auction so only one auction is highlighted at a time
  *   destroy()    -> delete or cancel the auction
- *   cardSearch() -> Card::where('name','like',"%{$q}%")->limit(24)->get(...)
  *
  * TODO(backend): add a migration adding `is_highlighted` (boolean, default
  * false) to the `auctions` table. It flags the single auction featured in the
@@ -79,19 +80,21 @@ class AuctionController extends Controller
             ->with('status', 'Auction removed (stub) — backend wiring pending.');
     }
 
+    /**
+     * Searches the real card catalogue for the card picker. Returns up to 24
+     * matches as JSON; an empty query returns the first cards alphabetically.
+     */
     public function cardSearch(Request $request)
     {
-        $q = strtolower(trim((string) $request->query('q', '')));
-        $cards = $this->sampleCards();
+        $q = trim((string) $request->query('q', ''));
 
-        if ($q !== '') {
-            $cards = array_values(array_filter(
-                $cards,
-                fn ($c) => str_contains(strtolower($c['name']), $q)
-            ));
-        }
+        $cards = Card::query()
+            ->when($q !== '', fn ($query) => $query->where('name', 'like', "%{$q}%"))
+            ->orderBy('name')
+            ->limit(24)
+            ->get(['id', 'name', 'set_name', 'rarity', 'image_small']);
 
-        return response()->json(['data' => array_slice($cards, 0, 24)]);
+        return response()->json(['data' => $cards]);
     }
 
     // ================================================================
@@ -186,31 +189,5 @@ class AuctionController extends Controller
         $auction->setRelation('bids', $bids);
 
         return $auction;
-    }
-
-    private function sampleCards(): array
-    {
-        // Returns plain array maps (NOT Eloquent models) — consumed as JSON by cardSearch().
-        $sets = ['Obsidian Flames', 'Paldea Evolved', '151', 'Paradox Rift'];
-        $rarities = ['Illustration Rare', 'Special Illustration Rare', 'Ultra Rare', 'Double Rare'];
-        $names = [
-            'Charizard ex', 'Pikachu VMAX', 'Mewtwo GX', 'Eevee ex', 'Gardevoir ex',
-            'Gengar VMAX', 'Lugia V', 'Rayquaza VMAX', 'Umbreon ex', 'Snorlax V',
-            'Greninja ex', 'Tyranitar ex', 'Sylveon VMAX', 'Lucario VSTAR', 'Arceus V',
-        ];
-
-        $cards = [];
-        foreach ($names as $idx => $name) {
-            $cards[] = [
-                'id'          => 101 + $idx,
-                'name'        => $name,
-                'number'      => str_pad((string) ($idx + 1), 3, '0', STR_PAD_LEFT),
-                'set_name'    => $sets[$idx % count($sets)],
-                'rarity'      => $rarities[$idx % count($rarities)],
-                'image_small' => 'https://images.pokemontcg.io/sv3/' . (($idx % 9) + 1) . '.png',
-            ];
-        }
-
-        return $cards;
     }
 }
