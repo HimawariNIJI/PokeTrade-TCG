@@ -334,7 +334,7 @@ git commit -m "feat(auctions): add neon arena css utilities"
 
 - [ ] **Step 1: Register the Alpine components**
 
-Replace the entire contents of `resources/js/app.js` with:
+The file currently contains only the import/`Alpine.start()` boilerplate (6 lines). Replace its entire contents with:
 
 ```js
 import './bootstrap';
@@ -871,10 +871,12 @@ Create `resources/views/admin/auctions/edit.blade.php`:
                                 Highlighted
                             </span>
                         @else
+                            {{-- @js() emits a correctly JS- and HTML-attribute-escaped string,
+                                 so usernames containing quotes are handled safely. --}}
                             <button type="button"
                                     @click="pending = {
                                         url: '{{ route('admin.auctions.highlight', $auction) }}',
-                                        label: 'Highlight {{ addslashes($bid->user?->name ?? 'this bidder') }} as the winner?'
+                                        label: @js('Highlight ' . ($bid->user?->name ?? 'this bidder') . ' as the winner?')
                                     }"
                                     class="rounded-full bg-ink-900 px-3 py-1 text-[10px] font-bold text-white hover:bg-ink-700">
                                 Highlight
