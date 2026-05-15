@@ -16,8 +16,9 @@
         $items = [
             ['route' => 'admin.dashboard',  'label' => 'Dashboard',     'icon' => '◇'],
             ['route' => 'admin.cards.index','label' => 'Cards',         'icon' => '◆'],
-            ['route' => 'admin.shop.index', 'label' => 'Shop items',    'icon' => '▣'],
-            ['route' => 'admin.orders.index','label' => 'Orders',       'icon' => '⬢'],
+            ['route' => 'admin.shop.index',     'label' => 'Shop items',    'icon' => '▣'],
+            ['route' => 'admin.auctions.index','label' => 'Auctions',      'icon' => '⚡'],
+            ['route' => 'admin.orders.index',  'label' => 'Orders',         'icon' => '⬢'],
             ['route' => 'admin.users.index','label' => 'Users',         'icon' => '◉'],
         ];
     @endphp

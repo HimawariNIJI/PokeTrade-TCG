@@ -124,6 +124,7 @@
                             <button type="button"
                                     @click="pending = {
                                         url: '{{ route('admin.auctions.highlight', $auction) }}',
+                                        bidId: {{ $bid->id }},
                                         label: @js('Highlight ' . ($bid->user?->name ?? 'this bidder') . ' as the winner?')
                                     }"
                                     class="rounded-full bg-ink-900 px-3 py-1 text-[10px] font-bold text-white hover:bg-ink-700">
@@ -149,6 +150,7 @@
                                 class="rounded-full border border-ink-200 px-5 py-2.5 text-sm font-bold">Cancel</button>
                         <form method="POST" :action="pending?.url">
                             @csrf
+                            <input type="hidden" name="bid_id" :value="pending?.bidId">
                             <button type="submit"
                                     class="rounded-full bg-ink-900 px-6 py-2.5 text-sm font-bold text-white hover:bg-ink-700">
                                 Highlight bidder
