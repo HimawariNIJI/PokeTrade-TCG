@@ -1,6 +1,6 @@
 <x-admin-layout heading="Manage auction" eyebrow="Edit & highlight">
     @php
-        $rankedBids = $auction->bids->sortByDesc('amount')->values();
+        $topBids = $auction->bids->sortByDesc('amount')->values()->take(3);
     @endphp
 
     <div class="grid gap-6 lg:grid-cols-12">
@@ -66,6 +66,21 @@
                 </label>
             </div>
 
+            {{-- Listing highlight toggle --}}
+            <label class="flex items-start gap-3 rounded-2xl border border-prism-pink/30 bg-prism-pink/5 p-4">
+                <input type="checkbox" name="is_highlighted" value="1"
+                       @checked(old('is_highlighted', $auction->is_highlighted))
+                       class="mt-0.5 rounded border-ink-300 text-prism-pink focus:ring-prism-pink">
+                <span>
+                    <span class="text-sm font-bold">⚡ Highlight this auction on the public listing</span>
+                    <span class="mt-0.5 block text-xs text-ink-500">
+                        Features this auction in the hero banner at the top of the /auctions page.
+                        Only one auction is highlighted at a time. Leave this off to let the live
+                        auction with the highest current bid be featured automatically.
+                    </span>
+                </span>
+            </label>
+
             <div class="flex justify-end gap-3 pt-2">
                 <a href="{{ route('admin.auctions.index') }}"
                    class="rounded-full border border-ink-200 px-5 py-2.5 text-sm font-bold">Cancel</a>
@@ -73,91 +88,28 @@
             </div>
         </form>
 
-        {{-- Bid management / highlight panel --}}
-        <aside class="space-y-4 rounded-3xl border border-ink-200 bg-white p-6 lg:col-span-5"
-               x-data="{ pending: null }">
-            <div class="flex items-center justify-between">
-                <h2 class="font-display text-base font-black">Highlighted bid</h2>
-                @php $mode = $auction->highlight_mode ?? 'auto'; @endphp
-                <span class="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest
-                    {{ $mode === 'manual' ? 'bg-prism-violet/15 text-prism-violet' : 'bg-emerald-100 text-emerald-700' }}">
-                    {{ $mode === 'manual' ? 'Manual override' : 'Auto (highest)' }}
-                </span>
-            </div>
+        {{-- Top bidders (read-only) --}}
+        <aside class="space-y-4 rounded-3xl border border-ink-200 bg-white p-6 lg:col-span-5">
+            <h2 class="font-display text-base font-black">Top bidders</h2>
             <p class="text-xs text-ink-500">
-                The highlighted bidder is shown as the winner on the public page. By default the highest bid is highlighted automatically; pick a bid below to override.
+                The three highest bids on this auction. The leading bidder wins when the timer ends.
             </p>
-
-            {{-- Reset to auto --}}
-            @if($mode === 'manual')
-                <form method="POST" action="{{ route('admin.auctions.highlight.reset', $auction) }}">
-                    @csrf
-                    <button type="submit"
-                            onclick="return confirm('Reset the highlight to the highest bid?')"
-                            class="w-full rounded-full border border-ink-200 px-4 py-2 text-xs font-bold hover:bg-ink-50">
-                        ↺ Reset to auto (highest wins)
-                    </button>
-                </form>
-            @endif
-
-            {{-- Bid list --}}
             <div class="space-y-1.5">
-                @forelse($rankedBids as $i => $bid)
-                    @php $isLeader = $bid->user_id === $auction->current_leader_id; @endphp
+                @forelse($topBids as $i => $bid)
                     <div class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm
-                        {{ $isLeader ? 'border border-prism-violet bg-prism-violet/5' : 'bg-ink-50' }}">
+                        {{ $i === 0 ? 'border border-prism-violet bg-prism-violet/5' : 'bg-ink-50' }}">
                         <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white text-[11px] font-black">
-                            {{ $isLeader ? '👑' : $i + 1 }}
+                            {{ $i === 0 ? '👑' : $i + 1 }}
                         </span>
                         <div class="min-w-0">
                             <p class="truncate font-bold">{{ $bid->user?->name ?? 'Anonymous' }}</p>
                             <p class="text-[10px] text-ink-400">{{ $bid->created_at?->diffForHumans() }}</p>
                         </div>
                         <span class="ml-auto font-mono font-bold">@idr($bid->amount)</span>
-                        @if($isLeader)
-                            <span class="rounded-full bg-prism-violet/15 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-prism-violet">
-                                Highlighted
-                            </span>
-                        @else
-                            {{-- @js() emits a correctly JS- and HTML-attribute-escaped string,
-                                 so usernames containing quotes are handled safely. --}}
-                            <button type="button"
-                                    @click="pending = {
-                                        url: '{{ route('admin.auctions.highlight', $auction) }}',
-                                        bidId: {{ $bid->id }},
-                                        label: @js('Highlight ' . ($bid->user?->name ?? 'this bidder') . ' as the winner?')
-                                    }"
-                                    class="rounded-full bg-ink-900 px-3 py-1 text-[10px] font-bold text-white hover:bg-ink-700">
-                                Highlight
-                            </button>
-                        @endif
                     </div>
                 @empty
                     <p class="rounded-xl bg-ink-50 px-3 py-6 text-center text-sm text-ink-500">No bids yet.</p>
                 @endforelse
-            </div>
-
-            {{-- Shared highlight confirmation modal (one modal, action bound at click time) --}}
-            <div x-show="pending" x-cloak
-                 class="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/70 px-4"
-                 @keydown.escape.window="pending = null">
-                <div @click.outside="pending = null" class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
-                    <h3 class="font-display text-lg font-black">Change highlighted bid?</h3>
-                    <p class="mt-2 text-sm text-ink-500" x-text="pending?.label"></p>
-                    <p class="mt-1 text-xs text-ink-400">This switches the highlight to Manual override.</p>
-                    <div class="mt-6 flex justify-end gap-3">
-                        <button type="button" @click="pending = null"
-                                class="rounded-full border border-ink-200 px-5 py-2.5 text-sm font-bold">Cancel</button>
-                        <form method="POST" :action="pending?.url">
-                            @csrf
-                            <input type="hidden" name="bid_id" :value="pending?.bidId">
-                            <button type="submit"
-                                    class="rounded-full bg-ink-900 px-6 py-2.5 text-sm font-bold text-white hover:bg-ink-700">
-                                Highlight bidder
-                            </button>
-                        </form>
-                    </div>
-                </div>
             </div>
         </aside>
     </div>

@@ -15,7 +15,8 @@
                         <th class="px-4 py-3">Card</th>
                         <th class="px-4 py-3">Status</th>
                         <th class="px-4 py-3 text-right">Current bid</th>
-                        <th class="px-4 py-3">Highlighted bidder</th>
+                        <th class="px-4 py-3">Top bidder</th>
+                        <th class="px-4 py-3">Highlighted</th>
                         <th class="px-4 py-3">Ends</th>
                         <th class="px-4 py-3"></th>
                     </tr>
@@ -47,11 +48,15 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-right font-mono">@idr($auction->current_bid)</td>
+                            <td class="px-4 py-3 text-ink-500">{{ $auction->currentLeader?->name ?? '—' }}</td>
                             <td class="px-4 py-3">
-                                <span class="font-semibold">{{ $auction->currentLeader?->name ?? '—' }}</span>
-                                <span class="ml-1 text-[10px] uppercase tracking-wide text-ink-400">
-                                    ({{ $auction->highlight_mode ?? 'auto' }})
-                                </span>
+                                @if($auction->is_highlighted)
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-prism-pink/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-prism-pink">
+                                        ⚡ Featured
+                                    </span>
+                                @else
+                                    <span class="text-xs text-ink-400">—</span>
+                                @endif
                             </td>
                             <td class="px-4 py-3 text-xs text-ink-500">{{ $auction->ends_at?->diffForHumans() }}</td>
                             <td class="px-4 py-3 text-right space-x-3">
