@@ -90,6 +90,26 @@
     animation: pulse-glow 4s ease-in-out infinite;
 }
 
+/* Hide Alpine elements until the component initialises. */
+[x-cloak] { display: none !important; }
+
+/* ============================================================
+   Auction — Neon Arena (public auction detail page)
+   ============================================================ */
+@keyframes bid-counter-glow {
+    0%, 100% { filter: drop-shadow(0 0 6px rgba(106,255,193,.35)); }
+    50%      { filter: drop-shadow(0 0 16px rgba(106,215,255,.7)); }
+}
+
+@utility animate-bid-counter {
+    animation: bid-counter-glow 2.4s ease-in-out infinite;
+}
+
+/* Dark radial backdrop for the auction "arena" panel. */
+@utility arena-surface {
+    background: radial-gradient(120% 90% at 20% 0%, #2a1840 0%, #0d1220 62%);
+}
+
 /* ============================================================
    Brand utilities
    ============================================================ */
