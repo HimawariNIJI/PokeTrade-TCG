@@ -760,7 +760,7 @@ Create `resources/views/admin/auctions/edit.blade.php`:
         <form method="POST" action="{{ route('admin.auctions.update', $auction) }}"
               class="space-y-4 rounded-3xl border border-ink-200 bg-white p-6 lg:col-span-7">
             @csrf
-            @method('PUT')
+            @method('PATCH')
 
             <h2 class="font-display text-base font-black">Auction settings</h2>
 
