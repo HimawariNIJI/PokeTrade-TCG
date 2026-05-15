@@ -18,7 +18,7 @@ This feature **extends the existing auction system**. It does not create a paral
 |---|---|
 | Deliverable scope | Blade views + Alpine.js **plus** stub routes & controller methods returning hardcoded sample data with `// TODO(backend)` markers. Everything renders in a browser immediately. |
 | Existing system | Extend the existing `Auction`/`Bid` models, tables, and public pages. No duplicate data models. |
-| Highlighted bid | Default = highest bid auto-highlighted. Admin can set a specific bid as the highlight. A **sticky override** model: mode is `auto` or `manual`; manual sticks to the chosen bidder even if a higher bid arrives, until the admin clicks "Reset to auto". |
+| Highlighted bid | Default = highest bid auto-highlighted. Admin can set a specific bid as the highlight. A **sticky override** model: mode is `auto` or `manual`; manual sticks to the chosen bidder even if a higher bid arrives, until the admin clicks "Reset to auto". In **both** modes the highlighted bidder is the single value `auctions.current_leader_id`; `highlight_mode` only records *how* that value is chosen. The admin edit panel and the public page both read `current_leader_id` as the source of truth. |
 | Public page style | Direction A — "Neon Arena": loud, gamified, prism neon gradients, pulsing bid counter, top-bidder leaderboard, live bid feed. |
 
 ## 3. Out of Scope (backend dev owns)
@@ -59,10 +59,12 @@ Each unit below has one clear purpose, a defined interface, and can be understoo
 ### 5.1 Routes (`routes/web.php`, inside the existing `auth`+`admin` group)
 
 ```php
-Route::resource('auctions', Admin\AuctionController::class)->except('show');
+// Custom routes MUST be registered BEFORE Route::resource so the literal
+// `cards/search` segment is not captured by the resource `{auction}` param.
 Route::get('auctions/cards/search', [Admin\AuctionController::class, 'cardSearch'])->name('auctions.cards.search');
 Route::post('auctions/{auction}/highlight', [Admin\AuctionController::class, 'highlight'])->name('auctions.highlight');
 Route::post('auctions/{auction}/highlight/reset', [Admin\AuctionController::class, 'resetHighlight'])->name('auctions.highlight.reset');
+Route::resource('auctions', Admin\AuctionController::class)->except('show');
 ```
 
 ### 5.2 Index (`admin/auctions`)
@@ -123,6 +125,7 @@ A Laravel feature test (`tests/Feature/`) that, acting as an admin user:
 
 - GETs `admin/auctions`, `admin/auctions/create`, and `admin/auctions/{id}/edit` and asserts HTTP 200.
 - GETs the public `auctions/{auction}` page and asserts HTTP 200.
+- GETs the stub `admin/auctions/cards/search?q=...` endpoint and asserts a 200 JSON response with the expected card-result shape.
 - Asserts key text/markers are present in each response (e.g. "New Auction", "Choose Card", "Top Bidders").
 
 Because controller logic is stubbed, this test verifies the **views render without Blade errors** against sample data — the meaningful guarantee for a frontend-only deliverable. Manual verification: open each page in a browser and exercise the card picker, confirmation modal, and highlight controls.
