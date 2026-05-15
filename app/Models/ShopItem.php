@@ -29,6 +29,7 @@ class ShopItem extends Model
         'price' => 'decimal:2',
         'featured' => 'boolean',
         'is_active' => 'boolean',
+        'is_deleted' => 'boolean',
     ];
 
     public function getRouteKeyName(): string
