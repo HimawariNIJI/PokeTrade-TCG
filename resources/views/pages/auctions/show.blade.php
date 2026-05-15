@@ -1,85 +1,130 @@
 <x-app-layout>
 
-<section class="mx-auto max-w-[1200px] px-4 py-12 md:px-8 md:py-16">
+<section class="mx-auto max-w-[1200px] px-4 py-10 md:px-8">
     <a href="{{ route('auctions.index') }}" class="text-xs font-semibold text-ink-500 hover:text-ink-900">← Back to auctions</a>
 
-    <div class="mt-6 grid gap-12 lg:grid-cols-12">
-        <div class="lg:col-span-5">
-            <div class="relative">
-                <div class="absolute -inset-4 -z-10 rounded-[2.5rem] prism-bg opacity-40 blur-3xl"></div>
-                <div class="overflow-hidden rounded-3xl bg-white p-3 shadow-2xl">
-                    @if($auction->card?->image_large)
-                        <img src="{{ $auction->card->image_large }}" alt="{{ $auction->card?->name }}" class="rounded-2xl">
+    @php
+        $rankedBids = $auction->bids->sortByDesc('amount')->values();
+        $feedBids   = $auction->bids->sortByDesc('created_at')->take(20);
+    @endphp
+
+    <div
+        x-data="auctionCountdown('{{ $auction->ends_at?->toIso8601String() }}')"
+        class="arena-surface relative mt-5 overflow-hidden rounded-[2rem] border border-prism-violet/40 p-6 text-ink-50 shadow-2xl md:p-10"
+    >
+        {{-- ambient glow blobs --}}
+        <div class="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-prism-pink/30 blur-3xl"></div>
+        <div class="pointer-events-none absolute -bottom-28 -right-20 h-72 w-72 rounded-full bg-prism-sky/20 blur-3xl"></div>
+
+        <div class="relative grid gap-8 lg:grid-cols-12">
+            {{-- Card --}}
+            <div class="lg:col-span-5">
+                <div class="relative">
+                    <div class="absolute -inset-3 -z-10 rounded-3xl prism-bg opacity-60 blur-2xl"></div>
+                    <div class="overflow-hidden rounded-3xl bg-ink-900/60 p-3 ring-1 ring-white/10">
+                        @if($auction->card?->image_large)
+                            <img src="{{ $auction->card->image_large }}" alt="{{ $auction->card?->name }}" class="rounded-2xl">
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            {{-- Bid arena --}}
+            <div class="lg:col-span-7">
+                @if($auction->is_live)
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-prism-mint px-3 py-1 text-[11px] font-black uppercase tracking-widest text-ink-900">
+                        <span class="h-2 w-2 animate-ping rounded-full bg-ink-900"></span> Live Now
+                    </span>
+                @else
+                    <span class="rounded-full bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-widest">{{ $auction->status }}</span>
+                @endif
+
+                <h1 class="mt-3 font-display text-4xl font-black tracking-tight md:text-5xl">{{ $auction->card?->name }}</h1>
+                <p class="mt-1 text-sm text-white/50">Listed by {{ $auction->seller?->name ?? 'PokeTrade' }}</p>
+
+                {{-- Current bid + timer + buy now --}}
+                <div class="mt-6 flex flex-wrap items-end gap-x-10 gap-y-4">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Current Bid</p>
+                        <p class="animate-bid-counter mt-1 bg-gradient-to-r from-prism-mint to-prism-sky bg-clip-text font-display text-5xl font-black text-transparent">
+                            @idr($auction->current_bid)
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Ends In</p>
+                        <p class="mt-1 font-mono text-2xl font-bold text-prism-pink" x-text="display">—</p>
+                    </div>
+                    @if($auction->buy_now_price)
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Buy Now</p>
+                            <p class="mt-1 font-display text-2xl font-bold text-prism-gold">@idr($auction->buy_now_price)</p>
+                        </div>
                     @endif
                 </div>
+
+                {{-- Top bidders leaderboard --}}
+                <div class="mt-7">
+                    <p class="text-xs font-black uppercase tracking-widest text-prism-pink">🔥 Top Bidders</p>
+                    <div class="mt-2 space-y-1.5">
+                        @forelse($rankedBids->take(5) as $i => $bid)
+                            @php $isLeader = $bid->user_id === $auction->current_leader_id; @endphp
+                            <div class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm
+                                {{ $isLeader
+                                    ? 'border border-prism-pink bg-gradient-to-r from-prism-pink/25 to-prism-violet/15 shadow-[0_0_18px_-2px] shadow-prism-pink/50'
+                                    : 'bg-white/5' }}">
+                                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-black
+                                    {{ $i === 0 ? 'bg-gradient-to-br from-prism-gold to-prism-pink text-ink-900' : 'bg-white/10' }}">
+                                    {{ $isLeader ? '👑' : $i + 1 }}
+                                </span>
+                                <span class="font-bold">{{ $bid->user?->name ?? 'Anonymous' }}</span>
+                                @if($isLeader)
+                                    <span class="rounded-full bg-prism-pink/30 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider">Winning</span>
+                                @endif
+                                <span class="ml-auto font-mono font-bold">@idr($bid->amount)</span>
+                            </div>
+                        @empty
+                            <p class="rounded-xl bg-white/5 px-3 py-4 text-center text-sm text-white/50">No bids yet — be the first to strike ⚡</p>
+                        @endforelse
+                    </div>
+                </div>
+
+                {{-- Bid form --}}
+                @auth
+                    <form method="POST" action="{{ route('auctions.bid', $auction) }}" class="mt-6 flex flex-wrap items-end gap-3">
+                        @csrf
+                        <label class="flex-1">
+                            <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Your bid</span>
+                            <input type="number" step="0.01" name="amount" min="{{ $auction->min_next_bid }}"
+                                   placeholder="≥ @idr($auction->min_next_bid)"
+                                   class="mt-1 w-full rounded-full border-white/15 bg-white/10 text-ink-50 placeholder-white/30 focus:border-prism-mint focus:ring-prism-mint">
+                        </label>
+                        <button type="submit"
+                                class="rounded-full bg-gradient-to-r from-prism-pink to-prism-mint px-8 py-3 font-display font-black text-ink-900 shadow-[0_0_24px_-4px] shadow-prism-pink/70 transition hover:-translate-y-0.5">
+                            Place Your Bid ⚡
+                        </button>
+                    </form>
+                @else
+                    <div class="mt-6 rounded-2xl bg-white/5 p-4 text-sm text-white/70">
+                        <a href="{{ route('login') }}" class="font-bold text-prism-mint underline">Log in</a> to join the bidding war.
+                    </div>
+                @endauth
             </div>
         </div>
 
-        <div class="lg:col-span-7">
-            <div class="flex flex-wrap items-center gap-2">
-                @if($auction->is_live)
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-rose-600 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white">
-                        <span class="h-2 w-2 animate-pulse rounded-full bg-white"></span> Live
-                    </span>
-                @else
-                    <span class="rounded-full bg-ink-200 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-ink-700">{{ $auction->status }}</span>
-                @endif
-                <span class="text-xs text-ink-500">Listed by <strong class="text-ink-900">{{ $auction->seller?->name ?? 'PokeTrade' }}</strong></span>
-            </div>
-
-            <h1 class="mt-3 font-display text-5xl font-black tracking-tight">{{ $auction->card?->name }}</h1>
-
-            <div class="mt-6 grid gap-3 rounded-3xl border border-ink-200 bg-white p-6 md:grid-cols-2">
-                <div>
-                    <p class="text-[10px] uppercase tracking-widest text-ink-500">Current bid</p>
-                    <p class="mt-1 font-display text-4xl font-black prism-text">@idr($auction->current_bid)</p>
-                    @if($auction->currentLeader)
-                        <p class="mt-1 text-xs text-ink-500">Leader: {{ $auction->currentLeader->name }}</p>
-                    @endif
-                </div>
-                <div class="md:border-l md:border-ink-200 md:pl-6">
-                    <p class="text-[10px] uppercase tracking-widest text-ink-500">Time remaining</p>
-                    <p class="mt-1 font-display text-2xl font-bold">{{ $auction->ends_at?->diffForHumans() }}</p>
-                    @if($auction->buy_now_price)
-                        <p class="mt-1 text-xs text-ink-500">Buy it now: <strong>@idr($auction->buy_now_price)</strong></p>
-                    @endif
-                </div>
-            </div>
-
-            @auth
-                <form method="POST" action="{{ route('auctions.bid', $auction) }}" class="mt-5 flex flex-wrap items-end gap-3 rounded-3xl border border-ink-200 bg-white p-6">
-                    @csrf
-                    <label class="flex-1">
-                        <span class="text-xs font-bold uppercase tracking-widest text-ink-700">Your bid</span>
-                        <input type="number" step="0.01" name="amount" min="{{ $auction->min_next_bid }}"
-                               class="mt-1.5 w-full rounded-full border-ink-200 focus:border-prism-violet focus:ring-prism-violet"
-                               placeholder="≥ @idr($auction->min_next_bid)">
-                    </label>
-                    <x-prism-button type="submit" size="lg">Place bid</x-prism-button>
-                </form>
-            @else
-                <div class="mt-5 rounded-3xl border border-ink-200 bg-ink-50 p-5 text-sm text-ink-700">
-                    <a href="{{ route('login') }}" class="font-bold underline">Log in</a> to place a bid.
-                </div>
-            @endauth
-
-            <h2 class="mt-10 font-display text-lg font-black">Bid history</h2>
-            <div class="mt-3 max-h-80 overflow-y-auto rounded-2xl border border-ink-200 bg-white">
-                @forelse($auction->bids as $bid)
-                    <div class="flex items-center justify-between border-b border-ink-100 px-5 py-3 last:border-0">
-                        <div class="flex items-center gap-3">
-                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full prism-bg text-xs font-bold text-white">
-                                {{ Str::upper(Str::substr($bid->user?->name ?? '?', 0, 1)) }}
-                            </span>
-                            <div>
-                                <p class="text-sm font-semibold">{{ $bid->user?->name ?? 'Anonymous' }}</p>
-                                <p class="text-xs text-ink-500">{{ $bid->created_at->diffForHumans() }}</p>
-                            </div>
-                        </div>
-                        <span class="font-mono font-bold">@idr($bid->amount)</span>
+        {{-- Live bid feed --}}
+        <div class="relative mt-8 border-t border-white/10 pt-5">
+            <p class="text-xs font-black uppercase tracking-widest text-prism-sky">⚡ Live Bid Feed</p>
+            <div class="mt-2 max-h-56 space-y-1 overflow-y-auto">
+                @forelse($feedBids as $bid)
+                    <div class="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-1.5 text-xs">
+                        <span class="text-prism-mint">⚡</span>
+                        <span class="font-bold">{{ $bid->user?->name ?? 'Anonymous' }}</span>
+                        <span class="text-white/40">bid</span>
+                        <span class="font-mono font-bold text-prism-sky">@idr($bid->amount)</span>
+                        <span class="ml-auto text-white/30">{{ $bid->created_at?->diffForHumans() }}</span>
                     </div>
                 @empty
-                    <p class="px-5 py-8 text-center text-sm text-ink-500">No bids yet — be the first.</p>
+                    <p class="px-3 py-3 text-xs text-white/40">Bids will appear here as they happen.</p>
                 @endforelse
             </div>
         </div>
