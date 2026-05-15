@@ -102,6 +102,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('users',          [Admin\UserController::class, 'index'])->name('users.index');
     Route::get('users/{user}',   [Admin\UserController::class, 'show'])->name('users.show');
     Route::patch('users/{user}/role', [Admin\UserController::class, 'updateRole'])->name('users.updateRole');
+
+        // Auctions — admin bidding console.
+        // Custom/literal routes registered BEFORE the {auction} routes so the
+        // literal `create` and `cards/search` segments are not shadowed.
+        Route::get('auctions', [Admin\AuctionController::class, 'index'])->name('auctions.index');
+        Route::get('auctions/create', [Admin\AuctionController::class, 'create'])->name('auctions.create');
+        Route::post('auctions', [Admin\AuctionController::class, 'store'])->name('auctions.store');
+        Route::get('auctions/cards/search', [Admin\AuctionController::class, 'cardSearch'])->name('auctions.cards.search');
+        Route::get('auctions/{auction}/edit', [Admin\AuctionController::class, 'edit'])->name('auctions.edit');
+        Route::put('auctions/{auction}', [Admin\AuctionController::class, 'update'])->name('auctions.update');
+        Route::delete('auctions/{auction}', [Admin\AuctionController::class, 'destroy'])->name('auctions.destroy');
+        Route::post('auctions/{auction}/highlight', [Admin\AuctionController::class, 'highlight'])->name('auctions.highlight');
+        Route::post('auctions/{auction}/highlight/reset', [Admin\AuctionController::class, 'resetHighlight'])->name('auctions.highlight.reset');
 });
 
 require __DIR__.'/auth.php';
