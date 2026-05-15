@@ -33,11 +33,12 @@ test('admin auction create page renders with the card picker', function () {
         ->assertSee('Publish auction');
 });
 
-test('admin auction edit page renders the bid highlight panel', function () {
+test('admin auction edit page renders the highlight toggle', function () {
     $this->actingAs(adminUser())
         ->get('/admin/auctions/1/edit')
         ->assertOk()
-        ->assertSee('Highlighted bid')
+        ->assertSee('Highlight this auction')
+        ->assertSee('Top bidders')
         ->assertSee('Save changes');
 });
 
@@ -87,4 +88,33 @@ test('public auction page renders the neon arena', function () {
         ->assertSee('Top Bidders')
         ->assertSee('Live Bid Feed')
         ->assertSee('ashketchum_id');
+});
+
+test('public auctions listing shows the highlighted hero', function () {
+    $seller = User::factory()->create();
+
+    $card = Card::create([
+        'api_id'      => 'test-hero-001',
+        'name'        => 'Mewtwo ex',
+        'slug'        => 'mewtwo-ex-hero-test',
+        'supertype'   => 'Pokémon',
+        'image_small' => 'https://images.pokemontcg.io/sv3/10.png',
+        'image_large' => 'https://images.pokemontcg.io/sv3/10_hires.png',
+    ]);
+
+    Auction::create([
+        'card_id'       => $card->id,
+        'seller_id'     => $seller->id,
+        'starting_bid'  => 250000,
+        'current_bid'   => 1750000,
+        'bid_increment' => 25000,
+        'starts_at'     => now()->subHour(),
+        'ends_at'       => now()->addHours(3),
+        'status'        => 'live',
+    ]);
+
+    $this->get('/auctions')
+        ->assertOk()
+        ->assertSee('Hottest Auction')
+        ->assertSee('Mewtwo ex');
 });
