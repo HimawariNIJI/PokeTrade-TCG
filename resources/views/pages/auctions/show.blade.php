@@ -66,7 +66,7 @@
                 <div class="mt-7">
                     <p class="text-xs font-black uppercase tracking-widest text-prism-pink">🔥 Top Bidders</p>
                     <div class="mt-2 space-y-1.5">
-                        @forelse($rankedBids->take(5) as $i => $bid)
+                        @forelse($rankedBids->take(3) as $i => $bid)
                             @php $isLeader = $bid->user_id === $auction->current_leader_id; @endphp
                             <div class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm
                                 {{ $isLeader

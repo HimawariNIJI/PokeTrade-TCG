@@ -17,12 +17,72 @@
     </div>
 </section>
 
+@php
+    // TODO(backend): the hero auction should be chosen across ALL live auctions
+    // (the controller paginates $live). Prefer the auction flagged
+    // is_highlighted = true; otherwise the live auction with the highest
+    // current_bid. Ideally the controller passes an explicit $highlighted.
+    $heroAuction = $live->getCollection()->firstWhere('is_highlighted', true)
+        ?? $live->getCollection()->sortByDesc('current_bid')->first();
+    $gridLive = $live->getCollection()
+        ->reject(fn ($a) => $heroAuction && $a->is($heroAuction))
+        ->values();
+@endphp
+
+@if($heroAuction)
+    <section class="mx-auto max-w-[1400px] px-4 pt-12 md:px-8">
+        <a href="{{ route('auctions.show', $heroAuction) }}"
+           x-data="auctionCountdown('{{ $heroAuction->ends_at?->toIso8601String() }}')"
+           class="arena-surface group relative block overflow-hidden rounded-[2rem] border border-prism-violet/40 p-6 text-ink-50 shadow-2xl transition hover:border-prism-pink md:p-10">
+            <div class="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-prism-pink/30 blur-3xl"></div>
+            <div class="pointer-events-none absolute -bottom-28 -right-20 h-72 w-72 rounded-full bg-prism-sky/20 blur-3xl"></div>
+
+            <div class="relative grid items-center gap-8 lg:grid-cols-12">
+                <div class="lg:col-span-4">
+                    <div class="relative">
+                        <div class="absolute -inset-3 -z-10 rounded-3xl prism-bg opacity-60 blur-2xl"></div>
+                        <div class="overflow-hidden rounded-3xl bg-ink-900/60 p-3 ring-1 ring-white/10">
+                            @if($heroAuction->card?->image_large || $heroAuction->card?->image_small)
+                                <img src="{{ $heroAuction->card?->image_large ?? $heroAuction->card?->image_small }}"
+                                     alt="{{ $heroAuction->card?->name }}" class="rounded-2xl">
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-8">
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-prism-pink px-3 py-1 text-[11px] font-black uppercase tracking-widest text-ink-900">
+                        🔥 Hottest Auction
+                    </span>
+                    <h2 class="mt-3 font-display text-4xl font-black tracking-tight text-white md:text-5xl">
+                        {{ $heroAuction->card?->name }}
+                    </h2>
+                    <div class="mt-5 flex flex-wrap items-end gap-x-10 gap-y-4">
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Current Bid</p>
+                            <p class="animate-bid-counter mt-1 bg-gradient-to-r from-prism-mint to-prism-sky bg-clip-text font-display text-5xl font-black text-transparent">
+                                @idr($heroAuction->current_bid)
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Ends In</p>
+                            <p class="mt-1 font-mono text-2xl font-bold text-prism-pink" x-text="display">—</p>
+                        </div>
+                    </div>
+                    <span class="mt-6 inline-flex rounded-full bg-gradient-to-r from-prism-pink to-prism-mint px-8 py-3 font-display font-black text-ink-900 shadow-[0_0_24px_-4px] shadow-prism-pink/70 transition group-hover:-translate-y-0.5">
+                        Bid on this card ⚡
+                    </span>
+                </div>
+            </div>
+        </a>
+    </section>
+@endif
+
 <section class="mx-auto max-w-[1400px] px-4 py-12 md:px-8">
     <h2 class="mb-6 font-display text-2xl font-black">🔥 Live auctions</h2>
 
-    @if($live->isNotEmpty())
+    @if($gridLive->isNotEmpty())
         <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            @foreach($live as $a)
+            @foreach($gridLive as $a)
                 <a href="{{ route('auctions.show', $a) }}" class="group relative block">
                     <div class="prism-halo-glow"></div>
                     <div class="relative overflow-hidden rounded-3xl border border-ink-200 bg-white transition hover:-translate-y-1 hover:border-prism-violet hover:shadow-xl duration-400 ease-[cubic-bezier(.22,1,.36,1)]">
