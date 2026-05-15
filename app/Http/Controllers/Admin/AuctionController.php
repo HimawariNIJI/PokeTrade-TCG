@@ -20,18 +20,21 @@ use Illuminate\Support\Collection;
  * there are no DB records.
  *
  * TODO(backend): replace each method body:
- *   index()          -> Auction::with('card','currentLeader')->latest()->paginate()
- *   create()         -> unchanged (renders an empty form)
- *   store()          -> validate (see rules below), create Auction, set status
- *   edit()           -> type-hint `Auction $auction`; load bids.user
- *   update()         -> validate + persist edits
- *   destroy()        -> delete or cancel the auction
- *   cardSearch()     -> Card::where('name','like',"%{$q}%")->limit(24)->get(...)
- *   highlight()      -> set current_leader_id = chosen bid's user; highlight_mode='manual'
- *   resetHighlight() -> highlight_mode='auto'; current_leader_id = highest bid's user
+ *   index()      -> Auction::with('card','currentLeader')->latest()->paginate()
+ *   create()     -> unchanged (renders an empty form)
+ *   store()      -> validate (see rules below), create Auction, set status
+ *   edit()       -> type-hint `Auction $auction`; load bids.user
+ *   update()     -> validate + persist edits, INCLUDING the is_highlighted
+ *                   toggle; when it is set true, clear is_highlighted on every
+ *                   other auction so only one auction is highlighted at a time
+ *   destroy()    -> delete or cancel the auction
+ *   cardSearch() -> Card::where('name','like',"%{$q}%")->limit(24)->get(...)
  *
- * TODO(backend): add a migration adding `highlight_mode` (string, default
- * 'auto') to the `auctions` table. The admin views read $auction->highlight_mode.
+ * TODO(backend): add a migration adding `is_highlighted` (boolean, default
+ * false) to the `auctions` table. It flags the single auction featured in the
+ * hero banner on the public /auctions listing. When no auction has
+ * is_highlighted = true, the listing falls back to the live auction with the
+ * highest current_bid.
  *
  * TODO(backend): suggested validation rules for store()/update():
  *   'card_id'       => 'required|exists:cards,id'
@@ -91,17 +94,6 @@ class AuctionController extends Controller
         return response()->json(['data' => array_slice($cards, 0, 24)]);
     }
 
-    public function highlight(Request $request, $auction)
-    {
-        // TODO(backend): read the chosen bid via $request->input('bid_id').
-        return back()->with('status', 'Highlighted bidder updated (stub) — backend wiring pending.');
-    }
-
-    public function resetHighlight(Request $request, $auction)
-    {
-        return back()->with('status', 'Highlight reset to auto (stub) — backend wiring pending.');
-    }
-
     // ================================================================
     // Sample data — TODO(backend): delete this entire section.
     // ================================================================
@@ -137,9 +129,9 @@ class AuctionController extends Controller
         ]);
         $auction->id                = $id;
         $auction->current_leader_id = 901;
-        // highlight_mode is not a real column yet (see TODO above); setting it
+        // is_highlighted is not a real column yet (see TODO above); setting it
         // directly on the in-memory model makes it readable in the views.
-        $auction->highlight_mode = $id === 1 ? 'manual' : 'auto';
+        $auction->is_highlighted = ($id === 1);
         $auction->setRelation('card', $card);
 
         $leader = (new User(['name' => 'ashketchum_id']));

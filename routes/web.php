@@ -113,8 +113,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('auctions/{auction}/edit', [Admin\AuctionController::class, 'edit'])->name('auctions.edit');
     Route::patch('auctions/{auction}', [Admin\AuctionController::class, 'update'])->name('auctions.update');
     Route::delete('auctions/{auction}', [Admin\AuctionController::class, 'destroy'])->name('auctions.destroy');
-    Route::post('auctions/{auction}/highlight', [Admin\AuctionController::class, 'highlight'])->name('auctions.highlight');
-    Route::post('auctions/{auction}/highlight/reset', [Admin\AuctionController::class, 'resetHighlight'])->name('auctions.highlight.reset');
 });
 
 require __DIR__.'/auth.php';
