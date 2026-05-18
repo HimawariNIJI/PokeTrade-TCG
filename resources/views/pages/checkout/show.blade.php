@@ -91,8 +91,11 @@
                                 @php $it = $line->itemable; @endphp
                                 <li class="flex items-center gap-3 py-3">
                                     <span class="inline-flex h-12 w-10 shrink-0 overflow-hidden rounded-md bg-ink-100">
-                                        @if ($it instanceof \App\Models\Card && $it->image_small)
-                                            <img src="{{ $it->image_small }}" alt=""
+                                        @if ($it instanceof \App\Models\Card && $it->image)
+                                            <img src="{{ $it->image }}" alt=""
+                                                class="h-full w-full object-cover">
+                                        @elseif($it instanceof \App\Models\ShopItem && $it->image)
+                                            <img src="{{ $it->image }}" alt=""
                                                 class="h-full w-full object-cover">
                                         @endif
                                     </span>

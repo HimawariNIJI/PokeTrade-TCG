@@ -58,14 +58,13 @@ class CheckoutController extends Controller
             $shippingFee = 25000;
             $tax = $subtotal * 0.1;
             $total = $subtotal + $shippingFee + $tax;
+            
+            // Generate unique order code (timestamp + random string)
+            $orderCode = 'PT-' . date('YmdHis') . '-' . strtoupper(Str::random(6));
+            
             // Create order
             $order = Order::create([
-                'code' => 'PT-' . date('Y') . '-' . str_pad(
-                    (Order::count() + 1),
-                    6,
-                    '0',
-                    STR_PAD_LEFT
-                ),
+                'code' => $orderCode,
 
                 'user_id' => $request->user()->id,
 
