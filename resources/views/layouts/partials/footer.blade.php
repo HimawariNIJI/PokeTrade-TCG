@@ -7,17 +7,18 @@
             <div class="md:col-span-4">
                 <x-brand-mark size="lg" :tagline="true" />
                 <p class="mt-4 max-w-sm text-sm leading-relaxed text-ink-500">
-                    A modern marketplace for the Pokémon TCG <em>Scarlet &amp; Violet — Prismatic Evolutions</em> expansion. Buy, sell, auction, and trade illustration rares and Eevee's whole shimmering family.
+                    The card tracker for the Pokémon TCG <em>Scarlet &amp; Violet — Prismatic Evolutions</em> expansion. Track market prices, pull digital gacha, bid on real cards, and hang out in the community.
                 </p>
             </div>
 
             <div class="md:col-span-2">
-                <h4 class="font-display text-sm font-bold uppercase tracking-widest text-ink-900">Shop</h4>
+                <h4 class="font-display text-sm font-bold uppercase tracking-widest text-ink-900">Explore</h4>
                 <ul class="mt-3 space-y-2 text-sm text-ink-500">
                     <li><a href="{{ route('cards.index') }}" class="hover:text-ink-900">Cards</a></li>
-                    <li><a href="{{ route('shop.index') }}" class="hover:text-ink-900">Merch</a></li>
                     <li><a href="{{ route('auctions.index') }}" class="hover:text-ink-900">Auctions</a></li>
-                    <li><a href="{{ route('packs.index') }}" class="hover:text-ink-900">Open Pack</a></li>
+                    <li><a href="{{ route('gacha.index') }}" class="hover:text-ink-900">Gacha</a></li>
+                    <li><a href="{{ route('forums.index') }}" class="hover:text-ink-900">Forums</a></li>
+                    <li><a href="{{ route('shop.index') }}" class="hover:text-ink-900">Merch</a></li>
                 </ul>
             </div>
 
@@ -25,10 +26,11 @@
                 <h4 class="font-display text-sm font-bold uppercase tracking-widest text-ink-900">Account</h4>
                 <ul class="mt-3 space-y-2 text-sm text-ink-500">
                     @auth
+                        <li><a href="{{ route('profiles.show', auth()->user()) }}" class="hover:text-ink-900">My Profile</a></li>
+                        <li><a href="{{ route('collection.index') }}" class="hover:text-ink-900">My Collection</a></li>
+                        <li><a href="{{ route('wishlist.index') }}" class="hover:text-ink-900">Chase Cards</a></li>
                         <li><a href="{{ route('orders.index') }}"  class="hover:text-ink-900">Orders</a></li>
-                        <li><a href="{{ route('wishlist.index') }}" class="hover:text-ink-900">Wishlist</a></li>
-                        <li><a href="{{ route('trades.index') }}"   class="hover:text-ink-900">Trades</a></li>
-                        <li><a href="{{ route('profile.edit') }}"   class="hover:text-ink-900">Profile</a></li>
+                        <li><a href="{{ route('settings.edit') }}" class="hover:text-ink-900">Settings</a></li>
                     @else
                         <li><a href="{{ route('login') }}"    class="hover:text-ink-900">Log in</a></li>
                         <li><a href="{{ route('register') }}" class="hover:text-ink-900">Sign up</a></li>

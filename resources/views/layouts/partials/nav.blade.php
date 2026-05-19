@@ -2,9 +2,10 @@
     $navLinks = [
         ['route' => 'home',           'label' => 'Home'],
         ['route' => 'cards.index',    'label' => 'Cards'],
-        ['route' => 'shop.index',     'label' => 'Merch'],
         ['route' => 'auctions.index', 'label' => 'Auctions'],
-        ['route' => 'packs.index',    'label' => 'Open Pack'],
+        ['route' => 'gacha.index',    'label' => 'Gacha'],
+        ['route' => 'forums.index',   'label' => 'Forums'],
+        ['route' => 'shop.index',     'label' => 'Merch'],
         ['route' => 'about',          'label' => 'About'],
     ];
 @endphp
@@ -55,7 +56,7 @@
                 {{-- Wishlist --}}
                 <a href="{{ route('wishlist.index') }}"
                    class="hidden h-10 w-10 items-center justify-center rounded-full border border-ink-200 text-ink-700 transition hover:border-prism-violet hover:text-prism-violet md:inline-flex"
-                   title="Wishlist">
+                   title="Chase cards">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5A4.69 4.69 0 0 0 12 6.073a4.69 4.69 0 0 0-4.313-2.323C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/>
                     </svg>
@@ -98,10 +99,11 @@
                             <p class="text-xs text-ink-500">Signed in as</p>
                             <p class="truncate text-sm font-semibold text-ink-900">{{ auth()->user()->email }}</p>
                         </div>
+                        <a href="{{ route('profiles.show', auth()->user()) }}" class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">My Profile</a>
+                        <a href="{{ route('collection.index') }}" class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">My Collection</a>
+                        <a href="{{ route('wishlist.index') }}" class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">Chase Cards</a>
                         <a href="{{ route('orders.index') }}"  class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">My Orders</a>
-                        <a href="{{ route('wishlist.index') }}" class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">Wishlist</a>
-                        <a href="{{ route('trades.index') }}"   class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">My Trades</a>
-                        <a href="{{ route('profile.edit') }}"   class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">Profile</a>
+                        <a href="{{ route('settings.edit') }}" class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">Settings</a>
                         @if(auth()->user()->isAdmin())
                             <a href="{{ route('admin.dashboard') }}" class="block bg-ink-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-ink-700">
                                 Admin Console →
