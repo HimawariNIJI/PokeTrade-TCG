@@ -22,6 +22,18 @@ class WishlistController extends Controller
      */
     public function toggle(Request $request, Card $card)
     {
-        return back()->with('status', 'Wishlist updated (stub).');
+        $user = $request->user();
+
+        $exists = $user->wishlistedCards()
+        ->where('card_id', $card->id)
+        ->exists();
+
+        if($exists) {
+            $user->wishlistedCards()->detach($card->id);
+            return back()->with('status', 'Removed from wishlist');
+        }
+
+        $user->wishlistedCards()->attach($card->id);
+        return back()->with('status', 'Wishlist updated');
     }
 }

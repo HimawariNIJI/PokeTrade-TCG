@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Auction;
 use Illuminate\Http\Request;
+use App\Notifications\WishlistAuctionNotification;
 
 class AuctionController extends Controller
 {
