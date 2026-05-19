@@ -39,6 +39,7 @@ class DatabaseSeeder extends Seeder
             OrderSeeder::class,
             OrderItemSeeder::class,
             AuctionSeeder::class,
+            CommunitySeeder::class,
         ]);
     }
 }

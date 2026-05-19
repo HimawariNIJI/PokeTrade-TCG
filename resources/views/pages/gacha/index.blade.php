@@ -1,5 +1,10 @@
 <x-app-layout>
 
+{{-- =====================================================
+     GACHA HERO — pull a digital pack, cards land in your
+     collection. These are DIGITAL collectibles, not the
+     real cards tracked / auctioned elsewhere on the site.
+     ===================================================== --}}
 <section class="relative overflow-hidden">
     <div class="absolute inset-0 -z-10 bg-gradient-to-b from-ink-900 via-prism-violet/20 to-ink-900"></div>
     <div class="absolute inset-0 -z-10 halftone opacity-10"></div>
@@ -8,13 +13,16 @@
         <div class="lg:col-span-6">
             <span class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur">
                 <span class="h-2 w-2 rounded-full bg-prism-gold"></span>
-                Pack opening
+                Digital gacha
             </span>
             <h1 class="mt-4 font-display text-5xl font-black leading-[0.95] text-white md:text-7xl">
-                Open a <span class="prism-text">5-card</span><br/>card pack.
+                Pull a <span class="prism-text">5-card</span><br/>digital pack.
             </h1>
             <p class="mt-5 max-w-lg text-white/70">
-                Tap to open. Each pack guarantees 5 random Prismatic Evolutions cards — higher rarities drop less often, so chase the Special Illustration Rare Eevee ex.
+                Tap to pull. Every pull drops 5 random Prismatic Evolutions cards straight into
+                <strong class="text-white">your digital collection</strong> — higher rarities drop
+                less often, so chase the Special Illustration Rare Eevee ex. These are digital
+                collectibles for your binder, not physical cards.
             </p>
 
             <ul class="mt-8 grid grid-cols-2 gap-3 text-sm">
@@ -33,17 +41,27 @@
                 @endforeach
             </ul>
 
-            <form method="POST" action="{{ route('packs.open') }}" class="mt-10">
-                @csrf
-                <button type="submit" class="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full px-10 py-5 text-base font-bold text-white shadow-2xl transition hover:scale-[1.02]">
-                    <span class="absolute inset-0 prism-bg"></span>
-                    <span class="relative font-display text-lg font-black uppercase tracking-widest">Open pack — @idr(49000)</span>
-                </button>
-                <p class="mt-3 text-xs text-white/60">Sandbox payment. No real charges.</p>
-            </form>
+            @auth
+                <form method="POST" action="{{ route('gacha.pull') }}" class="mt-10">
+                    @csrf
+                    <button type="submit" class="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full px-10 py-5 text-base font-bold text-white shadow-2xl transition hover:scale-[1.02]">
+                        <span class="absolute inset-0 prism-bg"></span>
+                        <span class="relative font-display text-lg font-black uppercase tracking-widest">Pull a pack</span>
+                    </button>
+                    <p class="mt-3 text-xs text-white/60">
+                        Free to pull · cards are added to your collection ·
+                        <a href="{{ route('collection.index') }}" class="font-bold text-white underline-offset-4 hover:underline">View my collection →</a>
+                    </p>
+                </form>
+            @else
+                <div class="mt-10">
+                    <x-prism-button :href="route('login')" size="lg">Log in to pull a pack</x-prism-button>
+                    <p class="mt-3 text-xs text-white/60">Sign in so your pulled cards can be saved to a collection.</p>
+                </div>
+            @endauth
         </div>
 
-        {{-- Preview booster cards — fanned out, click any one to flip --}}
+        {{-- Preview cards — fanned out, holographic float --}}
         <div class="relative lg:col-span-6">
             <div class="relative mx-auto h-[420px] w-full max-w-md md:h-[500px]">
                 @php $previewCards = $preview->take(3); @endphp

@@ -8,7 +8,10 @@ use Illuminate\Http\Request;
 class CardController extends Controller
 {
     /**
-     * Catalog page — search, filter by type/supertype/rarity, paginate.
+     * Price tracker — browse every Standard-legal Prismatic Evolutions
+     * card and track its market value. Search, filter by
+     * type/supertype/rarity/set/regulation, sort, paginate. Cards are
+     * not sold here; this is a value-tracking catalogue.
      */
     public function index(Request $request)
     {

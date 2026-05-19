@@ -82,78 +82,57 @@
                     @endif
                 </div>
 
-                {{-- Price card --}}
+                {{-- Market value panel — this is a price tracker, the
+                     card itself is not for sale here. --}}
                 <div class="mt-8 grid gap-4 rounded-3xl border border-ink-200 bg-white p-6 md:grid-cols-2">
                     <div>
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-ink-500">Our price</p>
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-ink-500">Tracked market value</p>
                         <p class="mt-1 font-display text-4xl font-black text-ink-900">
-                            @idr($card->display_price)
+                            {{ $card->market_price ? 'Rp ' . number_format((float) $card->market_price, 0, ',', '.') : '—' }}
                         </p>
-                        @if($card->market_price && $card->price > 0 && $card->market_price > 0)
-                            @php $diff = $card->price - $card->market_price; @endphp
-                            <p class="mt-1 text-xs {{ $diff > 0 ? 'text-rose-600' : 'text-emerald-600' }}">
-                                {{ $diff > 0 ? '↑' : '↓' }} @idr(abs($diff)) vs. market
-                            </p>
-                        @endif
+                        <p class="mt-1 text-xs text-ink-500">Latest market value from TCGplayer data.</p>
                     </div>
 
                     <div class="md:border-l md:border-ink-200 md:pl-6">
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-ink-500">Market value (TCGplayer)</p>
-                        <p class="mt-1 font-display text-2xl font-bold text-ink-700">
-                            {{ $card->market_price ? 'Rp ' . number_format((float) $card->market_price, 0, ',', '.') : '—' }}
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-ink-500">Card details</p>
+                        <p class="mt-1 text-sm text-ink-700">
+                            {{ $card->set_name }}
                         </p>
                         <p class="mt-1 text-xs text-ink-500">
-                            Stock:
-                            @if($card->stock > 0)
-                                <span class="font-bold text-emerald-700">{{ $card->stock }} available</span>
-                            @else
-                                <span class="font-bold text-rose-600">Sold out</span>
-                            @endif
+                            {{ $card->rarity ?? 'Common' }} · #{{ $card->number }}
                         </p>
                     </div>
                 </div>
 
-                {{-- Action buttons --}}
+                {{-- Action buttons — add the card to your chase list to
+                     keep tracking its market value. --}}
                 <div class="mt-6 flex flex-wrap gap-3">
-                    <form method="POST" action="{{ route('cart.add') }}">
-                        @csrf
-                        <input type="hidden" name="item_type" value="card">
-                        <input type="hidden" name="item_id" value="{{ $card->id }}">
-                        <input type="hidden" name="quantity" value="1">
-                        <x-prism-button type="submit" size="lg" :disabled="$card->stock <= 0">
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/>
-                            </svg>
-                            {{ $card->stock > 0 ? 'Add to cart' : 'Sold out' }}
-                        </x-prism-button>
-                    </form>
                     @auth
                         <form method="POST" action="{{ route('wishlist.toggle', $card) }}">
-                    @csrf
-                    @php
-                    $isWishlisted = auth()->check() && auth()->user()->wishlistedCards->contains($card->id);
-                    @endphp
-                <x-prism-button
-                type="submit"
-                variant="{{ $isWishlisted ? 'solid' : 'ghost' }}"
-                size="lg"
-                class="{{ $isWishlisted ? 'bg-rose-500 text-white border-rose-500 hover:bg-rose-600' : '' }}"
-                >
-            <svg class="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="{{ $isWishlisted ? 'currentColor' : 'none' }}"
-                stroke="currentColor"
-                stroke-width="1.8">
-            <path stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5A4.69 4.69 0 0 0 12 6.073a4.69 4.69 0 0 0-4.313-2.323C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/>
-            </svg>
-
-                {{ $isWishlisted ? 'Wishlisted' : 'Wishlist' }}
-            </x-prism-button>
-        </form>
+                            @csrf
+                            @php
+                                $isChased = auth()->check() && auth()->user()->wishlistedCards->contains($card->id);
+                            @endphp
+                            <x-prism-button
+                                type="submit"
+                                variant="{{ $isChased ? 'solid' : 'ghost' }}"
+                                size="lg"
+                                class="{{ $isChased ? 'bg-rose-500 text-white border-rose-500 hover:bg-rose-600' : '' }}"
+                            >
+                                <svg class="h-5 w-5"
+                                     viewBox="0 0 24 24"
+                                     fill="{{ $isChased ? 'currentColor' : 'none' }}"
+                                     stroke="currentColor"
+                                     stroke-width="1.8">
+                                    <path stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5A4.69 4.69 0 0 0 12 6.073a4.69 4.69 0 0 0-4.313-2.323C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/>
+                                </svg>
+                                {{ $isChased ? 'Chasing this card' : 'Add to chase list' }}
+                            </x-prism-button>
+                        </form>
                     @else
-                        <x-prism-button :href="route('login')" variant="ghost" size="lg">Log in to wishlist</x-prism-button>
+                        <x-prism-button :href="route('login')" variant="ghost" size="lg">Log in to chase this card</x-prism-button>
                     @endauth
                 </div>
 

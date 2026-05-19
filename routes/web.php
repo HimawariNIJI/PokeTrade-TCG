@@ -4,12 +4,14 @@ use App\Http\Controllers\AuctionController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\PackController;
+use App\Http\Controllers\ForumController;
+use App\Http\Controllers\GachaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicProfileController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ShopController;
-use App\Http\Controllers\TradeController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin;
 use Illuminate\Support\Facades\Route;
@@ -22,16 +24,28 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 
+// Card price tracker — browse the catalogue + market value, no buying.
 Route::get('/cards', [CardController::class, 'index'])->name('cards.index');
 Route::get('/cards/{card:slug}', [CardController::class, 'show'])->name('cards.show');
 
+// Official merch store.
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/shop/{shopItem:slug}', [ShopController::class, 'show'])->name('shop.show');
 
+// Auctions for real, physical cards.
 Route::get('/auctions', [AuctionController::class, 'index'])->name('auctions.index');
 Route::get('/auctions/{auction}', [AuctionController::class, 'show'])->name('auctions.show');
 
-Route::get('/packs', [PackController::class, 'index'])->name('packs.index');
+// Digital gacha — pull packs, collect digital cards.
+Route::get('/gacha', [GachaController::class, 'index'])->name('gacha.index');
+
+// Community forums.
+Route::get('/forums', [ForumController::class, 'index'])->name('forums.index');
+Route::get('/forums/c/{category:slug}', [ForumController::class, 'category'])->name('forums.category');
+Route::get('/forums/t/{thread}', [ForumController::class, 'thread'])->name('forums.thread');
+
+// Public trainer profiles.
+Route::get('/u/{user}', [PublicProfileController::class, 'show'])->name('profiles.show');
 
 /*
 |--------------------------------------------------------------------------
@@ -41,12 +55,16 @@ Route::get('/packs', [PackController::class, 'index'])->name('packs.index');
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', fn () => redirect()->route('home'))->name('dashboard');
 
-    // Profile
+    // Account profile (name / email / password / delete)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Cart
+    // Trainer settings — public profile: bio, socials, visibility toggles.
+    Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
+    Route::patch('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+    // Cart (merch only)
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
     Route::patch('/cart/items', [CartController::class, 'update'])->name('cart.update');
@@ -63,22 +81,24 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order:code}', [OrderController::class, 'show'])->name('orders.show');
 
-    // Wishlist
+    // Chase cards (wishlist) — cards a trainer is hunting for.
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/{card:slug}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
 
     // Auctions — bidding requires auth
     Route::post('/auctions/{auction}/bid', [AuctionController::class, 'bid'])->name('auctions.bid');
 
-    // Trades
-    Route::get('/trades', [TradeController::class, 'index'])->name('trades.index');
-    Route::get('/trades/create', [TradeController::class, 'create'])->name('trades.create');
-    Route::post('/trades', [TradeController::class, 'store'])->name('trades.store');
-    Route::get('/trades/{trade}', [TradeController::class, 'show'])->name('trades.show');
-    Route::post('/trades/{trade}/respond', [TradeController::class, 'respond'])->name('trades.respond');
+    // Gacha — pull a pack + view your digital collection.
+    Route::post('/gacha/pull', [GachaController::class, 'pull'])->name('gacha.pull');
+    Route::get('/collection', [GachaController::class, 'collection'])->name('collection.index');
 
-    // Pack opening
-    Route::post('/packs/open', [PackController::class, 'open'])->name('packs.open');
+    // Forums — creating threads + replying.
+    Route::get('/forums/new', [ForumController::class, 'create'])->name('forums.create');
+    Route::post('/forums', [ForumController::class, 'store'])->name('forums.store');
+    Route::post('/forums/t/{thread}/reply', [ForumController::class, 'reply'])->name('forums.reply');
+
+    // Profile comment wall.
+    Route::post('/u/{user}/comments', [PublicProfileController::class, 'comment'])->name('profiles.comment');
 });
 
 /*

@@ -6,8 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#ffffff">
 
-    <title>{{ $title ?? config('app.name', 'PokeTrade') }} — Prismatic Evolutions Marketplace</title>
-    <meta name="description" content="Buy, sell, auction, and trade Pokémon TCG: Scarlet & Violet — Prismatic Evolutions cards. Eevee evolutions, illustration rares, pack openings, and more.">
+    <title>{{ $title ?? config('app.name', 'PokeTrade') }} — Prismatic Evolutions Price Tracker</title>
+    <meta name="description" content="Track Pokémon TCG: Scarlet & Violet — Prismatic Evolutions card prices. Live market values, official merch, real-card auctions, a digital gacha, and a trainer community.">
 
     {{-- Google Fonts: Outfit (display) + Inter (body) --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">

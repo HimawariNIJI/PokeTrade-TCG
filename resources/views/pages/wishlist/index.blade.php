@@ -4,21 +4,21 @@
     <div class="mb-10 flex flex-wrap items-end justify-between gap-6">
         <div>
             <span class="inline-flex items-center gap-2 rounded-full border border-ink-200 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink-700">
-                Saved for later
+                Cards you're chasing
             </span>
             <h1 class="mt-3 font-display text-4xl font-black tracking-tight md:text-5xl">
-                My <span class="prism-text">wishlist</span>.
+                My <span class="prism-text">chase cards</span>.
             </h1>
-            <p class="mt-2 text-sm text-ink-700">{{ $cards->total() }} card{{ $cards->total() === 1 ? '' : 's' }} saved.</p>
+            <p class="mt-2 text-sm text-ink-700">{{ $cards->total() }} card{{ $cards->total() === 1 ? '' : 's' }} on your chase list.</p>
         </div>
     </div>
 
     @if($cards->isEmpty())
         <x-empty-state
             icon="❤"
-            title="No cards saved yet"
-            message="Tap the heart on any card detail page to add it to your wishlist.">
-            <x-prism-button :href="route('cards.index')" size="md">Browse cards</x-prism-button>
+            title="No chase cards yet"
+            message="Tap the heart on any card's page to add it to your chase list and keep tracking its market value.">
+            <x-prism-button :href="route('cards.index')" size="md">Browse the price tracker</x-prism-button>
         </x-empty-state>
     @else
         <div class="grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-4 lg:grid-cols-6">
@@ -43,7 +43,7 @@
                 <p class="mt-2 text-sm text-ink-600">
                     Are you sure you want to remove
                     <span class="font-semibold">{{ $card->name }}</span>
-                    from your wishlist?
+                    from your chase list?
                 </p>
                 <div class="mt-6 flex justify-end gap-3">
                     <button

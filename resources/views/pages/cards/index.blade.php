@@ -12,18 +12,18 @@
         <div class="flex flex-wrap items-end justify-between gap-6">
             <div>
                 <span class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink-700 backdrop-blur">
-                    Scarlet &amp; Violet · Standard Format
+                    Price tracker · Scarlet &amp; Violet
                 </span>
                 <h1 class="mt-4 font-display text-5xl font-black tracking-tight md:text-6xl">
-                    <span class="prism-text">Cards</span>.
+                    <span class="prism-text">Price</span> tracker.
                 </h1>
                 <p class="mt-3 max-w-2xl text-ink-700">
-                    Browse every Standard-legal Pokémon TCG card with live market prices. Filter by set, type, rarity, and regulation — and save cards to your watchlist to track their value.
+                    Track every Prismatic Evolutions card's market value. Filter by set, type, rarity, and regulation, sort by price — and add the cards you want to your chase list to keep an eye on what they're worth.
                 </p>
             </div>
 
             <div class="rounded-2xl border border-ink-200 bg-white px-4 py-3 text-right">
-                <p class="text-[11px] uppercase tracking-widest text-ink-500">Showing</p>
+                <p class="text-[11px] uppercase tracking-widest text-ink-500">Tracking</p>
                 <p class="font-display text-2xl font-black text-ink-900">{{ number_format($cards->total()) }}<span class="text-ink-500"> cards</span></p>
             </div>
         </div>

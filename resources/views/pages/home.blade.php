@@ -22,28 +22,28 @@
             </div>
 
             <h1 class="mt-5 font-display text-5xl font-black leading-[0.95] tracking-tight md:text-7xl xl:text-[5.75rem]">
-                <span class="block text-ink-900">Trade the</span>
+                <span class="block text-ink-900">Track the</span>
                 <span class="prism-text block">Prismatic</span>
                 <span class="block text-ink-900">Evolutions.</span>
             </h1>
 
             <p class="mt-6 max-w-xl text-base leading-relaxed text-ink-700 md:text-lg">
-                Eevee and its rainbow of evolutions in <strong>special illustration rares</strong>, hyper rares, and shiny holos — buy, sell, auction, and trade them here. Your binder, your terms.
+                Eevee and its rainbow of evolutions in <strong>special illustration rares</strong>, hyper rares, and shiny holos — track their market value, pull digital packs, bid in live auctions, and talk shop with the community. Your binder, your prices.
             </p>
 
             <div class="mt-8 flex flex-wrap gap-3">
                 <x-prism-button :href="route('cards.index')" size="lg">
-                    Browse cards
+                    Track prices
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
                 </x-prism-button>
                 <x-prism-button :href="route('auctions.index')" variant="ghost" size="lg">Live auctions</x-prism-button>
-                <x-prism-button :href="route('packs.index')" variant="outline" size="lg">Open a pack</x-prism-button>
+                <x-prism-button :href="route('gacha.index')" variant="outline" size="lg">Pull a pack</x-prism-button>
             </div>
 
             <dl class="mt-10 grid max-w-lg grid-cols-3 gap-8 border-t border-ink-200 pt-8">
                 <div>
                     <dt class="font-display text-3xl font-black prism-text">180</dt>
-                    <dd class="mt-1 text-xs uppercase tracking-widest text-ink-500">cards in set</dd>
+                    <dd class="mt-1 text-xs uppercase tracking-widest text-ink-500">cards tracked</dd>
                 </div>
                 <div>
                     <dt class="font-display text-3xl font-black prism-text">24/7</dt>
@@ -51,7 +51,7 @@
                 </div>
                 <div>
                     <dt class="font-display text-3xl font-black prism-text">∞</dt>
-                    <dd class="mt-1 text-xs uppercase tracking-widest text-ink-500">trade combos</dd>
+                    <dd class="mt-1 text-xs uppercase tracking-widest text-ink-500">gacha pulls</dd>
                 </div>
             </dl>
         </div>
@@ -135,36 +135,36 @@
             <span class="h-px w-8 bg-ink-300"></span> How PokeTrade works
         </span>
         <h2 class="mt-4 font-display text-4xl font-black tracking-tight md:text-5xl">
-            Three workflows.<br/><span class="prism-text">One marketplace.</span>
+            Three ways to play.<br/><span class="prism-text">One prism.</span>
         </h2>
     </div>
 
-    {{-- ROW 1 — BUY & SELL: 7/5 split, big card on right --}}
+    {{-- ROW 1 — PRICE TRACKER: 7/5 split, big card on right --}}
     <article class="mt-16 grid items-center gap-10 lg:grid-cols-12">
         <div class="lg:col-span-7">
-            <p class="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-500">01 — Buy &amp; sell</p>
+            <p class="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-500">01 — Price tracker</p>
             <h3 class="mt-2 font-display text-3xl font-black leading-tight md:text-4xl">
-                List your dupes.<br/>Snag your <em class="prism-text not-italic">grail</em>.
+                Track every card.<br/>Watch your <em class="prism-text not-italic">grail</em>.
             </h3>
             <p class="mt-4 max-w-md text-ink-700">
-                Every Prismatic Evolutions card is browsable with live market value vs. our house price. Sort by rarity, filter by type, click <em>add to cart</em>. Done in 30 seconds — no sketchy DMs, no marketplace fees from <span class="line-through">that other site</span>.
+                Every Prismatic Evolutions card is browsable with live market value. Sort by rarity, filter by type, and add the cards you want to your <em>chase list</em> to keep an eye on what they're worth — no spreadsheets, no guesswork.
             </p>
             <div class="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
                 <div>
                     <p class="font-mono text-2xl font-black text-ink-900">180</p>
-                    <p class="text-xs text-ink-500">cards live now</p>
+                    <p class="text-xs text-ink-500">cards tracked</p>
                 </div>
                 <div>
                     <p class="font-mono text-2xl font-black text-ink-900">@idr(5000)–@idr(3500000)</p>
-                    <p class="text-xs text-ink-500">price range</p>
+                    <p class="text-xs text-ink-500">market value range</p>
                 </div>
                 <div>
-                    <p class="font-mono text-2xl font-black text-ink-900">10%</p>
-                    <p class="text-xs text-ink-500">house markup</p>
+                    <p class="font-mono text-2xl font-black text-ink-900">Live</p>
+                    <p class="text-xs text-ink-500">market data</p>
                 </div>
             </div>
             <a href="{{ route('cards.index') }}" class="mt-8 inline-flex items-center gap-2 font-display text-sm font-bold text-ink-900 hover:text-prism-violet">
-                Open the catalog
+                Open the price tracker
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
             </a>
         </div>
@@ -181,8 +181,8 @@
             </div>
             @if($row1Card)
                 <div class="absolute -right-4 -top-4 rounded-2xl bg-white px-3 py-2 shadow-xl ring-1 ring-ink-200">
-                    <p class="text-[10px] uppercase tracking-widest text-ink-500">Listed at</p>
-                    <p class="font-display text-lg font-black prism-text">@idr($row1Card->display_price)</p>
+                    <p class="text-[10px] uppercase tracking-widest text-ink-500">Market value</p>
+                    <p class="font-display text-lg font-black prism-text">@idr($row1Card->market_price ?: $row1Card->display_price)</p>
                 </div>
             @endif
         </div>
@@ -238,58 +238,58 @@
         </div>
     </article>
 
-    {{-- ROW 3 — TRADE: two cards mid, copy on the sides --}}
+    {{-- ROW 3 — DIGITAL GACHA: 5/7 split, fanned pull on the left --}}
     <article class="mt-24 grid items-center gap-10 lg:grid-cols-12">
-        <div class="order-2 lg:order-1 lg:col-span-3">
-            <p class="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-500">03 — Trade</p>
-            <h3 class="mt-2 font-display text-3xl font-black leading-tight md:text-4xl">
-                Cash-free<br/><span class="prism-text">swaps</span>.
-            </h3>
-            <p class="mt-4 text-sm text-ink-700">
-                Offer dupes. Request grails. Both sides confirm — done. No fees, no delivery hops, just two binders meeting in the middle.
-            </p>
-        </div>
-
-        <div class="relative order-1 grid grid-cols-2 items-center gap-2 lg:order-2 lg:col-span-6">
-            {{-- "you offer" card --}}
-            <div class="relative">
-                <p class="absolute -top-7 left-2 z-10 text-[10px] font-bold uppercase tracking-widest text-prism-violet">You offer</p>
-                <div style="transform: rotate(-3deg);">
+        <div class="relative order-2 lg:order-1 lg:col-span-5">
+            <div class="absolute -inset-6 -z-10 rounded-[3rem] prism-bg opacity-20 blur-2xl"></div>
+            {{-- Two fanned cards — a mini "pull" preview --}}
+            <div class="relative mx-auto h-[300px] w-full max-w-[340px]">
+                <div class="absolute left-1/2 top-1/2 w-[180px] -translate-x-[80%] -translate-y-1/2"
+                     style="transform: translate(-80%, -50%) rotate(-9deg);">
                     <x-tilted-card
                         :src="$row3CardOffer?->image_large"
-                        alt="Offer card"
+                        alt="Gacha card"
                         :rotate="14"
                         :scaleOnHover="1.05"
                     />
                 </div>
-            </div>
-
-            {{-- handshake / arrows --}}
-            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                <div class="flex items-center justify-center rounded-full bg-white p-3 shadow-xl ring-2 ring-prism-violet/40">
-                    <svg class="h-6 w-6 text-prism-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
-                </div>
-            </div>
-
-            {{-- "they offer" card --}}
-            <div class="relative">
-                <p class="absolute -top-7 right-2 z-10 text-[10px] font-bold uppercase tracking-widest text-prism-mint">You request</p>
-                <div style="transform: rotate(3deg);">
+                <div class="absolute left-1/2 top-1/2 w-[200px] -translate-x-[10%] -translate-y-1/2"
+                     style="transform: translate(-10%, -50%) rotate(8deg);">
                     <x-tilted-card
                         :src="$row3CardWant?->image_large"
-                        alt="Request card"
+                        alt="Gacha card"
                         :rotate="14"
                         :scaleOnHover="1.05"
                     />
+                </div>
             </div>
         </div>
 
-        <div class="order-3 lg:col-span-3 lg:text-right">
-            <p class="text-xs text-ink-500">Both trainers confirm</p>
-            <p class="mt-1 font-display text-2xl font-black text-ink-900">→ ✓</p>
-            <a href="{{ route('trades.index') }}" class="mt-6 inline-flex items-center gap-2 font-display text-sm font-bold text-ink-900 hover:text-prism-violet lg:flex-row-reverse">
-                Open the trade floor
-                <svg class="h-4 w-4 lg:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
+        <div class="order-1 lg:order-2 lg:col-span-7">
+            <p class="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-500">03 — Digital gacha</p>
+            <h3 class="mt-2 font-display text-3xl font-black leading-tight md:text-4xl">
+                Pull a pack.<br/>Build a <em class="prism-text not-italic">digital binder</em>.
+            </h3>
+            <p class="mt-4 max-w-md text-ink-700">
+                Pull a digital pack and 5 random Prismatic Evolutions cards drop straight into your collection. Chase the Special Illustration Rares, watch your rarity stats climb — pure collecting, no checkout.
+            </p>
+            <div class="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
+                <div>
+                    <p class="font-mono text-2xl font-black text-ink-900">5</p>
+                    <p class="text-xs text-ink-500">cards per pull</p>
+                </div>
+                <div>
+                    <p class="font-mono text-2xl font-black text-ink-900">Free</p>
+                    <p class="text-xs text-ink-500">to pull</p>
+                </div>
+                <div>
+                    <p class="font-mono text-2xl font-black text-ink-900">∞</p>
+                    <p class="text-xs text-ink-500">collection slots</p>
+                </div>
+            </div>
+            <a href="{{ route('gacha.index') }}" class="mt-8 inline-flex items-center gap-2 font-display text-sm font-bold text-ink-900 hover:text-prism-violet">
+                Pull your first pack
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
             </a>
         </div>
     </article>
@@ -371,10 +371,10 @@
                 </span>
                 <h2 class="mt-4 font-display text-3xl font-black tracking-tight md:text-5xl">
                     Build your binder.<br/>
-                    <span class="prism-text">Trade your way in.</span>
+                    <span class="prism-text">Track it your way.</span>
                 </h2>
                 <p class="mt-4 max-w-md text-ink-700">
-                    Sign up to save a wishlist, place bids, propose trades, and open packs. Free, clean, prismatic.
+                    Sign up to build a chase list, place bids, pull digital packs, and join the community. Free, clean, prismatic.
                 </p>
             </div>
             <div class="flex flex-col gap-3 md:items-end">
