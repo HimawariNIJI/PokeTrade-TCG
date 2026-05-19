@@ -390,6 +390,26 @@
     overflow: hidden;
 }
 
+/* Smooth single-spin variant (about-page team cards): nothing but
+   one clean 180° rotation. Hover lift, hover scale and the diagonal
+   gleam sweep are all suppressed so the flip is the only motion. */
+.card-flip--smooth .card-flip-inner {
+    transition: transform 700ms cubic-bezier(.4, 0, .2, 1);
+}
+
+.card-flip--smooth .card-flipped {
+    transform: rotateY(180deg) translateZ(0) scale(1);
+}
+
+.card-flip--smooth,
+.card-flip--smooth:hover {
+    transform: none;
+}
+
+.card-flip--smooth:hover .card-face::before {
+    background-position: 100% 100%;
+}
+
 @utility card-face-back {
     transform: rotateY(180deg);
 }

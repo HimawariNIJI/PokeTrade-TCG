@@ -17,7 +17,7 @@
             <span class="prism-text">PokeTrade</span><br/>is a love letter to <em>Eevee.</em>
         </h1>
         <p class="mt-6 text-base text-ink-700 md:text-lg">
-            We built PokeTrade to celebrate <strong>Scarlet &amp; Violet — Prismatic Evolutions</strong>, the set that put Eevee and every one of its evolutions in their own dazzling Special Illustration Rare. A marketplace, an auction house, a trading floor, and a pack-opening floor — all wrapped in the iridescent foil that gave the set its name.
+            We built PokeTrade to celebrate <strong>Scarlet &amp; Violet — Prismatic Evolutions</strong>, the set that put Eevee and every one of its evolutions in their own dazzling Special Illustration Rare. A price tracker, a merch shop, an auction house, a digital gacha, and a community — all wrapped in the iridescent foil that gave the set its name.
         </p>
     </div>
 </section>
@@ -34,7 +34,7 @@
                 Nine evolutions.<br/><span class="prism-text">One prism.</span>
             </h2>
             <p class="mt-4 text-sm text-ink-700 md:text-base">
-                Every Eeveelution drawn in their Special Illustration Rare frame — the moment that gave this entire site its reason to exist. Tap any to view the listing.
+                Every Eeveelution drawn in their Special Illustration Rare frame — the moment that gave this entire site its reason to exist. Tap any to track its market value.
             </p>
         </div>
         <a href="{{ route('cards.index') }}?rarity=Special%20Illustration%20Rare" class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white px-4 py-2 text-sm font-bold text-ink-900 transition hover:border-prism-violet hover:text-prism-violet">
@@ -80,13 +80,13 @@
         </h2>
         <div class="mt-8 space-y-5 text-base leading-relaxed text-white/80 md:text-lg">
             <p>
-                Most TCG marketplaces look like spreadsheets. Prismatic Evolutions doesn't. Its whole pitch is light bending across a card — so we built the site that way too: rainbow gradients, halftone grit, tilt-on-hover holos, an auction floor that ticks in real time.
+                Most TCG price trackers look like spreadsheets. Prismatic Evolutions doesn't. Its whole pitch is light bending across a card — so we built the site that way too: rainbow gradients, halftone grit, tilt-on-hover holos, an auction floor that ticks in real time.
             </p>
             <p>
-                Under the hood it's <strong class="text-white">Laravel 12 + Tailwind v4</strong>, with cards pulled live from the public pokemontcg.io API and re-priced against our own house markup. Auctions ride websockets. Trades settle when both trainers click confirm. Pack openings shuffle the actual stock list.
+                Under the hood it's <strong class="text-white">Laravel 12 + Tailwind v4</strong>, with cards pulled live from the public pokemontcg.io API and tracked against real market values. Auctions ride websockets. The community talks shop in the forums. The digital gacha shuffles the full set into your collection.
             </p>
             <p>
-                It started as a four-person student project for an Indonesian higher-ed assignment — backend business logic, infrastructure, the catalog plumbing, and every pixel you see, split four ways. The brief said "TCG marketplace." We answered with a love letter.
+                It started as a four-person student project for an Indonesian higher-ed assignment — backend business logic, infrastructure, the catalog plumbing, and every pixel you see, split four ways. The brief said "TCG site." We answered with a love letter.
             </p>
         </div>
     </div>
@@ -102,14 +102,14 @@
             'nim' => '0706022410001',
             'photo' => 'kevin.jpeg',
             'role' => 'Backend',
-            'bio' => 'Business logic, models, and the trade/auction flows that hold the marketplace together.',
+            'bio' => 'Business logic, models, and the auction & gacha flows that hold the site together.',
         ],
         [
             'name' => 'Caroline Netanya Christianti',
             'nim' => '0706022410041',
             'photo' => 'caroline.jpeg',
             'role' => 'Catalog',
-            'bio' => 'Card ingestion from pokemontcg.io, pricing logic, and the booster-pack opening engine.',
+            'bio' => 'Card ingestion from pokemontcg.io, market-value tracking, and the digital gacha engine.',
         ],
         [
             'name' => 'Ethan Cannavaro Lauda',
@@ -135,14 +135,14 @@
             The developer team <span class="prism-text">behind this project</span>
         </h2>
         <p class="mx-auto mt-3 max-w-xl text-sm text-ink-700">
-            Four trainers — tap a card to flip it and read the dossier.
+            Four trainers — flip a card to read the dossier.
         </p>
     </div>
 
     <div class="grid grid-cols-4 gap-4 sm:gap-5">
         @foreach($team as $member)
             <div x-data="{ flipped: false }"
-                 class="card-flip cursor-pointer"
+                 class="card-flip card-flip--smooth cursor-pointer"
                  @click="flipped = !flipped"
                  role="button"
                  tabindex="0"
@@ -162,17 +162,13 @@
                                 {{ $member['name'] }}
                             </h3>
                         </div>
-                        <div class="absolute right-3 top-3 z-10 rounded-full bg-white/90 px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-widest text-ink-900 shadow-sm backdrop-blur">
-                            Tap to flip
-                        </div>
                     </div>
 
                     {{-- BACK: prism dossier --}}
                     <div class="card-face card-face-back prism-bg flex flex-col p-5 text-white">
                         <div class="absolute inset-0 bg-ink-900/55"></div>
                         <div class="relative flex h-full flex-col">
-                            <div class="flex items-center justify-between">
-                                <p class="font-mono text-[9px] font-bold uppercase tracking-widest text-white/70">Dossier</p>
+                            <div class="flex items-center justify-end">
                                 <span class="rounded-full bg-white/15 px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-widest backdrop-blur">{{ $member['role'] }}</span>
                             </div>
 
@@ -189,9 +185,8 @@
                                 {{ $member['bio'] }}
                             </p>
 
-                            <div class="mt-auto flex items-center justify-between pt-4 text-[9px] font-bold uppercase tracking-widest text-white/60">
+                            <div class="mt-auto flex items-center pt-4 text-[9px] font-bold uppercase tracking-widest text-white/60">
                                 <span>PokeTrade · 2026</span>
-                                <span>Tap to flip back ↺</span>
                             </div>
                         </div>
                     </div>
@@ -244,13 +239,13 @@
                 <span class="prism-text">Open the binder.</span>
             </h2>
             <p class="mt-4 text-ink-700 md:text-lg">
-                The catalog is live, the auctions are running, and Umbreon ex is somewhere in there waiting to ruin your wallet.
+                The price tracker is live, the auctions are running, and Umbreon ex is somewhere in there waiting to ruin your wallet.
             </p>
             <div class="mt-8 flex flex-wrap justify-center gap-3">
                 <x-prism-button :href="route('cards.index')" size="lg">
-                    Take me to the cards
+                    Track the prices
                 </x-prism-button>
-                <x-prism-button :href="route('packs.index')" variant="ghost" size="lg">Open a pack</x-prism-button>
+                <x-prism-button :href="route('gacha.index')" variant="ghost" size="lg">Pull a pack</x-prism-button>
             </div>
         </div>
     </div>
