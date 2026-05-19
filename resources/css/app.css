@@ -604,3 +604,68 @@
 @keyframes cf-pop-out { to   { opacity: 0; transform: scale(.5) rotateY(0deg); } }
 .cf-backdrop.is-in  { animation: cf-fade-in .35s ease forwards; }
 .cf-card.is-closing { animation: cf-pop-out .3s ease forwards; }
+
+/* ============================================================
+   GACHA DECK — pull reveal. A stacked deck of pokeball-backed
+   cards: each click flips the top card face-up with a single
+   spin, sends the previous one to the back of the pile, and —
+   once all five are revealed — fans the deck into a row.
+     .gacha-stage      → perspective host, absolute card layer
+     .gacha-card       → one card; outer transform = pile slot
+     .gacha-card-inner → the single-spin flip (rotateY)
+   Slot transforms + per-card width are written inline by Alpine.
+   ============================================================ */
+.gacha-stage { perspective: 1500px; }
+
+.gacha-card {
+    transform-origin: top center;
+    /* Keep the 3D context unbroken from the stage's perspective down
+       to the faces — without this the flattened subtree ignores
+       backface-visibility and the card front shows before its flip. */
+    transform-style: preserve-3d;
+    transition: transform .55s cubic-bezier(.22, 1, .36, 1);
+    will-change: transform;
+}
+
+.gacha-card-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    aspect-ratio: 245 / 342;
+    transform-style: preserve-3d;
+    transition: transform .75s cubic-bezier(.16, 1, .3, 1);
+    will-change: transform;
+}
+/* One-and-a-half turns: reads as a spin, lands on the front. */
+.gacha-card-inner.is-flipped { transform: rotateY(540deg); }
+
+.gacha-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 1rem;
+    overflow: hidden;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    box-shadow: 0 25px 50px -12px rgba(20, 12, 40, .6);
+}
+.gacha-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gacha-face--back  { transform: rotateY(0deg);   background: #0f2150; }
+.gacha-face--front { transform: rotateY(180deg); background: #fff; }
+
+/* Name + rarity tags — their own un-scaled layer so the text
+   stays crisp while the cards themselves shrink into the row. */
+.gacha-label {
+    transform-origin: top center;
+    pointer-events: none;
+    opacity: 0;
+    transition:
+        transform .55s cubic-bezier(.22, 1, .36, 1),
+        opacity .4s ease;
+    will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gacha-card,
+    .gacha-card-inner,
+    .gacha-label { transition-duration: 1ms; }
+}
