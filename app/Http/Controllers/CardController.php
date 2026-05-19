@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Card;
+use App\Models\ForumThread;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class CardController extends Controller
 {
@@ -100,9 +102,89 @@ class CardController extends Controller
             ->limit(4)
             ->get();
 
+        // Price-tracker history + derived change stats.
+        $history = $card->priceHistory()->get();
+        $priceStats = $this->priceStats($history);
+
+        // Where this card sits in its set.
+        $setTotal = Card::where('set_id', $card->set_id)->count();
+        $setPosition = Card::where('set_id', $card->set_id)
+            ->whereRaw('CAST(number AS UNSIGNED) <= ?', [(int) $card->number])
+            ->count();
+
+        // Community & market activity around this card.
+        $chaserCount = $card->wishlistedBy()->count();
+
+        $activeAuctions = $card->auctions()
+            ->whereIn('status', ['scheduled', 'live'])
+            ->orderBy('ends_at')
+            ->get();
+
+        $forumThreads = ForumThread::query()
+            ->where(fn ($q) => $q
+                ->where('title', 'like', '%' . $card->name . '%')
+                ->orWhere('body', 'like', '%' . $card->name . '%'))
+            ->withCount('posts')
+            ->latest('last_posted_at')
+            ->limit(4)
+            ->get();
+
+        // Evolution chain — resolve names to catalogue cards when possible
+        // so the stages can link through.
+        $evolvesFrom = $card->evolves_from
+            ? Card::where('name', $card->evolves_from)->first()
+            : null;
+
+        $evolvesTo = collect($card->evolves_to ?? [])
+            ->map(fn ($name) => [
+                'name' => $name,
+                'card' => Card::where('name', $name)->first(),
+            ]);
+
         return view('pages.cards.show', [
             'card' => $card,
             'related' => $related,
+            'history' => $history,
+            'priceStats' => $priceStats,
+            'setTotal' => $setTotal,
+            'setPosition' => $setPosition,
+            'chaserCount' => $chaserCount,
+            'activeAuctions' => $activeAuctions,
+            'forumThreads' => $forumThreads,
+            'evolvesFrom' => $evolvesFrom,
+            'evolvesTo' => $evolvesTo,
         ]);
+    }
+
+    /**
+     * Derive 7d/30d percentage change plus the all-time high/low
+     * from a card's daily price-history snapshots.
+     */
+    private function priceStats(Collection $history): array
+    {
+        if ($history->count() < 2) {
+            return ['change7d' => null, 'change30d' => null, 'high' => null, 'low' => null];
+        }
+
+        $current = (float) $history->last()->market_price;
+        $prices = $history->map(fn ($p) => (float) $p->market_price);
+
+        $pctSince = function (int $days) use ($history, $current): ?float {
+            $cutoff = today()->subDays($days);
+            $base = $history->first(fn ($p) => $p->recorded_at->greaterThanOrEqualTo($cutoff))
+                ?? $history->first();
+            $basePrice = (float) $base->market_price;
+
+            return $basePrice > 0
+                ? round((($current - $basePrice) / $basePrice) * 100, 1)
+                : null;
+        };
+
+        return [
+            'change7d' => $pctSince(7),
+            'change30d' => $pctSince(30),
+            'high' => $prices->max(),
+            'low' => $prices->min(),
+        ];
     }
 }

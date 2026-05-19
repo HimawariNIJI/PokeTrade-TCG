@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             CardSeeder::class,
+            CardPriceHistorySeeder::class,
             ShopItemSeeder::class,
             OrderSeeder::class,
             OrderItemSeeder::class,

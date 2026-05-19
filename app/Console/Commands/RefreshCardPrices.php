@@ -88,6 +88,13 @@ class RefreshCardPrices extends Command
                     $card->update(['market_price' => $marketIdr]);
                     $updated++;
                 }
+
+                // Append today's snapshot to the price-tracker history —
+                // one row per card per day, so a rerun just overwrites it.
+                $card->priceHistory()->updateOrCreate(
+                    ['recorded_at' => today()],
+                    ['market_price' => $marketIdr],
+                );
             }
 
             $totalCount = $payload['totalCount'] ?? 0;

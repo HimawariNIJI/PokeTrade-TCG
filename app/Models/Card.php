@@ -19,8 +19,8 @@ class Card extends Model
         'set_id', 'set_name', 'set_series',
         'national_pokedex_numbers',
         'image_small', 'image_large',
-        'attacks', 'weaknesses', 'resistances', 'retreat_cost',
-        'flavor_text', 'artist',
+        'attacks', 'abilities', 'weaknesses', 'resistances', 'retreat_cost',
+        'flavor_text', 'evolves_from', 'evolves_to', 'artist',
         'price', 'market_price', 'stock', 'featured',
     ];
 
@@ -29,9 +29,11 @@ class Card extends Model
         'types' => 'array',
         'national_pokedex_numbers' => 'array',
         'attacks' => 'array',
+        'abilities' => 'array',
         'weaknesses' => 'array',
         'resistances' => 'array',
         'retreat_cost' => 'array',
+        'evolves_to' => 'array',
         'price' => 'decimal:2',
         'market_price' => 'decimal:2',
         'featured' => 'boolean',
@@ -50,6 +52,14 @@ class Card extends Model
     public function auctions(): HasMany
     {
         return $this->hasMany(Auction::class);
+    }
+
+    /**
+     * Daily tracked market-value snapshots, oldest first.
+     */
+    public function priceHistory(): HasMany
+    {
+        return $this->hasMany(CardPriceHistory::class)->orderBy('recorded_at');
     }
 
     public function cartItems(): MorphMany
