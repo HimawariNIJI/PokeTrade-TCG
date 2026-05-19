@@ -527,3 +527,60 @@
         border-radius: 999px;
     }
 }
+
+/* ============================================================
+   FLIP CARD — Framer-style cursor glare + click-to-spin overlay.
+     .glare      → white highlight that follows the cursor
+     .cf-*       → the fullscreen spin-to-center rig
+   The glare gradient position + opacity are set inline by Alpine.
+   ============================================================ */
+
+@utility glare {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 4;
+    mix-blend-mode: screen;
+    opacity: 0;
+    transition: opacity .2s ease-out;
+}
+
+/* --- spin-to-center overlay rig --- */
+.cf-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+.cf-card.is-tilt-ready { transition: transform .2s ease-out; }
+
+.cf-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 1rem;
+    overflow: hidden;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    box-shadow: 0 25px 50px -12px rgba(20, 12, 40, .55);
+}
+.cf-face--front { transform: rotateY(0deg);   background: #fff; }
+.cf-face--back  { transform: rotateY(180deg); background: #0f2150; }
+.cf-face img    { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Starts small showing the BACK (rotateY 180deg), decelerates
+   through ~4.5 turns, ends at 1800deg (= 0deg) → lands on FRONT. */
+@keyframes cf-spin-to-center {
+    0%   { transform: scale(.26) rotateY(180deg);  opacity: 0; }
+    12%  { opacity: 1; }
+    100% { transform: scale(1)   rotateY(1800deg); opacity: 1; }
+}
+.cf-card.is-spinning {
+    animation: cf-spin-to-center 1.9s cubic-bezier(.15, .85, .25, 1) forwards;
+}
+
+@keyframes cf-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cf-pop-out { to   { opacity: 0; transform: scale(.5) rotateY(0deg); } }
+.cf-backdrop.is-in  { animation: cf-fade-in .35s ease forwards; }
+.cf-card.is-closing { animation: cf-pop-out .3s ease forwards; }

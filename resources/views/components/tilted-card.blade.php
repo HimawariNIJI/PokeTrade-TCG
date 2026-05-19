@@ -1,38 +1,39 @@
 @props([
     'src' => null,
     'alt' => 'Card',
-    'rotate' => 14,           // Max tilt amplitude (deg) at the card's edge
+    'rotate' => 15,           // Max tilt amplitude (deg) at the card's edge
     'scaleOnHover' => 1.05,   // Scale-up factor while hovered
     'aspect' => 'aspect-[245/342]',  // Card-shaped by default
     'innerClass' => '',
 ])
 
-{{-- Mouse-tracked 3D tilt: as the cursor moves over the card,
-     rotateX/rotateY change in real time based on cursor position
-     relative to card center. CSS transition smooths the motion
-     (poor man's spring — close enough to feel premium). --}}
+{{-- Mouse-tracked 3D tilt with a cursor-following glare highlight.
+     Modelled on the Framer "TiltCard" component: ±15deg tilt,
+     1000px perspective, 1.05 scale, 0.2s ease-out, and a white
+     screen-blend glare that slides across the card with the cursor. --}}
 <figure
     x-data="{
-        rx: 0,
-        ry: 0,
-        sc: 1,
+        rx: 0, ry: 0, sc: 1,
+        gx: 50, gy: 50, hov: false,
         track(e) {
             const r = this.$el.getBoundingClientRect();
-            const ox = e.clientX - r.left - r.width / 2;
-            const oy = e.clientY - r.top - r.height / 2;
-            this.rx = (oy / (r.height / 2)) * -{{ $rotate }};
-            this.ry = (ox / (r.width / 2)) *  {{ $rotate }};
+            const ox = ((e.clientX - r.left) / r.width  - 0.5) * 2;
+            const oy = ((e.clientY - r.top)  / r.height - 0.5) * 2;
+            this.rx = -oy * {{ $rotate }};
+            this.ry =  ox * {{ $rotate }};
+            this.gx = 50 + ox * 25;
+            this.gy = 50 + oy * 25;
         },
-        enter() { this.sc = {{ $scaleOnHover }}; },
-        leave() { this.rx = 0; this.ry = 0; this.sc = 1; }
+        enter() { this.hov = true; this.sc = {{ $scaleOnHover }}; },
+        leave() { this.hov = false; this.rx = 0; this.ry = 0; this.sc = 1; this.gx = 50; this.gy = 50; }
     }"
     @mousemove="track($event)"
     @mouseenter="enter()"
     @mouseleave="leave()"
-    {{ $attributes->merge(['class' => 'group relative [perspective:800px]']) }}
+    {{ $attributes->merge(['class' => 'group relative [perspective:1000px]']) }}
 >
     <div
-        class="holo-sheen relative {{ $aspect }} overflow-hidden rounded-2xl bg-white [transform-style:preserve-3d] transition-transform duration-200 ease-out {{ $innerClass }}"
+        class="relative {{ $aspect }} overflow-hidden rounded-2xl bg-white [transform-style:preserve-3d] transition-transform duration-200 ease-out {{ $innerClass }}"
         :style="`transform: rotateX(${rx}deg) rotateY(${ry}deg) scale(${sc})`"
     >
         @if($src)
@@ -44,5 +45,12 @@
              above the image; they tilt with the card thanks to
              preserve-3d on the parent. --}}
         {{ $slot }}
+
+        {{-- Cursor-tracking glare — invisible until hovered, then a
+             soft white highlight follows the cursor across the card. --}}
+        <div
+            class="glare"
+            :style="`opacity:${hov ? 1 : 0}; background:radial-gradient(circle at ${gx}% ${gy}%, rgba(255,255,255,.5) 0%, rgba(255,255,255,0) 60%)`"
+        ></div>
     </div>
 </figure>

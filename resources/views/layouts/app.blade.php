@@ -29,5 +29,8 @@
     @include('layouts.partials.footer')
 
     <x-flash />
+
+    {{-- Single shared overlay: any card on the page can spin to centre --}}
+    <x-card-flip-overlay />
 </body>
 </html>
