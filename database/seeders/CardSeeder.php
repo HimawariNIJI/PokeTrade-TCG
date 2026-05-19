@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Card;
+use App\Support\CardPricing;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -21,15 +22,6 @@ class CardSeeder extends Seeder
     private const API_URL = 'https://api.pokemontcg.io/v2/cards';
     private const SET_QUERY = '(regulationMark:H OR regulationMark:I OR regulationMark:J) OR set.id:sve';
     private const PAGE_SIZE = 250;
-
-    /** USD → IDR conversion rate. Adjust if rates shift dramatically. */
-    private const USD_TO_IDR = 16000;
-
-    /** Markup applied over market price for our house listings. */
-    private const HOUSE_MARKUP = 1.10;
-
-    /** Floor price for cards with no available market data (Rp 5.000). */
-    private const PRICE_FLOOR_IDR = 5000;
 
     public function run(): void
     {
@@ -71,13 +63,8 @@ class CardSeeder extends Seeder
 
             foreach ($cards as $c) {
                 $c = $this->renameColorlessToNormal($c);
-                $marketUsd = $this->extractMarketPrice($c['tcgplayer']['prices'] ?? []);
-                $marketIdr = $marketUsd > 0
-                    ? $this->roundToNearest($marketUsd * self::USD_TO_IDR, 500)
-                    : 0;
-                $priceIdr = $marketIdr > 0
-                    ? $this->roundToNearest($marketIdr * self::HOUSE_MARKUP, 500)
-                    : self::PRICE_FLOOR_IDR;
+                $marketIdr = CardPricing::marketPriceIdr($c['tcgplayer']['prices'] ?? []);
+                $priceIdr = CardPricing::housePriceIdr($marketIdr);
 
                 $setId = $c['set']['id'] ?? 'unknown';
 
@@ -123,30 +110,12 @@ class CardSeeder extends Seeder
         $this->command?->info("Imported {$imported} Standard-legal cards.");
     }
 
-    private function extractMarketPrice(array $prices): float
-    {
-        // Prefer normal, then holofoil, then reverseHolofoil
-        foreach (['normal', 'holofoil', 'reverseHolofoil', '1stEditionHolofoil'] as $variant) {
-            $market = $prices[$variant]['market'] ?? null;
-            if (is_numeric($market) && $market > 0) {
-                return (float) $market;
-            }
-        }
-        return 0.0;
-    }
-
     private function isHighlightRarity(string $rarity): bool
     {
         return str_contains(strtolower($rarity), 'illustration')
             || str_contains(strtolower($rarity), 'special')
             || str_contains(strtolower($rarity), 'hyper')
             || str_contains(strtolower($rarity), 'ultra');
-    }
-
-    /** Round an IDR amount to the nearest multiple (e.g. 500 or 1000). */
-    private function roundToNearest(float $amount, int $step): int
-    {
-        return (int) (round($amount / $step) * $step);
     }
 
     /** Remap the TCG "Colorless" type to "Normal" across all relevant fields. */
