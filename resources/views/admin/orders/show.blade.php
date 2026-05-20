@@ -29,29 +29,53 @@
             <p class="mt-2 text-sm">{{ $order->user?->name }}</p>
             <p class="text-xs text-ink-500">{{ $order->user?->email }}</p>
         </div>
-
         <div class="rounded-3xl border border-ink-200 bg-white p-6">
-            <h3 class="font-display text-sm font-black">Update status</h3>
-            <form method="POST" action="{{ route('admin.orders.updateStatus', $order) }}" class="mt-3 space-y-3">
-                @csrf @method('PATCH')
+        <h3 class="font-display text-sm font-black">Order status</h3>
+
+        @php
+            $currentStatus = $order->status;
+            $nextStatuses = [];
+
+            if ($currentStatus === 'paid') {
+                $nextStatuses = ['shipped', 'delivered'];
+            } elseif ($currentStatus === 'shipped') {
+                $nextStatuses = ['delivered'];
+            }
+
+            $canUpdate = in_array($currentStatus, ['paid', 'shipped']);
+        @endphp
+
+        <p class="mt-2 text-sm">
+            Current status:
+            <span class="font-bold">{{ ucfirst($currentStatus) }}</span>
+        </p>
+
+        @if($canUpdate)
+            <form method="POST"
+                action="{{ route('admin.orders.updateStatus', $order) }}"
+                class="mt-3 space-y-3">
+                @csrf
+                @method('PATCH')
+
                 <select name="status" class="w-full rounded-xl border-ink-200 text-sm">
-                    @foreach(\App\Models\Order::STATUSES as $st)
-                        <option value="{{ $st }}" @selected($order->status === $st)>{{ ucfirst($st) }}</option>
+                    @foreach($nextStatuses as $st)
+                        <option value="{{ $st }}">
+                            {{ ucfirst($st) }}
+                        </option>
                     @endforeach
                 </select>
-                <select name="payment_status" class="w-full rounded-xl border-ink-200 text-sm">
-                    @foreach(\App\Models\Order::PAYMENT_STATUSES as $ps)
-                        <option value="{{ $ps }}" @selected($order->payment_status === $ps)>Payment: {{ ucfirst($ps) }}</option>
-                    @endforeach
-                </select>
-                <x-prism-button type="submit" size="sm" class="w-full">Save status</x-prism-button>
+
+                <x-prism-button type="submit" size="sm" class="w-full">
+                    Save status
+                </x-prism-button>
             </form>
-        </div>
+        @endif
+    </div>
 
         <div class="rounded-3xl border border-ink-200 bg-white p-6">
             <h3 class="font-display text-sm font-black">Total</h3>
             <p class="mt-2 font-display text-3xl font-black prism-text">@idr($order->total)</p>
-            <p class="text-xs text-ink-500">{{ $order->payment_method ?? '—' }}</p>
+            <p class="text-xs text-ink-500"> {{ $order->payment_method ?? '-' }} </p>
         </div>
     </aside>
 </div>
