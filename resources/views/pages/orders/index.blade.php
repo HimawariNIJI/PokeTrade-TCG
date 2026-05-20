@@ -86,7 +86,7 @@
 
                         {{-- Items Dropdown (Appears on Hover) --}}
                         <div
-                            class="max-h-0 overflow-hidden bg-ink-50 border-t border-ink-100 transition-all duration-300 group-hover:max-h-96">
+                            class="max-h-0 overflow-hidden bg-ink-50 border-t border-ink-100 transition-all duration-1000 group-hover:max-h-96">
                             <div class="px-5 py-4 space-y-3">
                                 <p class="text-xs font-bold uppercase tracking-widest text-ink-600 mb-3">Items in order:
                                 </p>
