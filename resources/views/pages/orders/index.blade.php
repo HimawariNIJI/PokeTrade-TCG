@@ -10,12 +10,26 @@
         </h1>
     </div>
 
+    {{-- Filter Section --}}
+    <div class="mb-8 flex flex-wrap gap-2">
+        <a href="{{ route('orders.index') }}"
+           class="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold transition {{ $selectedStatus === '' ? 'bg-ink-900 text-white' : 'border border-ink-200 text-ink-700 hover:border-prism-violet' }}">
+            All Orders
+        </a>
+        @foreach($statuses as $status)
+            <a href="{{ route('orders.index', ['status' => $status]) }}"
+               class="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold capitalize transition {{ $selectedStatus === $status ? 'prism-bg text-white' : 'border border-ink-200 text-ink-700 hover:border-prism-violet' }}">
+                {{ $status }}
+            </a>
+        @endforeach
+    </div>
+
     @if($orders->isEmpty())
         <x-empty-state
             icon="◆"
-            title="No orders yet"
-            message="When you place an order, it'll show up here with tracking and a digital invoice.">
-            <x-prism-button :href="route('cards.index')" size="md">Browse cards</x-prism-button>
+            title="{{ $selectedStatus ? 'No ' . $selectedStatus . ' orders' : 'No orders yet' }}"
+            message="{{ $selectedStatus ? 'No orders match this status. Try another filter.' : 'When you place an order, it\'ll show up here with tracking and a digital invoice.' }}">
+            <x-prism-button :href="route('cards.index')" size="md">Browse Items</x-prism-button>
         </x-empty-state>
     @else
         <div class="space-y-4">
@@ -24,7 +38,6 @@
                    class="group gleam relative flex flex-col gap-3 rounded-2xl border border-ink-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-prism-violet hover:shadow-lg duration-300 ease-[cubic-bezier(.22,1,.36,1)] md:flex-row md:items-center">
                     <div class="flex-1">
                         <div class="flex flex-wrap items-center gap-2">
-                            <span class="font-mono text-xs font-bold tracking-widest text-ink-700">{{ $order->code }}</span>
                             <span class="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest
                                 bg-{{ $order->status_color }}-100 text-{{ $order->status_color }}-700">
                                 {{ $order->status }}
