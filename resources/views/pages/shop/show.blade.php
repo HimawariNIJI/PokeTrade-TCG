@@ -27,13 +27,17 @@
             </div>
 
             <div>
-                @php
+                @if (auth()->check())
+                    @php
                     $stockinCart =
                         optional(auth()->user()->cart)
                             ->items()
                             ->where('itemable_id', $item->id)
                             ->first()?->quantity ?? 0;
-                @endphp
+                    @endphp
+                @else
+                    @php $stockinCart = 0; @endphp
+                @endif
                 <span
                     class="inline-flex items-center gap-2 rounded-full bg-ink-900 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white">
                     {{ $item->category }}
