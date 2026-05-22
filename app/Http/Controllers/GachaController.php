@@ -35,6 +35,12 @@ class GachaController extends Controller
      */
     public function pull(Request $request)
     {
+        if ($request->user()->points < 10) {
+            return redirect()->route('gacha.index')->with('status', 'Not enough points to pull a pack!');
+        }
+        $request->user()->points -= 10;
+        $request->user()->save();
+        
         $pulls = Card::query()->inRandomOrder()->limit(5)->get();
 
         $user = $request->user();

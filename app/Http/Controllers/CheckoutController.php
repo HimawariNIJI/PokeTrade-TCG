@@ -206,6 +206,7 @@ class CheckoutController extends Controller
         \Midtrans\Config::$is3ds = true;
 
         try {
+            $pointsearned = floor($order->subtotal / 10000);
             // Fetch transaction status from Midtrans using order code
             $transaction = \Midtrans\Transaction::status($order->code);
 
@@ -219,6 +220,8 @@ class CheckoutController extends Controller
                     'status' => 'paid',
                     'paid_at' => now(),
                 ]);
+                // Award points to user
+                $order->user->increment('points', $pointsearned);
             } elseif ($transactionStatus === 'pending') {
                 // Payment pending - stock remains reserved
                 $order->update([
@@ -244,7 +247,7 @@ class CheckoutController extends Controller
                 ->with('status', 'Could not verify payment status: ' . $e->getMessage());
         }
         if ($order->status == 'paid') {
-            return redirect()->route('orders.show', $order->code)->with('status', 'Payment successful!');
+            return redirect()->route('orders.show', $order->code)->with('status', "Payment successful! $pointsearned points earned!");
         } elseif ($order->status == 'pending') {
             return redirect()->route('orders.show', $order->code)->with('status', 'Payment is pending. Please complete it.');
         } else {
