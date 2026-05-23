@@ -5,15 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Auction extends Model
 {
+    use SoftDeletes;
+
     public const STATUSES = ['scheduled', 'live', 'ended', 'cancelled'];
 
     protected $fillable = [
         'card_id', 'seller_id', 'current_leader_id',
         'starting_bid', 'current_bid', 'bid_increment', 'buy_now_price',
-        'starts_at', 'ends_at', 'status',
+        'starts_at', 'ends_at', 'status', 'is_highlighted',
     ];
 
     protected $casts = [
@@ -23,6 +26,7 @@ class Auction extends Model
         'buy_now_price' => 'decimal:2',
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     public function card(): BelongsTo

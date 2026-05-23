@@ -3,6 +3,16 @@
 <section class="mx-auto max-w-[1200px] px-4 py-10 md:px-8">
     <a href="{{ route('auctions.index') }}" class="text-xs font-semibold text-ink-500 hover:text-ink-900">← Back to auctions</a>
 
+    @if ($errors->any())
+        <div class="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <ul class="list-disc space-y-1 pl-5">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     @php
         $rankedBids = $auction->bids->sortByDesc('amount')->values();
         $feedBids   = $auction->bids->sortByDesc('created_at')->take(20);
@@ -46,7 +56,7 @@
                 <div class="mt-6 flex flex-wrap items-end gap-x-10 gap-y-4">
                     <div>
                         <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Current Bid</p>
-                        <p class="animate-bid-counter mt-1 bg-gradient-to-r from-prism-mint to-prism-sky bg-clip-text font-display text-5xl font-black text-transparent">
+                        <p id="current-bid" class="animate-bid-counter mt-1 bg-gradient-to-r from-prism-mint to-prism-sky bg-clip-text font-display text-5xl font-black text-transparent">
                             @idr($auction->current_bid)
                         </p>
                     </div>
@@ -65,8 +75,13 @@
                 {{-- Top bidders leaderboard --}}
                 <div class="mt-7">
                     <p class="text-xs font-black uppercase tracking-widest text-prism-pink">🔥 Top Bidders</p>
-                    <div class="mt-2 space-y-1.5">
-                        @forelse($rankedBids->take(3) as $i => $bid)
+                    <div id="leaderboard" class="mt-2 space-y-1.5">
+                        @php
+                            $topUniqueBids = $rankedBids
+                                ->unique('user_id')
+                                ->take(3);
+                        @endphp
+                        @forelse($topUniqueBids as $i => $bid)
                             @php $isLeader = $bid->user_id === $auction->current_leader_id; @endphp
                             <div class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm
                                 {{ $isLeader
@@ -90,7 +105,7 @@
 
                 {{-- Bid form --}}
                 @auth
-                    <form method="POST" action="{{ route('auctions.bid', $auction) }}" class="mt-6 flex flex-wrap items-end gap-3">
+                    <form id="bid-form" method="POST" action="{{ route('auctions.bid', $auction) }}" class="mt-6 flex flex-wrap items-end gap-3">
                         @csrf
                         <label class="flex-1">
                             <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Your bid</span>
@@ -102,6 +117,14 @@
                                 class="rounded-full bg-gradient-to-r from-prism-pink to-prism-mint px-8 py-3 font-display font-black text-ink-900 shadow-[0_0_24px_-4px] shadow-prism-pink/70 transition hover:-translate-y-0.5">
                             Place Your Bid ⚡
                         </button>
+                        {{-- Error --}}
+                        <p id="bid-error"
+                            class="text-sm font-semibold text-red-400">
+                        </p>
+                        {{-- Success --}}
+                        <p id="bid-success"
+                            class="text-sm font-semibold text-green-400">
+                        </p>
                     </form>
                 @else
                     <div class="mt-6 rounded-2xl bg-white/5 p-4 text-sm text-white/70">
@@ -114,7 +137,7 @@
         {{-- Live bid feed --}}
         <div class="relative mt-8 border-t border-white/10 pt-5">
             <p class="text-xs font-black uppercase tracking-widest text-prism-sky">⚡ Live Bid Feed</p>
-            <div class="mt-2 max-h-56 space-y-1 overflow-y-auto">
+            <div id="bid-feed" class="mt-2 max-h-56 space-y-1 overflow-y-auto">
                 @forelse($feedBids as $bid)
                     <div class="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-1.5 text-xs">
                         <span class="text-prism-mint">⚡</span>
@@ -131,4 +154,122 @@
     </div>
 </section>
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('bid-form');
+
+        if (!form) return;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const errorEl = document.getElementById('bid-error');
+            const successEl = document.getElementById('bid-success');
+
+            errorEl.textContent = '';
+            successEl.textContent = '';
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Placing bid...';
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: formData,
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    if (data.errors) {
+                        errorEl.textContent = Object.values(data.errors).flat().join(' ');
+                    }
+                    else {
+                        errorEl.textContent = data.message || 'Failed to place bid.';
+                    }
+                    return;
+                }
+
+                successEl.textContent = data.message;
+
+                // Update current bid
+                const currentBidEl = document.getElementById('current-bid');
+
+                if (currentBidEl) {
+                    currentBidEl.textContent = 'Rp ' + Number(data.current_bid).toLocaleString('id-ID');
+                }
+
+                // Update input minimum
+                const amountInput = form.querySelector('input[name="amount"]');
+
+                amountInput.min = data.min_next_bid;
+                amountInput.placeholder = '≥ Rp ' + Number(data.min_next_bid).toLocaleString('id-ID');
+                amountInput.value = '';
+
+                const leaderboardEl = document.getElementById('leaderboard');
+
+                if (leaderboardEl) {
+                    leaderboardEl.innerHTML = '';
+
+                    data.leaderboard.forEach((bid, index) => {
+                        leaderboardEl.innerHTML +=
+                        `<div class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm
+                            ${bid.is_leader
+                                ? 'border border-prism-pink bg-gradient-to-r from-prism-pink/25 to-prism-violet/15'
+                                : 'bg-white/5'}">
+
+                            <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-black
+                                ${index === 0
+                                    ? 'bg-gradient-to-br from-prism-gold to-prism-pink text-ink-900'
+                                    : 'bg-white/10'}">
+                                ${bid.is_leader ? '👑' : index + 1}
+                            </span>
+
+                            <span class="font-bold">${bid.user}</span>
+
+                            ${bid.is_leader ? `
+                                <span class="rounded-full bg-prism-pink/30 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider">
+                                    Winning
+                                </span>` : ''}
+
+                            <span class="ml-auto font-mono font-bold">
+                                Rp ${Number(bid.amount).toLocaleString('id-ID')}
+                            </span>
+                        </div>`;
+                    });
+                }
+
+                const feedEl = document.getElementById('bid-feed');
+
+                if (feedEl) {
+                    feedEl.insertAdjacentHTML(
+                        'afterbegin',
+                        `<div class="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-1.5 text-xs">
+                            <span class="text-prism-mint">⚡</span>
+                            <span class="font-bold">${data.latest_bid.user}</span>
+                            <span class="text-white/40">bid</span>
+                            <span class="font-mono font-bold text-prism-sky">
+                                Rp ${Number(data.latest_bid.amount).toLocaleString('id-ID')}
+                            </span>
+                            <span class="ml-auto text-white/30">just now</span>
+                        </div>`
+                    );
+                }
+            } catch (error) {
+                errorEl.textContent = 'Something went wrong.';
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Place Bid';
+        });
+    });
+</script>
 </x-app-layout>

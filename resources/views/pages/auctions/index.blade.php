@@ -18,14 +18,13 @@
 </section>
 
 @php
-    // TODO(backend): the hero auction should be chosen across ALL live auctions
-    // (the controller paginates $live). Prefer the auction flagged
-    // is_highlighted = true; otherwise the live auction with the highest
-    // current_bid. Ideally the controller passes an explicit $highlighted.
-    $heroAuction = $live->getCollection()->firstWhere('is_highlighted', true)
-        ?? $live->getCollection()->sortByDesc('current_bid')->first();
+    $heroAuction = $highlighted;
+
     $gridLive = $live->getCollection()
-        ->reject(fn ($a) => $heroAuction && $a->is($heroAuction))
+        ->reject(fn ($a) =>
+            $heroAuction &&
+            $a->is($heroAuction)
+        )
         ->values();
 @endphp
 

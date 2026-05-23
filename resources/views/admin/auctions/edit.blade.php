@@ -3,6 +3,15 @@
         $topBids = $auction->bids->sortByDesc('amount')->values()->take(3);
     @endphp
 
+    @if ($errors->any())
+        <div class="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 mb-6">
+            <ul class="list-disc space-y-1 pl-5">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     <div class="grid gap-6 lg:grid-cols-12">
         {{-- Auction settings --}}
         <form method="POST" action="{{ route('admin.auctions.update', $auction) }}"
@@ -34,7 +43,7 @@
                 </label>
                 <label class="block">
                     <span class="text-xs font-bold uppercase tracking-widest text-ink-700">Bid increment (Rp)</span>
-                    <input type="number" step="500" min="1" name="bid_increment"
+                    <input type="number" step="500" min="500" name="bid_increment"
                            value="{{ old('bid_increment', $auction->bid_increment) }}"
                            class="mt-1.5 w-full rounded-xl border-ink-200">
                 </label>
