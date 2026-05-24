@@ -92,18 +92,49 @@ class AuctionController extends Controller
             'ends_at'       => ['required', 'date', 'after:starts_at'],
         ]);
 
-        if ($auction->bids()->exists()) {
+        $allowedTransitions = [
+            'scheduled' => ['live','cancelled'],
+            'live' => ['ended','cancelled'],
+            'ended' => [],
+            'cancelled' => ['scheduled','live','ended',],
+        ];
 
+        $oldStatus = $auction->status;
+        $newStatus = $validated['status'];
+        $hasBids = $auction->bids()->exists();
+
+        if ($hasBids && $newStatus === 'cancelled' && $oldStatus !== 'cancelled') {
+            return back()->withErrors([
+                'status' => 'Auctions with bids cannot be cancelled.'
+            ]);
+        }
+
+        if ($newStatus !== $oldStatus && !in_array($newStatus, $allowedTransitions[$oldStatus])) {
+            return back()->withErrors([
+                'status' => 'Invalid status transition.'
+            ]);
+        }
+
+        if ($newStatus === 'live' && Carbon::parse($validated['ends_at'])->isPast()) {
+            return back()->withErrors([
+                'status' => 'Cannot set auction to live because the end time has already passed.'
+            ]);
+        }
+
+        if ($newStatus === 'scheduled' && Carbon::parse($validated['starts_at'])->isPast()) {
+            return back()->withErrors([
+                'status' => 'Scheduled auctions must start in the future.'
+            ]);
+        }
+
+        if ($auction->bids()->exists()) {
             $changingBidSettings =
                 $validated['starting_bid'] != $auction->starting_bid ||
-
                 $validated['bid_increment'] != $auction->bid_increment;
 
             if ($changingBidSettings) {
-
                 return back()->withErrors([
-                    'starting_bid' =>
-                        'Cannot change bid settings after bids exist.'
+                    'starting_bid' => 'Cannot change bid settings after bids exist.'
                 ]);
             }
         }
@@ -121,7 +152,7 @@ class AuctionController extends Controller
             'buy_now_price'  => $validated['buy_now_price'] ?? null,
             'starts_at'      => Carbon::parse($validated['starts_at']),
             'ends_at'        => Carbon::parse($validated['ends_at']),
-            'status'         => $validated['status'],
+            'status'         => $newStatus,
             'is_highlighted' => $request->boolean('is_highlighted'),
         ]);
 

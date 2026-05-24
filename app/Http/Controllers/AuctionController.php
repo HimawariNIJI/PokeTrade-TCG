@@ -78,21 +78,21 @@ class AuctionController extends Controller
     public function bid(Request $request, Auction $auction)
     {
         // if ($auction->status !== 'live') {
-        //     return back()->withErrors([
-        //         'auction' => 'This auction is not live.'
-        //     ]);
+        //     return response()->json([
+        //         'message' => 'This auction is not live.'
+        //     ], 422);
         // }
 
         // if (now()->lt($auction->starts_at) || now()->gte($auction->ends_at)) {
-        //     return back()->withErrors([
-        //         'auction' => 'This auction is closed.'
-        //     ]);
+        //     return response()->json([
+        //         'message' => 'This auction is closed.'
+        //     ], 422);
         // }
 
         if ($auction->seller_id === $request->user()->id) {
-            return back()->withErrors([
-                'auction' => 'You cannot bid on your own auction.'
-            ]);
+            return response()->json([
+                'message' => 'You cannot bid on your own auction.'
+            ], 422);
         }
 
         $validated = $request->validate([

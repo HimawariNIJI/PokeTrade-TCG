@@ -172,7 +172,6 @@
             const submitBtn = form.querySelector('button[type="submit"]');
 
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Placing bid...';
 
             const formData = new FormData(form);
 
@@ -268,7 +267,7 @@
             }
 
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Place Bid';
+            submitBtn.textContent = 'Place Your Bid ⚡';
         });
     });
 </script>

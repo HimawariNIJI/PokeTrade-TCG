@@ -53,13 +53,32 @@
                            value="{{ old('buy_now_price', $auction->buy_now_price) }}"
                            class="mt-1.5 w-full rounded-xl border-ink-200">
                 </label>
+                @php
+                    $hasBids = $auction->bids()->exists();
+                    $statusOptions = match($auction->status) {
+                        'scheduled' => ['scheduled','live','cancelled'],
+                        'live' => $hasBids ? ['live','ended'] : ['live','ended','cancelled'],
+                        'ended' => ['ended'],
+                        'cancelled' => ['cancelled','scheduled','live','ended'],
+                        default => [$auction->status]
+                    };
+                @endphp
                 <label class="block">
                     <span class="text-xs font-bold uppercase tracking-widest text-ink-700">Status</span>
-                    <select name="status" class="mt-1.5 w-full rounded-xl border-ink-200">
-                        @foreach(\App\Models\Auction::STATUSES as $s)
+                    <select name="status" class="mt-1.5 w-full rounded-xl border-ink-200" {{ $auction->status === 'ended' ? 'disabled' : '' }}>
+                        @foreach($statusOptions as $s)
                             <option value="{{ $s }}" @selected(old('status', $auction->status) === $s)>{{ ucfirst($s) }}</option>
                         @endforeach
                     </select>
+                    @if($auction->status === 'ended')
+                        <p class="mt-1 text-xs text-ink-500">
+                            Ended auctions cannot be modified.
+                        </p>
+                    @elseif($auction->status === 'live' && $hasBids)
+                        <p class="mt-1 text-xs text-ink-500">
+                            Live auctions with bids cannot be cancelled.
+                        </p>
+                    @endif
                 </label>
                 <label class="block">
                     <span class="text-xs font-bold uppercase tracking-widest text-ink-700">Starts at</span>
