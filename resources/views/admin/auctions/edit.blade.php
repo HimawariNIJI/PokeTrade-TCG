@@ -116,28 +116,79 @@
             </div>
         </form>
 
-        {{-- Top bidders (read-only) --}}
-        <aside class="space-y-4 rounded-3xl border border-ink-200 bg-white p-6 lg:col-span-5">
-            <h2 class="font-display text-base font-black">Top bidders</h2>
-            <p class="text-xs text-ink-500">
-                The three highest bids on this auction. The leading bidder wins when the timer ends.
-            </p>
-            <div class="space-y-1.5">
-                @forelse($topBids as $i => $bid)
-                    <div class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm
-                        {{ $i === 0 ? 'border border-prism-violet bg-prism-violet/5' : 'bg-ink-50' }}">
-                        <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white text-[11px] font-black">
-                            {{ $i === 0 ? '👑' : $i + 1 }}
-                        </span>
-                        <div class="min-w-0">
-                            <p class="truncate font-bold">{{ $bid->user?->name ?? 'Anonymous' }}</p>
-                            <p class="text-[10px] text-ink-400">{{ $bid->created_at?->diffForHumans() }}</p>
+        {{-- Top bidders + refund console --}}
+        <aside class="space-y-6 lg:col-span-5">
+            {{-- Refund console — only shows when there's something to act on. --}}
+            @if($auction->refund_status !== 'none' || ($auction->status === 'ended' && $auction->winner_id))
+                <div class="rounded-3xl border border-ink-200 bg-white p-6">
+                    <h2 class="font-display text-base font-black">Refund</h2>
+
+                    @if($auction->refund_status === 'requested')
+                        <div class="mt-3 space-y-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                            <p class="font-bold">{{ $auction->winner?->name ?? 'Winner' }} requested a refund</p>
+                            <p class="text-xs text-amber-700">
+                                Submitted {{ $auction->refund_requested_at?->diffForHumans() }} ·
+                                Winning bid @idr($auction->winning_amount ?? $auction->current_bid)
+                            </p>
+                            <p class="rounded-xl bg-white px-3 py-2 text-xs text-ink-900">
+                                "{{ $auction->refund_reason }}"
+                            </p>
+                            <form method="POST" action="{{ route('admin.auctions.resolveRefund', $auction) }}" class="flex gap-2 pt-1">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" name="decision" value="approved"
+                                        class="flex-1 rounded-full bg-emerald-600 px-4 py-2 text-xs font-black uppercase tracking-widest text-white hover:bg-emerald-700">
+                                    Approve
+                                </button>
+                                <button type="submit" name="decision" value="rejected"
+                                        class="flex-1 rounded-full bg-rose-600 px-4 py-2 text-xs font-black uppercase tracking-widest text-white hover:bg-rose-700">
+                                    Reject
+                                </button>
+                            </form>
                         </div>
-                        <span class="ml-auto font-mono font-bold">@idr($bid->amount)</span>
-                    </div>
-                @empty
-                    <p class="rounded-xl bg-ink-50 px-3 py-6 text-center text-sm text-ink-500">No bids yet.</p>
-                @endforelse
+                    @elseif($auction->refund_status === 'approved')
+                        <p class="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
+                            Refund approved {{ $auction->refund_resolved_at?->diffForHumans() }}
+                        </p>
+                    @elseif($auction->refund_status === 'rejected')
+                        <p class="mt-3 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
+                            Refund rejected {{ $auction->refund_resolved_at?->diffForHumans() }}
+                        </p>
+                    @elseif($auction->winner_id && ! $auction->winner_paid_at)
+                        <p class="mt-3 rounded-2xl border border-ink-200 bg-ink-50 p-3 text-sm text-ink-700">
+                            Winner {{ $auction->winner?->name }} has not yet paid.
+                        </p>
+                    @elseif($auction->winner_paid_at)
+                        <p class="mt-3 rounded-2xl border border-ink-200 bg-ink-50 p-3 text-sm text-ink-700">
+                            {{ $auction->winner?->name }} paid {{ $auction->winner_paid_at->diffForHumans() }}. No refund requested.
+                        </p>
+                    @endif
+                </div>
+            @endif
+
+            {{-- Top bidders (read-only) --}}
+            <div class="space-y-4 rounded-3xl border border-ink-200 bg-white p-6">
+                <h2 class="font-display text-base font-black">Top bidders</h2>
+                <p class="text-xs text-ink-500">
+                    The three highest bids on this auction. The leading bidder wins when the timer ends.
+                </p>
+                <div class="space-y-1.5">
+                    @forelse($topBids as $i => $bid)
+                        <div class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm
+                            {{ $i === 0 ? 'border border-prism-violet bg-prism-violet/5' : 'bg-ink-50' }}">
+                            <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white text-[11px] font-black">
+                                {{ $i === 0 ? '👑' : $i + 1 }}
+                            </span>
+                            <div class="min-w-0">
+                                <p class="truncate font-bold">{{ $bid->user?->name ?? 'Anonymous' }}</p>
+                                <p class="text-[10px] text-ink-400">{{ $bid->created_at?->diffForHumans() }}</p>
+                            </div>
+                            <span class="ml-auto font-mono font-bold">@idr($bid->amount)</span>
+                        </div>
+                    @empty
+                        <p class="rounded-xl bg-ink-50 px-3 py-6 text-center text-sm text-ink-500">No bids yet.</p>
+                    @endforelse
+                </div>
             </div>
         </aside>
     </div>

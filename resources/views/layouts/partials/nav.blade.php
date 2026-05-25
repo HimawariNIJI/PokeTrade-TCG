@@ -1,26 +1,18 @@
 @php
     $navLinks = [
-        ['route' => 'home',           'label' => 'Home'],
-        ['route' => 'cards.index',    'label' => 'Cards'],
-        ['route' => 'auctions.index', 'label' => 'Auctions'],
-        ['route' => 'gacha.index',    'label' => 'Gacha'],
-        ['route' => 'forums.index',   'label' => 'Forums'],
-        ['route' => 'shop.index',     'label' => 'Merch'],
-        ['route' => 'about',          'label' => 'About'],
+        ['route' => 'home',              'label' => 'Home'],
+        ['route' => 'cards.index',       'label' => 'Cards'],
+        ['route' => 'auctions.index',    'label' => 'Auctions'],
+        ['route' => 'gacha.index',       'label' => 'Gacha'],
+        ['route' => 'forums.index',      'label' => 'Forums'],
+        ['route' => 'leaderboard.index', 'label' => 'Leaderboard'],
+        ['route' => 'shop.index',        'label' => 'Merch'],
+        ['route' => 'about',             'label' => 'About'],
     ];
 @endphp
 @auth
     @php
-        $wishlistAuctionNotifications = auth()->user()
-            ->wishlistedCards()
-            ->whereHas('auctions', function ($query) {
-                $query->where('status', 'live');
-            })
-            ->with(['auctions' => function ($query) {
-                $query->where('status', 'live');
-            }])
-            ->take(5)
-            ->get();
+        $unreadNotificationCount = auth()->user()->unreadNotifications()->count();
     @endphp
 @endauth
 <header x-data="{ open: false, scrolled: window.scrollY > 8 }"
@@ -53,6 +45,20 @@
 
         <div class="flex items-center gap-2">
             @auth
+                {{-- Notifications --}}
+                <a href="{{ route('notifications.index') }}"
+                   class="relative hidden h-10 w-10 items-center justify-center rounded-full border border-ink-200 text-ink-700 transition hover:border-prism-violet hover:text-prism-violet md:inline-flex"
+                   title="Notifications">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/>
+                    </svg>
+                    @if(($unreadNotificationCount ?? 0) > 0)
+                        <span class="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full prism-bg px-1 text-[10px] font-bold text-white shadow">
+                            {{ $unreadNotificationCount }}
+                        </span>
+                    @endif
+                </a>
+
                 {{-- Wishlist --}}
                 <a href="{{ route('wishlist.index') }}"
                    class="hidden h-10 w-10 items-center justify-center rounded-full border border-ink-200 text-ink-700 transition hover:border-prism-violet hover:text-prism-violet md:inline-flex"
@@ -102,6 +108,7 @@
                         <a href="{{ route('profiles.show', auth()->user()) }}" class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">My Profile</a>
                         <a href="{{ route('collection.index') }}" class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">My Collection</a>
                         <a href="{{ route('wishlist.index') }}" class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">Chase Cards</a>
+                        <a href="{{ route('notifications.index') }}" class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">Notifications</a>
                         <a href="{{ route('orders.index') }}"  class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">My Orders</a>
                         <a href="{{ route('settings.edit') }}" class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">Settings</a>
                         @if(auth()->user()->isAdmin())

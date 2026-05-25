@@ -134,6 +134,73 @@
             </div>
         </div>
 
+        {{-- Winner: pay + refund flow ===================================== --}}
+        @auth
+            @if($auction->status === 'ended' && $auction->isWinner(auth()->id()))
+                <div class="relative mt-8 rounded-2xl border border-prism-mint/40 bg-prism-mint/10 p-5 text-ink-50">
+                    <p class="text-xs font-black uppercase tracking-widest text-prism-mint">🏆 You won this auction</p>
+
+                    @if(! $auction->isPaid())
+                        <div class="mt-3 flex flex-wrap items-center gap-3">
+                            <p class="text-sm">
+                                Winning bid <span class="font-mono font-bold">@idr($auction->winning_amount ?? $auction->current_bid)</span>.
+                                Pay to claim the card.
+                            </p>
+                            <form method="POST" action="{{ route('auctions.pay', $auction) }}">
+                                @csrf
+                                <button type="submit"
+                                        class="rounded-full bg-gradient-to-r from-prism-mint to-prism-sky px-6 py-2 font-display font-black text-ink-900 shadow transition hover:-translate-y-0.5">
+                                    Pay now
+                                </button>
+                            </form>
+                        </div>
+                    @else
+                        <p class="mt-2 text-sm text-white/80">
+                            Paid {{ $auction->winner_paid_at->diffForHumans() }} ·
+                            @idr($auction->winning_amount ?? $auction->current_bid)
+                        </p>
+
+                        @if($auction->refund_status === 'none' && $auction->isRefundWindowOpen())
+                            <details class="mt-4">
+                                <summary class="cursor-pointer rounded-full border border-white/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white/80 inline-block hover:bg-white/10">
+                                    Request refund
+                                </summary>
+                                <form method="POST" action="{{ route('auctions.refund', $auction) }}" class="mt-3 space-y-2">
+                                    @csrf
+                                    <label class="block">
+                                        <span class="text-[10px] font-bold uppercase tracking-widest text-white/60">Tell us what went wrong</span>
+                                        <textarea name="reason" rows="3" required minlength="10" maxlength="1000"
+                                                  class="mt-1 w-full rounded-xl border-white/15 bg-white/10 text-ink-50 placeholder-white/30 focus:border-prism-pink focus:ring-prism-pink"
+                                                  placeholder="e.g. card arrived damaged"></textarea>
+                                    </label>
+                                    @error('reason') <p class="text-xs text-rose-300">{{ $message }}</p> @enderror
+                                    <button type="submit" class="rounded-full bg-rose-500/80 px-5 py-2 text-xs font-black uppercase tracking-widest text-white hover:bg-rose-500">
+                                        Submit refund request
+                                    </button>
+                                </form>
+                            </details>
+                        @elseif($auction->refund_status === 'requested')
+                            <p class="mt-3 inline-flex items-center gap-2 rounded-full bg-amber-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-amber-200">
+                                Refund pending admin review
+                            </p>
+                        @elseif($auction->refund_status === 'approved')
+                            <p class="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-emerald-200">
+                                Refund approved · resolved {{ $auction->refund_resolved_at?->diffForHumans() }}
+                            </p>
+                        @elseif($auction->refund_status === 'rejected')
+                            <p class="mt-3 inline-flex items-center gap-2 rounded-full bg-rose-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-rose-200">
+                                Refund rejected · resolved {{ $auction->refund_resolved_at?->diffForHumans() }}
+                            </p>
+                        @else
+                            <p class="mt-3 text-xs text-white/50">
+                                Refund window closed — sale is final.
+                            </p>
+                        @endif
+                    @endif
+                </div>
+            @endif
+        @endauth
+
         {{-- Live bid feed --}}
         <div class="relative mt-8 border-t border-white/10 pt-5">
             <p class="text-xs font-black uppercase tracking-widest text-prism-sky">⚡ Live Bid Feed</p>

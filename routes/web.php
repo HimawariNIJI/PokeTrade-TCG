@@ -7,6 +7,8 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ForumController;
 use App\Http\Controllers\GachaController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LeaderboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicProfileController;
@@ -47,6 +49,9 @@ Route::get('/forums/t/{thread}', [ForumController::class, 'thread'])->name('foru
 
 // Public trainer profiles.
 Route::get('/u/{user}', [PublicProfileController::class, 'show'])->name('profiles.show');
+
+// Trainer leaderboard.
+Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
 
 // Google
 Route::get('/auth/google', [GoogleController::class, 'redirect'])
@@ -92,8 +97,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/{card:slug}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
 
-    // Auctions — bidding requires auth
+    // Auctions — bidding + winner payment + refund flow require auth.
     Route::post('/auctions/{auction}/bid', [AuctionController::class, 'bid'])->name('auctions.bid');
+    Route::post('/auctions/{auction}/pay', [AuctionController::class, 'pay'])->name('auctions.pay');
+    Route::post('/auctions/{auction}/refund', [AuctionController::class, 'requestRefund'])->name('auctions.refund');
 
     // Gacha — pull a pack + view your digital collection.
     Route::post('/gacha/pull', [GachaController::class, 'pull'])->name('gacha.pull');
@@ -106,6 +113,10 @@ Route::middleware('auth')->group(function () {
 
     // Profile comment wall.
     Route::post('/u/{user}/comments', [PublicProfileController::class, 'comment'])->name('profiles.comment');
+
+    // Notifications inbox.
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 });
 
 /*
@@ -141,6 +152,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('auctions/{auction}/edit', [Admin\AuctionController::class, 'edit'])->name('auctions.edit');
     Route::patch('auctions/{auction}', [Admin\AuctionController::class, 'update'])->name('auctions.update');
     Route::delete('auctions/{auction}', [Admin\AuctionController::class, 'destroy'])->name('auctions.destroy');
+    Route::patch('auctions/{auction}/refund', [Admin\AuctionController::class, 'resolveRefund'])->name('auctions.resolveRefund');
 });
 
 require __DIR__.'/auth.php';

@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Auction;
 use App\Models\Card;
+use App\Notifications\WishlistAuctionNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Notification;
 
 class AuctionController extends Controller
 {
@@ -52,7 +54,7 @@ class AuctionController extends Controller
             ? 'scheduled'
             : ($endsAt->isPast() ? 'ended' : 'live');
 
-        Auction::create([
+        $auction = Auction::create([
             'card_id'          => $validated['card_id'],
             'seller_id'        => $request->user()->id,
             'starting_bid'     => $validated['starting_bid'],
@@ -63,6 +65,13 @@ class AuctionController extends Controller
             'ends_at'          => $endsAt,
             'status'           => $status,
         ]);
+
+        // Notify everyone who wishlisted this card that an auction is live.
+        $auction->load('card');
+        $watchers = $auction->card?->wishlistedBy()->get() ?? collect();
+        if ($watchers->isNotEmpty()) {
+            Notification::send($watchers, new WishlistAuctionNotification($auction));
+        }
 
         return redirect()->route('admin.auctions.index')
             ->with('status', 'Auction successfully published.');
@@ -156,6 +165,11 @@ class AuctionController extends Controller
             'is_highlighted' => $request->boolean('is_highlighted'),
         ]);
 
+        // Stamp the winner the moment the auction ends.
+        if ($newStatus === 'ended' && $oldStatus !== 'ended') {
+            $auction->refresh()->snapshotWinner();
+        }
+
         return redirect()->route('admin.auctions.index')
             ->with('status', 'Auction successfully updated.');
     }
@@ -165,6 +179,36 @@ class AuctionController extends Controller
         $auction->delete();
 
         return redirect()->route('admin.auctions.index')->with('status', 'Auction successfully deleted.');
+    }
+
+    /**
+     * Admin resolves a refund request — approve releases the funds, reject
+     * keeps the sale final. Both stamp resolved_at so the audit trail is
+     * complete.
+     */
+    public function resolveRefund(Request $request, Auction $auction)
+    {
+        $validated = $request->validate([
+            'decision' => ['required', 'in:approved,rejected'],
+        ]);
+
+        if ($auction->refund_status !== 'requested') {
+            return back()->withErrors([
+                'refund_status' => 'No pending refund request on this auction.',
+            ]);
+        }
+
+        $auction->update([
+            'refund_status'       => $validated['decision'],
+            'refund_resolved_at'  => now(),
+        ]);
+
+        return back()->with(
+            'status',
+            $validated['decision'] === 'approved'
+                ? 'Refund approved.'
+                : 'Refund rejected.'
+        );
     }
 
     /**

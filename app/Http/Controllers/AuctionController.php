@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Auction;
 use App\Models\Bid;
 use Illuminate\Http\Request;
-use App\Notifications\WishlistAuctionNotification;
 
 class AuctionController extends Controller
 {
@@ -151,5 +150,57 @@ class AuctionController extends Controller
             'leaderboard' => $leaderboard,
             'latest_bid' => $latestBid,
         ]);
+    }
+
+    /**
+     * Winner pays for an ended auction they won. No real payment gateway
+     * for auctions yet — clicking "Pay" just stamps winner_paid_at so the
+     * refund window opens. Replace with a Midtrans charge call when the
+     * auction payment integration lands.
+     */
+    public function pay(Request $request, Auction $auction)
+    {
+        $auction->snapshotWinner();
+
+        if (! $auction->isWinner($request->user()->id)) {
+            abort(403, 'Only the winner can pay for this auction.');
+        }
+
+        if ($auction->isPaid()) {
+            return back()->with('status', 'You have already paid for this auction.');
+        }
+
+        $auction->update(['winner_paid_at' => now()]);
+
+        return back()->with('status', 'Payment recorded. You can now request a refund within 7 days if anything is off.');
+    }
+
+    /**
+     * Winner requests a refund. Only allowed while the refund window is
+     * open and no prior request exists.
+     */
+    public function requestRefund(Request $request, Auction $auction)
+    {
+        if (! $auction->isWinner($request->user()->id)) {
+            abort(403, 'Only the winner can request a refund.');
+        }
+
+        if (! $auction->isRefundWindowOpen()) {
+            return back()->withErrors([
+                'refund' => 'This auction is not eligible for refund right now.',
+            ]);
+        }
+
+        $validated = $request->validate([
+            'reason' => ['required', 'string', 'min:10', 'max:1000'],
+        ]);
+
+        $auction->update([
+            'refund_status'       => 'requested',
+            'refund_reason'       => $validated['reason'],
+            'refund_requested_at' => now(),
+        ]);
+
+        return back()->with('status', 'Refund request submitted. An admin will review it.');
     }
 }
