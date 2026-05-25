@@ -23,12 +23,13 @@
                         <label class="block">
                             <span class="text-xs font-bold uppercase tracking-widest text-ink-700">Full name</span>
                             <input type="text" name="shipping_name" required
-                                value="{{ old('shipping_name', auth()->user()->name) }}"
+                                value="{{ old('shipping_name', $defaults['shipping_name']) }}"
                                 class="mt-1.5 w-full rounded-xl border-ink-200 focus:border-prism-violet focus:ring-prism-violet" />
                         </label>
                         <label class="block">
                             <span class="text-xs font-bold uppercase tracking-widest text-ink-700">Phone</span>
-                            <input type="tel" name="shipping_phone" required value="{{ old('shipping_phone') }}"
+                            <input type="tel" name="shipping_phone" required
+                                value="{{ old('shipping_phone', $defaults['shipping_phone']) }}"
                                 class="mt-1.5 w-full rounded-xl border-ink-200 focus:border-prism-violet focus:ring-prism-violet" />
                             @error('shipping_phone')
                                 <p class="text-sm text-red-600 mt-1">
@@ -38,18 +39,20 @@
                         </label>
                         <label class="block md:col-span-2">
                             <span class="text-xs font-bold uppercase tracking-widest text-ink-700">Address</span>
-                            <input type="text" name="shipping_address" required value="{{ old('shipping_address') }}"
+                            <input type="text" name="shipping_address" required
+                                value="{{ old('shipping_address', $defaults['shipping_address']) }}"
                                 class="mt-1.5 w-full rounded-xl border-ink-200 focus:border-prism-violet focus:ring-prism-violet" />
                         </label>
                         <label class="block">
                             <span class="text-xs font-bold uppercase tracking-widest text-ink-700">City</span>
-                            <input type="text" name="shipping_city" required value="{{ old('shipping_city') }}"
+                            <input type="text" name="shipping_city" required
+                                value="{{ old('shipping_city', $defaults['shipping_city']) }}"
                                 class="mt-1.5 w-full rounded-xl border-ink-200 focus:border-prism-violet focus:ring-prism-violet" />
                         </label>
                         <label class="block">
                             <span class="text-xs font-bold uppercase tracking-widest text-ink-700">Postal code</span>
                             <input type="text" name="shipping_postal_code" required
-                                value="{{ old('shipping_postal_code') }}"
+                                value="{{ old('shipping_postal_code', $defaults['shipping_postal_code']) }}"
                                 class="mt-1.5 w-full rounded-xl border-ink-200 focus:border-prism-violet focus:ring-prism-violet" />
                         </label>
                         <label class="block md:col-span-2">

@@ -12,10 +12,24 @@ class CheckoutController extends Controller
 {
     public function show(Request $request)
     {
-        $cart = $request->user()->cart()->with('items.itemable')->first();
+        $user = $request->user();
+        $cart = $user->cart()->with('items.itemable')->first();
+
+        // Default the shipping form to the user's most recent order, with a
+        // fallback to the user's profile fields. Saves repeat data entry.
+        $lastOrder = $user->orders()->latest()->first();
+
+        $defaults = [
+            'shipping_name'        => $lastOrder?->shipping_name        ?? $user->name,
+            'shipping_phone'       => $lastOrder?->shipping_phone       ?? $user->phone,
+            'shipping_address'     => $lastOrder?->shipping_address     ?? '',
+            'shipping_city'        => $lastOrder?->shipping_city        ?? '',
+            'shipping_postal_code' => $lastOrder?->shipping_postal_code ?? '',
+        ];
 
         return view('pages.checkout.show', [
-            'cart' => $cart,
+            'cart'     => $cart,
+            'defaults' => $defaults,
         ]);
     }
 

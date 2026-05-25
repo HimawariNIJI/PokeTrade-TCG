@@ -1,7 +1,21 @@
 <x-admin-layout heading="Cards" eyebrow="Catalog management">
     <x-slot:actions>
+        <form method="POST" action="{{ route('admin.cards.refresh') }}" class="inline-block"
+              onsubmit="this.querySelector('button').disabled = true; this.querySelector('button').textContent = 'Refreshing…';">
+            @csrf
+            <button type="submit"
+                    class="rounded-full border border-ink-200 bg-white px-4 py-2 text-sm font-bold text-ink-900 hover:border-prism-violet hover:text-prism-violet">
+                ↻ Refresh from API
+            </button>
+        </form>
         <x-prism-button :href="route('admin.cards.create')" size="sm">+ New card</x-prism-button>
     </x-slot:actions>
+
+    @if (session('status'))
+        <div class="mb-4 rounded-2xl border border-ink-200 bg-white p-4 text-sm text-ink-900">
+            {{ session('status') }}
+        </div>
+    @endif
 
     <form method="GET" class="mb-5 flex gap-2">
         <input type="search" name="q" value="{{ request('q') }}" placeholder="Search by name…" class="flex-1 rounded-full border-ink-200 text-sm">

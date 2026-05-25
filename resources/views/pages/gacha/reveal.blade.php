@@ -21,6 +21,13 @@
                     <span x-show="phase !== 'spread'">Tap to <span class="prism-text">reveal</span>.</span>
                     <span x-show="phase === 'spread'">Your <span class="prism-text">5 cards</span>.</span>
                 </h1>
+                {{-- Skip the per-card flip animation and jump straight to the fan-out spread. --}}
+                <div class="mt-5 flex justify-center" x-show="phase !== 'spread'">
+                    <button type="button" @click.stop="skip()"
+                        class="rounded-full border border-white/30 bg-white/10 px-5 py-2 text-xs font-bold uppercase tracking-widest text-white/80 backdrop-blur transition hover:bg-white/20 hover:text-white">
+                        Skip animation →
+                    </button>
+                </div>
             </div>
 
             {{-- ===== THE STAGE — absolute card layer ===== --}}
@@ -162,6 +169,15 @@
                             this.busy = false;
                             if (done) this.phase = 'spread';
                         }, 780);
+                    },
+
+                    /* Skip: flip every remaining card and fan the deck out. */
+                    skip() {
+                        if (this.phase === 'spread') return;
+                        for (let i = 0; i < this.total; i++) this.flipped[i] = true;
+                        this.step = this.total;
+                        this.busy = false;
+                        this.phase = 'spread';
                     },
 
                     /* Rainbow halo: the tappable top card (a hint) + every

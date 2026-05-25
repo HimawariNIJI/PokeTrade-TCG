@@ -72,11 +72,11 @@ class GachaController extends Controller
         // digitalCards() is BelongsToMany via the collection_cards pivot,
         // so it yields one row per pull — collapse to distinct cards.
         $owned = $user->digitalCards()->orderBy('name')->get();
-        $cards = $owned->unique('id')->values();
+        $unique = $owned->unique('id')->values();
 
         // Total = every pull (duplicates included); unique = distinct cards.
         $totalCards = $user->collectionCards()->count();
-        $uniqueCards = $cards->count();
+        $uniqueCards = $unique->count();
 
         // Count of pulls grouped by card rarity (duplicates counted).
         $rarityBreakdown = $owned
@@ -84,11 +84,28 @@ class GachaController extends Controller
             ->map->count()
             ->sortDesc();
 
+        // Per-page selector — clamp to a known list so users can't request 99999.
+        $allowedPerPage = [12, 24, 48, 96];
+        $perPage = (int) $request->integer('per_page', 24);
+        if (! in_array($perPage, $allowedPerPage, true)) {
+            $perPage = 24;
+        }
+
+        $cards = new \Illuminate\Pagination\LengthAwarePaginator(
+            $unique->forPage($request->integer('page', 1), $perPage)->values(),
+            $unique->count(),
+            $perPage,
+            $request->integer('page', 1),
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
         return view('pages.gacha.collection', [
             'cards'           => $cards,
             'totalCards'      => $totalCards,
             'uniqueCards'     => $uniqueCards,
             'rarityBreakdown' => $rarityBreakdown,
+            'perPage'         => $perPage,
+            'allowedPerPage'  => $allowedPerPage,
         ]);
     }
 }

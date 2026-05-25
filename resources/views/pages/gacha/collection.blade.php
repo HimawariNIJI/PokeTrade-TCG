@@ -53,11 +53,26 @@
         {{-- ============ CARD DISPLAY ============
              A clean display of just the cards the trainer has picked
              up from the gacha — no prices, no market value. --}}
+        <div class="mb-5 flex flex-wrap items-center justify-end gap-3">
+            <label class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-ink-500">
+                Cards per page
+                <select
+                    onchange="const u=new URL(window.location); u.searchParams.set('per_page', this.value); u.searchParams.delete('page'); window.location = u.toString();"
+                    class="rounded-full border-ink-200 px-3 py-1.5 text-xs font-bold text-ink-900">
+                    @foreach($allowedPerPage as $opt)
+                        <option value="{{ $opt }}" @selected($perPage === $opt)>{{ $opt }}</option>
+                    @endforeach
+                </select>
+            </label>
+        </div>
+
         <div class="grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-4 lg:grid-cols-6">
             @foreach($cards as $card)
                 <x-collection-card :card="$card" />
             @endforeach
         </div>
+
+        <div class="mt-10">{{ $cards->links() }}</div>
     @else
         <x-empty-state
             icon="✦"

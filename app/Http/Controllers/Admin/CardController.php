@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Card;
+use Database\Seeders\CardSeeder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 
 class CardController extends Controller
 {
@@ -16,6 +18,36 @@ class CardController extends Controller
             ->paginate(20)->withQueryString();
 
         return view('admin.cards.index', compact('cards'));
+    }
+
+    /**
+     * Re-pull the Standard-legal card catalogue from pokemontcg.io and
+     * refresh market prices. New cards are inserted; existing cards have
+     * their market_price (and price-history snapshot) updated.
+     *
+     * Long-running (~60s on a cold cache) — runs synchronously since this
+     * is an admin-only action and there is no queue worker.
+     */
+    public function refresh(Request $request)
+    {
+        @set_time_limit(0);
+        @ini_set('memory_limit', '512M');
+
+        $countBefore = Card::count();
+
+        try {
+            (new CardSeeder())->run();
+            Artisan::call('cards:refresh-prices');
+        } catch (\Throwable $e) {
+            return back()->with('status', 'Card refresh failed: ' . $e->getMessage());
+        }
+
+        $added = max(0, Card::count() - $countBefore);
+
+        return back()->with(
+            'status',
+            "Card catalogue refreshed from pokemontcg.io. {$added} new card(s) added; prices updated."
+        );
     }
 
     public function create()

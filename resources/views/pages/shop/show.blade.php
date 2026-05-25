@@ -28,8 +28,10 @@
 
             <div>
                 @php
-                    $stockinCart =
-                        auth()->user()?->cart?->items()?->where('itemable_id', $item->id)->first()?->quantity ?? 0;
+                    $stockinCart = auth()->user()?->cart?->items()
+                        ?->where('itemable_id', $item->id)
+                        ?->where('itemable_type', \App\Models\ShopItem::class)
+                        ?->first()?->quantity ?? 0;
                 @endphp
                 <span
                     class="inline-flex items-center gap-2 rounded-full bg-ink-900 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white">

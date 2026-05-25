@@ -77,17 +77,17 @@ class AuctionController extends Controller
      * watchers get the new bid in real time.*/
     public function bid(Request $request, Auction $auction)
     {
-        // if ($auction->status !== 'live') {
-        //     return response()->json([
-        //         'message' => 'This auction is not live.'
-        //     ], 422);
-        // }
+        if ($auction->status !== 'live') {
+            return response()->json([
+                'message' => 'This auction is not live.'
+            ], 422);
+        }
 
-        // if (now()->lt($auction->starts_at) || now()->gte($auction->ends_at)) {
-        //     return response()->json([
-        //         'message' => 'This auction is closed.'
-        //     ], 422);
-        // }
+        if (now()->lt($auction->starts_at) || now()->gte($auction->ends_at)) {
+            return response()->json([
+                'message' => 'This auction is closed.'
+            ], 422);
+        }
 
         if ($auction->seller_id === $request->user()->id) {
             return response()->json([

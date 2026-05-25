@@ -116,6 +116,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [Admin\DashboardController::class, 'index'])->name('dashboard');
 
+    Route::post('cards/refresh', [Admin\CardController::class, 'refresh'])->name('cards.refresh');
     Route::resource('cards', Admin\CardController::class)->except('show');
     Route::resource('shop', Admin\ShopItemController::class)
         ->parameters(['shop' => 'shopItem'])
