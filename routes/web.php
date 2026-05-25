@@ -15,6 +15,7 @@ use App\Http\Controllers\ShopController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\GoogleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,6 +47,12 @@ Route::get('/forums/t/{thread}', [ForumController::class, 'thread'])->name('foru
 
 // Public trainer profiles.
 Route::get('/u/{user}', [PublicProfileController::class, 'show'])->name('profiles.show');
+
+// Google
+Route::get('/auth/google', [GoogleController::class, 'redirect'])
+    ->name('google.login');
+
+Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
 
 /*
 |--------------------------------------------------------------------------
