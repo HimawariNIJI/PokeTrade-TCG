@@ -70,7 +70,7 @@ class ShopItemController extends Controller
         $original = $slug;
         $count = 1;
 
-        while (ShopItem::where('slug', $slug)->exists()) {
+        while (ShopItem::withTrashed()->where('slug', $slug)->exists()) {
             $slug = "{$original}-{$count}";
             $count++;
         }
@@ -128,8 +128,9 @@ class ShopItemController extends Controller
     }
 
     public function destroy(ShopItem $shopItem)
-    {  
-        $shopItem->update(['is_deleted' => true]);
+    {
+        $shopItem->delete();
+
         return back()->with('status', "Item '{$shopItem->name}' deleted successfully.");
     }
 }

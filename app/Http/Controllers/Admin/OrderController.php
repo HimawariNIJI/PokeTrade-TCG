@@ -25,44 +25,39 @@ class OrderController extends Controller
         ]);
     }
 
-    /**
-     * Validate status changes and stamp tracking timestamps.
-     */
     public function updateStatus(Request $request, Order $order)
     {
         $validated = $request->validate([
             'status' => 'required|in:' . implode(',', Order::STATUSES),
-            'payment_status' => 'required|in:' . implode(',', Order::PAYMENT_STATUSES),
         ]);
 
-        $status = $validated['status'];
-        $paymentStatus = $validated['payment_status'];
+        $newStatus = $validated['status'];
+        $currentStatus = $order->status;
 
-        $attributes = [
-            'status' => $status,
-            'payment_status' => $paymentStatus,
+        // Prevent rollback status
+        $allowedTransitions = [
+            'pending' => [],
+            'paid' => ['shipped', 'delivered'],
+            'shipped' => ['delivered'],
+            'delivered' => [],
+            'cancelled' => [],
         ];
 
-        if ($paymentStatus === 'paid') {
-            $attributes['paid_at'] = $order->paid_at ?? now();
-        } else {
-            $attributes['paid_at'] = null;
+        if (!in_array($newStatus, $allowedTransitions[$currentStatus] ?? [])) {
+            return back()->with('error', 'Invalid status transition.');
         }
 
-        if ($status === 'shipped') {
+        $attributes = [
+            'status' => $newStatus,
+        ];
+
+        if ($newStatus === 'shipped') {
             $attributes['shipped_at'] = $order->shipped_at ?? now();
-            $attributes['delivered_at'] = null;
-        } elseif ($status === 'delivered') {
+        }
+
+        if ($newStatus === 'delivered') {
             $attributes['shipped_at'] = $order->shipped_at ?? now();
             $attributes['delivered_at'] = $order->delivered_at ?? now();
-        } else {
-            $attributes['shipped_at'] = null;
-            $attributes['delivered_at'] = null;
-        }
-
-        if ($status === 'cancelled') {
-            $attributes['shipped_at'] = null;
-            $attributes['delivered_at'] = null;
         }
 
         $order->update($attributes);

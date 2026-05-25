@@ -5,31 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ShopItem extends Model
 {
-    use HasFactory;
-
-    protected static function booted(): void
-    {
-        static::addGlobalScope('not_deleted', function ($query) {
-            $query->where('is_deleted', false);
-        });
-    }
+    use HasFactory, SoftDeletes;
 
     public const CATEGORIES = ['booster', 'bundle', 'accessory', 'plush', 'other'];
 
     protected $fillable = [
         'name', 'slug', 'description', 'category',
         'price', 'stock', 'image',
-        'featured', 'is_active', 'is_deleted',
+        'featured', 'is_active',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'featured' => 'boolean',
         'is_active' => 'boolean',
-        'is_deleted' => 'boolean',
     ];
 
     public function getRouteKeyName(): string

@@ -19,12 +19,12 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->boolean('featured')->default(false);
             $table->boolean('is_active')->default(true);
-            $table->boolean('is_deleted')->default(false);
+            
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index('category');
             $table->index('featured');
-            $table->index('is_deleted');
         });
     }
 
