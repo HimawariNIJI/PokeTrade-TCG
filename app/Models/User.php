@@ -33,7 +33,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name', 'email', 'password',
-        'role', 'google_id', 'avatar', 'phone',
+        'role', 'google_id', 'avatar', 'phone', 'points',
         'bio', 'location', 'social_links', 'profile_settings',
     ];
 
@@ -46,6 +46,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'social_links' => 'array',
             'profile_settings' => 'array',
+            'points' => 'integer',
         ];
     }
 

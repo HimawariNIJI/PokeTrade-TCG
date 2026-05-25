@@ -9,13 +9,19 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $orders = $request->user()->orders()
-            ->with('items')
-            ->latest()
-            ->paginate(10);
+        $query = $request->user()->orders()->with('items');
+        
+        // Filter by status if provided
+        if ($request->filled('status')) {
+            $query->where('status', $request->string('status'));
+        }
+        
+        $orders = $query->latest()->paginate(10)->withQueryString();
 
         return view('pages.orders.index', [
             'orders' => $orders,
+            'statuses' => Order::STATUSES,
+            'selectedStatus' => $request->string('status')->toString(),
         ]);
     }
 

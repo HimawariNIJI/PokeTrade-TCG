@@ -133,9 +133,6 @@
                     <h3 class="font-display text-base font-black">Payment</h3>
                     <p class="mt-2 text-sm capitalize">
                         {{ $order->payment_method ?? 'Unknown' }}
-                        @if ($order->payment_reference)
-                            <br /><span class="font-mono text-xs text-ink-500">{{ $order->payment_reference }}</span>
-                        @endif
                     </p>
                 </div>
             </aside>
