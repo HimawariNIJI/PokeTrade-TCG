@@ -10,6 +10,11 @@ class AuctionController extends Controller
 {
     public function index()
     {
+        Auction::where('status', 'scheduled')
+            ->where('starts_at', '<=', now())
+            ->update([
+                'status' => 'live'
+            ]);
         // Hero / highlighted auction
         $highlighted = Auction::query()
             ->with('card', 'currentLeader')
@@ -210,12 +215,16 @@ class AuctionController extends Controller
      */
     public function refresh(Auction $auction)
     {
+
+        if ($auction->status === 'scheduled' && now()->gte($auction->starts_at)) {
+            $auction->update(['status' => 'live']);
+            $auction->refresh();
+        }
+
         // Auto end if expired
         if ($auction->status === 'live' && now()->gte($auction->ends_at)) {
             $auction->snapshotWinner();
-            $auction->update([
-                'status' => 'ended'
-            ]);
+            $auction->update(['status' => 'ended']);
             $auction->refresh();
         }
 
