@@ -223,8 +223,170 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const auctionId = {{ $auction->id }};
+        const refreshUrl = '{{ route("auctions.refresh", $auction) }}';
+        const endUrl = '{{ route("auctions.end", $auction) }}';
         const form = document.getElementById('bid-form');
+        const statusEl = document.querySelector('[class*="rounded-full bg"]'); // Status badge
+        let refreshInterval = null;
+        let hasEnded = false;
 
+        // Auto-refresh auction data every 3 seconds
+        function startAutoRefresh() {
+            refreshInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(refreshUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                        }
+                    });
+
+                    if (!response.ok) return;
+
+                    const data = await response.json();
+
+                    // Update status if it changed
+                    if (data.status === 'ended' && !hasEnded) {
+                        await endAuction();
+                        return;
+                    }
+
+                    // Update current bid
+                    const currentBidEl = document.getElementById('current-bid');
+                    if (currentBidEl && data.current_bid) {
+                        currentBidEl.textContent = 'Rp ' + Number(data.current_bid).toLocaleString('id-ID');
+                    }
+
+                    // Update input minimum
+                    const amountInput = form?.querySelector('input[name="amount"]');
+                    if (amountInput && data.min_next_bid) {
+                        amountInput.min = data.min_next_bid;
+
+                        amountInput.placeholder =
+                            '≥ Rp ' + Number(data.min_next_bid).toLocaleString('id-ID');
+                    }
+
+                    // Update leaderboard
+                    const leaderboardEl = document.getElementById('leaderboard');
+                    if (leaderboardEl && data.leaderboard && data.leaderboard.length > 0) {
+                        leaderboardEl.innerHTML = '';
+                        data.leaderboard.forEach((bid, index) => {
+                            leaderboardEl.innerHTML +=
+                            `<div class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm
+                                ${bid.is_leader
+                                    ? 'border border-prism-pink bg-gradient-to-r from-prism-pink/25 to-prism-violet/15'
+                                    : 'bg-white/5'}">
+
+                                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-black
+                                    ${index === 0
+                                        ? 'bg-gradient-to-br from-prism-gold to-prism-pink text-ink-900'
+                                        : 'bg-white/10'}">
+                                    ${bid.is_leader ? '👑' : index + 1}
+                                </span>
+
+                                <span class="font-bold">${bid.user}</span>
+
+                                ${bid.is_leader ? `
+                                    <span class="rounded-full bg-prism-pink/30 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider">
+                                        Winning
+                                    </span>` : ''}
+
+                                <span class="ml-auto font-mono font-bold">
+                                    Rp ${Number(bid.amount).toLocaleString('id-ID')}
+                                </span>
+                            </div>`;
+                        });
+                    }
+
+                    // Update bid feed
+                    const feedEl = document.getElementById('bid-feed');
+                    if (feedEl && data.bid_feed && data.bid_feed.length > 0) {
+                        feedEl.innerHTML = '';
+                        data.bid_feed.forEach((bid) => {
+                            feedEl.innerHTML +=
+                            `<div class="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-1.5 text-xs">
+                                <span class="text-prism-mint">⚡</span>
+                                <span class="font-bold">${bid.user}</span>
+                                <span class="text-white/40">bid</span>
+                                <span class="font-mono font-bold text-prism-sky">
+                                    Rp ${Number(bid.amount).toLocaleString('id-ID')}
+                                </span>
+                                <span class="ml-auto text-white/30">${bid.time}</span>
+                            </div>`;
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error refreshing auction:', error);
+                }
+            }, 3000); // Refresh every 3 seconds
+        }
+
+        // End auction and update UI
+        async function endAuction() {
+            if (hasEnded) return;
+            hasEnded = true;
+
+            try {
+                const response = await fetch(endUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                if (!response.ok) return;
+
+                // Update status badge
+                const statusEl = document.querySelector('span[class*="rounded-full"]');
+                if (statusEl) {
+                    statusEl.innerHTML = '<span class="rounded-full bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-widest">Ended</span>';
+                }
+
+                // Disable bid form
+                if (form) {
+                    form.style.display = 'none';
+                    const container = form.parentElement;
+                    if (container) {
+                        container.innerHTML += '<div class="mt-6 rounded-2xl bg-white/5 p-4 text-sm text-white/70">This auction has ended.</div>';
+                    }
+                }
+
+                // Reload page after 2 seconds to show winner section
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } catch (error) {
+                console.error('Error ending auction:', error);
+            }
+        }
+
+        // Check if auction should be ended based on countdown
+        if (window.auctionCountdown) {
+            // Get the Alpine.js countdown data
+            const endsAtEl = document.querySelector('[x-data*="auctionCountdown"]');
+            if (endsAtEl) {
+                // We'll check on each refresh if the time has expired
+                const checkExpired = setInterval(() => {
+                    const endsAtStr = '{{ $auction->ends_at?->toIso8601String() }}';
+                    if (endsAtStr) {
+                        const endsAt = new Date(endsAtStr);
+                        const now = new Date();
+                        if (now > endsAt && !hasEnded) {
+                            clearInterval(checkExpired);
+                            clearInterval(refreshInterval);
+                            endAuction();
+                        }
+                    }
+                }, 1000);
+            }
+        }
+
+        // Start auto-refresh
+        startAutoRefresh();
+
+        // Bid form submission
         if (!form) return;
 
         form.addEventListener('submit', async (e) => {
@@ -237,7 +399,6 @@
             successEl.textContent = '';
 
             const submitBtn = form.querySelector('button[type="submit"]');
-
             submitBtn.disabled = true;
 
             const formData = new FormData(form);
@@ -268,20 +429,17 @@
 
                 // Update current bid
                 const currentBidEl = document.getElementById('current-bid');
-
                 if (currentBidEl) {
                     currentBidEl.textContent = 'Rp ' + Number(data.current_bid).toLocaleString('id-ID');
                 }
 
                 // Update input minimum
                 const amountInput = form.querySelector('input[name="amount"]');
-
                 amountInput.min = data.min_next_bid;
                 amountInput.placeholder = '≥ Rp ' + Number(data.min_next_bid).toLocaleString('id-ID');
                 amountInput.value = '';
 
                 const leaderboardEl = document.getElementById('leaderboard');
-
                 if (leaderboardEl) {
                     leaderboardEl.innerHTML = '';
 
@@ -314,7 +472,6 @@
                 }
 
                 const feedEl = document.getElementById('bid-feed');
-
                 if (feedEl) {
                     feedEl.insertAdjacentHTML(
                         'afterbegin',
