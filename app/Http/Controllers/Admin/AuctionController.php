@@ -9,6 +9,10 @@ use App\Notifications\WishlistAuctionNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
+use App\Jobs\SendWishlistAuctionNotification;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+
 
 class AuctionController extends Controller
 {
@@ -47,7 +51,7 @@ class AuctionController extends Controller
                 'card_id' => 'Card already has an active auction.'
             ]);
         }
-        
+
         $startsAt = Carbon::parse($validated['starts_at']);
         $endsAt = Carbon::parse($validated['ends_at']);
         $status = $startsAt->isFuture()
@@ -68,9 +72,16 @@ class AuctionController extends Controller
 
         // Notify everyone who wishlisted this card that an auction is live.
         $auction->load('card');
-        $watchers = $auction->card?->wishlistedBy()->get() ?? collect();
-        if ($watchers->isNotEmpty()) {
-            Notification::send($watchers, new WishlistAuctionNotification($auction));
+        $userIds = DB::table('wishlists')
+            ->where('card_id', $auction->card_id)
+            ->pluck('user_id');
+
+        // Query the User model using those gathered IDs
+        $usersWithWishlist = User::whereIn('id', $userIds)->get();
+        
+        // Dispatch the worker background tasks
+        foreach ($usersWithWishlist as $user) {
+            SendWishlistAuctionNotification::dispatch($user, $auction->card->name);
         }
 
         return redirect()->route('admin.auctions.index')
@@ -91,7 +102,7 @@ class AuctionController extends Controller
                 'auction' => 'Ended auctions cannot be edited.'
             ]);
         }
-    
+
         $validated = $request->validate([
             'starting_bid'  => ['required', 'numeric', 'min:0'],
             'bid_increment' => ['required', 'numeric', 'min:1'],
@@ -102,10 +113,10 @@ class AuctionController extends Controller
         ]);
 
         $allowedTransitions = [
-            'scheduled' => ['live','cancelled'],
-            'live' => ['ended','cancelled'],
+            'scheduled' => ['live', 'cancelled'],
+            'live' => ['ended', 'cancelled'],
             'ended' => [],
-            'cancelled' => ['scheduled','live','ended',],
+            'cancelled' => ['scheduled', 'live', 'ended',],
         ];
 
         $oldStatus = $auction->status;
@@ -147,7 +158,7 @@ class AuctionController extends Controller
                 ]);
             }
         }
-        
+
         if ($request->boolean('is_highlighted')) {
             Auction::where('id', '!=', $auction->id)
                 ->update([
@@ -220,7 +231,7 @@ class AuctionController extends Controller
         $q = trim((string) $request->query('q', ''));
 
         $cards = Card::query()
-            ->when($q !== '', fn ($query) => $query->where('name', 'like', "%{$q}%"))
+            ->when($q !== '', fn($query) => $query->where('name', 'like', "%{$q}%"))
             ->orderBy('name')
             ->limit(24)
             ->get(['id', 'name', 'set_name', 'rarity', 'image_small']);
