@@ -130,7 +130,6 @@ class AuctionController extends Controller
                 'auction_id' => $auction->id,
                 'user_id' => $request->user()->id,
                 'amount' => $validated['amount'],
-                'status' => 'pending',
             ]);
 
             $auction->current_bid = $validated['amount'];

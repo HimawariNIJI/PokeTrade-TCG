@@ -238,4 +238,22 @@ class AuctionController extends Controller
 
         return response()->json(['data' => $cards]);
     }
+
+    public function refund(Auction $auction)
+    {
+        if ($auction->status !== 'ended') {
+            return back()->with('error', 'Auction must be ended first.');
+        }
+
+        if ($auction->refund_status === 'approved') {
+            return back()->with('error', 'Auction already refunded.');
+        }
+
+        $auction->update([
+            'refund_status' => 'approved',
+            'refund_resolved_at' => now(),
+        ]);
+
+        return back()->with('success', 'Refund approved successfully.');
+    }
 }

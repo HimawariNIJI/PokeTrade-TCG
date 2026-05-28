@@ -154,7 +154,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('auctions/{auction}/edit', [Admin\AuctionController::class, 'edit'])->name('auctions.edit');
     Route::patch('auctions/{auction}', [Admin\AuctionController::class, 'update'])->name('auctions.update');
     Route::delete('auctions/{auction}', [Admin\AuctionController::class, 'destroy'])->name('auctions.destroy');
-    Route::patch('auctions/{auction}/refund', [Admin\AuctionController::class, 'resolveRefund'])->name('auctions.resolveRefund');
+    // Route::patch('auctions/{auction}/refund', [Admin\AuctionController::class, 'resolveRefund'])->name('auctions.resolveRefund');
+    Route::patch('auctions/{auction}/refund', [Admin\AuctionController::class, 'refund'])->name('auctions.refund');
 });
 
 require __DIR__.'/auth.php';
