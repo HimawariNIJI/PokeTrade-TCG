@@ -102,7 +102,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/auctions/{auction}/bid', [AuctionController::class, 'bid'])->name('auctions.bid');
     Route::post('/auctions/{auction}/pay', [AuctionController::class, 'pay'])->name('auctions.pay');
     Route::post('/auctions/{auction}/refund', [AuctionController::class, 'requestRefund'])->name('auctions.refund');
-    Route::get('/auctions/{auction}/refresh', [AuctionController::class, 'refresh'])->name('auctions.refresh');
     Route::post('/auctions/{auction}/end', [AuctionController::class, 'end'])->name('auctions.end');
 
     // Gacha — pull a pack + view your digital collection.
@@ -155,7 +154,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('auctions/{auction}/edit', [Admin\AuctionController::class, 'edit'])->name('auctions.edit');
     Route::patch('auctions/{auction}', [Admin\AuctionController::class, 'update'])->name('auctions.update');
     Route::delete('auctions/{auction}', [Admin\AuctionController::class, 'destroy'])->name('auctions.destroy');
-    Route::patch('auctions/{auction}/refund', [Admin\AuctionController::class, 'resolveRefund'])->name('auctions.resolveRefund');
+    // Route::patch('auctions/{auction}/refund', [Admin\AuctionController::class, 'resolveRefund'])->name('auctions.resolveRefund');
+    Route::patch('auctions/{auction}/refund', [Admin\AuctionController::class, 'refund'])->name('auctions.refund');
 });
 
 require __DIR__.'/auth.php';

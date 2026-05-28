@@ -5,16 +5,27 @@ namespace App\Http\Controllers;
 use App\Models\Auction;
 use App\Models\Bid;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AuctionController extends Controller
 {
     public function index()
     {
+        // Auto start scheduled auctions
         Auction::where('status', 'scheduled')
             ->where('starts_at', '<=', now())
-            ->update([
-                'status' => 'live'
-            ]);
+            ->update(['status' => 'live']);
+
+        // Auto end expired auctions
+        $expiredAuctions = Auction::where('status', 'live')
+            ->where('ends_at', '<=', now())
+            ->get();
+
+        foreach ($expiredAuctions as $auction) {
+            $auction->snapshotWinner();
+            $auction->update(['status' => 'ended']);
+        }
+
         // Hero / highlighted auction
         $highlighted = Auction::query()
             ->with('card', 'currentLeader')
@@ -112,15 +123,69 @@ class AuctionController extends Controller
             ],
         ]);
 
-        Bid::create([
-            'auction_id' => $auction->id,
-            'user_id' => $request->user()->id,
-            'amount' => $validated['amount'],
-        ]);
+        try {  
+            DB::beginTransaction();
 
-        $auction->current_bid = $validated['amount'];
-        $auction->current_leader_id = $request->user()->id;
-        $auction->save();
+            $bid = Bid::create([
+                'auction_id' => $auction->id,
+                'user_id' => $request->user()->id,
+                'amount' => $validated['amount'],
+            ]);
+
+            $auction->current_bid = $validated['amount'];
+            $auction->current_leader_id = $request->user()->id;
+
+            $shouldEnd = $auction->buy_now_price !== null
+                && $validated['amount'] >= $auction->buy_now_price;
+
+            $auction->save();
+
+            if ($shouldEnd) {
+                $auction->snapshotWinner();
+
+                $auction->update([
+                    'status' => 'ended',
+                    'ends_at' => now(),
+                ]);
+            }
+
+            \Midtrans\Config::$serverKey = config('midtrans.server_key');
+            \Midtrans\Config::$isProduction = config('midtrans.is_production');
+            \Midtrans\Config::$isSanitized = true;
+            \Midtrans\Config::$is3ds = true;
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => sprintf('auction-%s-bid-%s', $auction->id, $bid->id),
+                    'gross_amount' => (int) round($bid->amount),
+                ],
+                'item_details' => [
+                    [
+                        'id' => 'auction_' . $auction->id,
+                        'price' => (int) round($bid->amount),
+                        'quantity' => 1,
+                        'name' => 'Auction bid for ' . ($auction->card?->name ?? 'auction'),
+                    ],
+                ],
+                'customer_details' => [
+                    'first_name' => $request->user()->name,
+                    'email' => $request->user()->email,
+                    'phone' => $request->user()->phone,
+                ],
+            ];
+
+            $snapToken = \Midtrans\Snap::getSnapToken($params);
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to initiate payment. Please try again.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
 
         $auction->load([
             'bids.user',
@@ -140,7 +205,6 @@ class AuctionController extends Controller
                 ];
             });
 
-
         $latestBid = [
             'user' => $request->user()->name,
             'amount' => $validated['amount'],
@@ -149,11 +213,13 @@ class AuctionController extends Controller
         
         return response()->json([
             'success' => true,
-            'message' => 'Bid placed successfully.',
+            'message' => 'Bid placed successfully. Complete your payment to confirm the bid.',
             'current_bid' => $auction->current_bid,
             'min_next_bid' => $auction->min_next_bid,
             'leaderboard' => $leaderboard,
             'latest_bid' => $latestBid,
+            'snap_token' => $snapToken,
+            'auction_status' => $auction->status,
         ]);
     }
 

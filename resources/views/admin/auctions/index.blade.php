@@ -96,13 +96,43 @@
                             <td class="px-4 py-3 text-xs text-ink-500">{{ $auction->ends_at?->diffForHumans() }}</td>
                             <td class="px-4 py-3 text-right space-x-3">
                                 <a href="{{ route('admin.auctions.edit', $auction) }}"
-                                   class="text-xs font-semibold hover:text-prism-violet">Manage</a>
-                                <form method="POST" action="{{ route('admin.auctions.destroy', $auction) }}" class="inline">
+                                class="text-xs font-semibold hover:text-prism-violet">
+                                    Manage
+                                </a>
+
+                                @if(
+                                    $auction->status === 'ended' &&
+                                    $auction->refund_status !== 'approved'
+                                )
+                                    <form method="POST"
+                                        action="{{ route('admin.auctions.refund', $auction) }}"
+                                        class="inline">
+                                        @csrf
+                                        @method('PATCH')
+
+                                        <button type="submit"
+                                                onclick="return confirm('Refund all users for this auction?')"
+                                                class="text-xs font-semibold text-emerald-600 hover:text-emerald-800">
+                                            Refund
+                                        </button>
+                                    </form>
+                                @elseif($auction->refund_status === 'approved')
+                                    <span class="text-xs font-semibold text-emerald-600">
+                                        Refunded
+                                    </span>
+                                @endif
+
+                                <form method="POST"
+                                    action="{{ route('admin.auctions.destroy', $auction) }}"
+                                    class="inline">
                                     @csrf
                                     @method('DELETE')
+
                                     <button type="submit"
                                             onclick="return confirm('Remove this auction?')"
-                                            class="text-xs font-semibold text-red-600 hover:text-red-800">Delete</button>
+                                            class="text-xs font-semibold text-red-600 hover:text-red-800">
+                                        Delete
+                                    </button>
                                 </form>
                             </td>
                         </tr>

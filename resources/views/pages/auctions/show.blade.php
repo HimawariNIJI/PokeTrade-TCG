@@ -154,48 +154,6 @@
                                 </button>
                             </form>
                         </div>
-                    @else
-                        <p class="mt-2 text-sm text-white/80">
-                            Paid {{ $auction->winner_paid_at->diffForHumans() }} ·
-                            @idr($auction->winning_amount ?? $auction->current_bid)
-                        </p>
-
-                        @if($auction->refund_status === 'none' && $auction->isRefundWindowOpen())
-                            <details class="mt-4">
-                                <summary class="cursor-pointer rounded-full border border-white/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white/80 inline-block hover:bg-white/10">
-                                    Request refund
-                                </summary>
-                                <form method="POST" action="{{ route('auctions.refund', $auction) }}" class="mt-3 space-y-2">
-                                    @csrf
-                                    <label class="block">
-                                        <span class="text-[10px] font-bold uppercase tracking-widest text-white/60">Tell us what went wrong</span>
-                                        <textarea name="reason" rows="3" required minlength="10" maxlength="1000"
-                                                  class="mt-1 w-full rounded-xl border-white/15 bg-white/10 text-ink-50 placeholder-white/30 focus:border-prism-pink focus:ring-prism-pink"
-                                                  placeholder="e.g. card arrived damaged"></textarea>
-                                    </label>
-                                    @error('reason') <p class="text-xs text-rose-300">{{ $message }}</p> @enderror
-                                    <button type="submit" class="rounded-full bg-rose-500/80 px-5 py-2 text-xs font-black uppercase tracking-widest text-white hover:bg-rose-500">
-                                        Submit refund request
-                                    </button>
-                                </form>
-                            </details>
-                        @elseif($auction->refund_status === 'requested')
-                            <p class="mt-3 inline-flex items-center gap-2 rounded-full bg-amber-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-amber-200">
-                                Refund pending admin review
-                            </p>
-                        @elseif($auction->refund_status === 'approved')
-                            <p class="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-emerald-200">
-                                Refund approved · resolved {{ $auction->refund_resolved_at?->diffForHumans() }}
-                            </p>
-                        @elseif($auction->refund_status === 'rejected')
-                            <p class="mt-3 inline-flex items-center gap-2 rounded-full bg-rose-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-rose-200">
-                                Refund rejected · resolved {{ $auction->refund_resolved_at?->diffForHumans() }}
-                            </p>
-                        @else
-                            <p class="mt-3 text-xs text-white/50">
-                                Refund window closed — sale is final.
-                            </p>
-                        @endif
                     @endif
                 </div>
             @endif
@@ -422,6 +380,7 @@
                     else {
                         errorEl.textContent = data.message || 'Failed to place bid.';
                     }
+                    submitBtn.disabled = false;
                     return;
                 }
 
@@ -486,13 +445,40 @@
                         </div>`
                     );
                 }
+
+                if (data.snap_token && window.snap) {
+                    window.snap.pay(data.snap_token, {
+                        onSuccess: function(result) {
+                            window.location.reload();
+                        },
+                        onPending: function(result) {
+                            window.location.reload();
+                        },
+                        onError: function(result) {
+                            errorEl.textContent = 'Payment failed. Please try again.';
+                            submitBtn.disabled = false;
+                        },
+                        onClose: function() {
+                            errorEl.textContent = 'Payment was not completed.';
+                            submitBtn.disabled = false;
+                        }
+                    });
+                } else {
+                    submitBtn.disabled = false;
+                }
             } catch (error) {
                 errorEl.textContent = 'Something went wrong.';
+                submitBtn.disabled = false;
             }
 
             submitBtn.disabled = false;
             submitBtn.textContent = 'Place Your Bid ⚡';
         });
     });
+</script>
+
+<script
+    src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
+    data-client-key="{{ config('midtrans.client_key') }}">
 </script>
 </x-app-layout>
