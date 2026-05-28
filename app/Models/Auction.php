@@ -85,9 +85,15 @@ class Auction extends Model
             return;
         }
 
+        $latestBid = $this->bids()
+            ->where('user_id', $this->current_leader_id)
+            ->orderByDesc('created_at')
+            ->first();
+
         $this->forceFill([
             'winner_id'      => $this->current_leader_id,
             'winning_amount' => $this->current_bid,
+            'winner_paid_at' => $latestBid?->created_at ?? now(),
         ])->save();
     }
 
