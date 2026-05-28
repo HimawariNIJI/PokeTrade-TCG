@@ -32,7 +32,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->decimal('amount', 10, 2);
             $table->timestamps();
-
+            $table->string('payment_status', 16)->default('pending');
+            $table->string('midtrans_id')->nullable();
             $table->index(['auction_id', 'amount']);
         });
     }
