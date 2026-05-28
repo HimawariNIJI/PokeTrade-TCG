@@ -104,5 +104,89 @@ class OrderSeeder extends Seeder
                 'updated_at' => now()->subHour(),
             ]
         );
+
+        // December 2025 paid order
+        DB::table('orders')->updateOrInsert(
+            ['id' => 7],
+            [
+                'code' => 'PT-2025-000007',
+                'user_id' => $customer->id,
+                'status' => 'delivered',
+                'payment_status' => 'paid',
+                'payment_method' => null,
+                'payment_reference' => null,
+                'subtotal' => 165000.00,
+                'shipping_fee' => 20000.00,
+                'tax' => 10000.00,
+                'total' => 195000.00,
+                'shipping_name' => 'Ash Ketchum',
+                'shipping_phone' => '+62 812-3456-7890',
+                'shipping_address' => 'Pallet Town Trading Post, 12 Route 1',
+                'shipping_city' => 'Pallet Town',
+                'shipping_postal_code' => '12345',
+                'notes' => 'Holiday season order - successfully delivered.',
+                'paid_at' => \Carbon\Carbon::create(2025, 12, 20, 14, 30, 0),
+                'shipped_at' => \Carbon\Carbon::create(2025, 12, 22, 10, 0, 0),
+                'delivered_at' => \Carbon\Carbon::create(2025, 12, 28, 15, 45, 0),
+                'created_at' => \Carbon\Carbon::create(2025, 12, 20, 10, 0, 0),
+                'updated_at' => \Carbon\Carbon::create(2025, 12, 28, 15, 45, 0),
+            ]
+        );
+
+        // January 2026 paid order
+        DB::table('orders')->updateOrInsert(
+            ['id' => 8],
+            [
+                'code' => 'PT-2026-000008',
+                'user_id' => $customer->id,
+                'status' => 'delivered',
+                'payment_status' => 'paid',
+                'payment_method' => null,
+                'payment_reference' => null,
+                'subtotal' => 470000.00,
+                'shipping_fee' => 20000.00,
+                'tax' => 10000.00,
+                'total' => 500000.00,
+                'shipping_name' => 'Ash Ketchum',
+                'shipping_phone' => '+62 812-3456-7890',
+                'shipping_address' => 'Pallet Town Trading Post, 12 Route 1',
+                'shipping_city' => 'Pallet Town',
+                'shipping_postal_code' => '12345',
+                'notes' => 'New year purchase - successfully delivered.',
+                'paid_at' => \Carbon\Carbon::create(2026, 1, 15, 11, 20, 0),
+                'shipped_at' => \Carbon\Carbon::create(2026, 1, 17, 9, 0, 0),
+                'delivered_at' => \Carbon\Carbon::create(2026, 1, 22, 14, 30, 0),
+                'created_at' => \Carbon\Carbon::create(2026, 1, 15, 8, 0, 0),
+                'updated_at' => \Carbon\Carbon::create(2026, 1, 22, 14, 30, 0),
+            ]
+        );
+
+        // March 2026 paid order
+        DB::table('orders')->updateOrInsert(
+            ['id' => 9],
+            [
+                'code' => 'PT-2026-000009',
+                'user_id' => $customer->id,
+                'status' => 'delivered',
+                'payment_status' => 'paid',
+                'payment_method' => null,
+                'payment_reference' => null,
+                'subtotal' => 160000.00,
+                'shipping_fee' => 20000.00,
+                'tax' => 10000.00,
+                'total' => 190000.00,
+                'shipping_name' => 'Ash Ketchum',
+                'shipping_phone' => '+62 812-3456-7890',
+                'shipping_address' => 'Pallet Town Trading Post, 12 Route 1',
+                'shipping_city' => 'Pallet Town',
+                'shipping_postal_code' => '12345',
+                'notes' => 'Spring collection order - successfully delivered.',
+                'paid_at' => \Carbon\Carbon::create(2026, 3, 10, 13, 45, 0),
+                'shipped_at' => \Carbon\Carbon::create(2026, 3, 12, 11, 15, 0),
+                'delivered_at' => \Carbon\Carbon::create(2026, 3, 18, 16, 0, 0),
+                'created_at' => \Carbon\Carbon::create(2026, 3, 10, 9, 30, 0),
+                'updated_at' => \Carbon\Carbon::create(2026, 3, 18, 16, 0, 0),
+            ]
+        );
     }
 }

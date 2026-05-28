@@ -3,8 +3,43 @@
         <x-prism-button :href="route('admin.auctions.create')" size="sm">+ New Auction</x-prism-button>
     </x-slot:actions>
 
+    {{-- Filter Buttons --}}
+    <div class="mb-6 flex flex-wrap gap-2">
+        <a href="{{ route('admin.auctions.index', ['filter' => 'all']) }}"
+           class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $filter === 'all' ? 'bg-prism-violet text-white' : 'border border-ink-200 text-ink-700 hover:border-prism-violet hover:text-prism-violet' }}">
+            All Auctions
+        </a>
+        <a href="{{ route('admin.auctions.index', ['filter' => 'live']) }}"
+           class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $filter === 'live' ? 'bg-rose-100 text-rose-700' : 'border border-ink-200 text-ink-700 hover:border-rose-300 hover:text-rose-600' }}">
+            🔴 Live
+        </a>
+        <a href="{{ route('admin.auctions.index', ['filter' => 'scheduled']) }}"
+           class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $filter === 'scheduled' ? 'bg-amber-100 text-amber-700' : 'border border-ink-200 text-ink-700 hover:border-amber-300 hover:text-amber-600' }}">
+            Scheduled
+        </a>
+        <a href="{{ route('admin.auctions.index', ['filter' => 'ended']) }}"
+           class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $filter === 'ended' ? 'bg-ink-200 text-ink-700' : 'border border-ink-200 text-ink-700 hover:border-ink-300' }}">
+            Ended
+        </a>
+        <a href="{{ route('admin.auctions.index', ['filter' => 'cancelled']) }}"
+           class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $filter === 'cancelled' ? 'bg-red-100 text-red-700' : 'border border-ink-200 text-ink-700 hover:border-red-300 hover:text-red-600' }}">
+            Cancelled
+        </a>
+    </div>
+
+    @php
+        $emptyMessages = [
+            'all' => 'No auctions yet. Open a card for bidding to get the hype started.',
+            'live' => 'No live auctions at the moment.',
+            'scheduled' => 'No scheduled auctions.',
+            'ended' => 'No ended auctions.',
+            'cancelled' => 'No cancelled auctions.',
+        ];
+        $emptyMessage = $emptyMessages[$filter] ?? 'No auctions found.';
+    @endphp
+
     @if($auctions->isEmpty())
-        <x-empty-state icon="⬢" title="No auctions yet" message="Open a card for bidding to get the hype started.">
+        <x-empty-state icon="⬢" title="No auctions found" :message="$emptyMessage">
             <x-prism-button :href="route('admin.auctions.create')" size="sm">+ New Auction</x-prism-button>
         </x-empty-state>
     @else

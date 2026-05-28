@@ -16,14 +16,24 @@ use Illuminate\Support\Facades\DB;
 
 class AuctionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $auctions = Auction::query()
-            ->with('card', 'currentLeader')
-            ->latest()
-            ->get();
-
-        return view('admin.auctions.index', ['auctions' => $auctions]);
+        $filter = $request->query('filter', 'all');
+        
+        $query = Auction::query()
+            ->with('card', 'currentLeader');
+        
+        // Apply filter
+        if ($filter !== 'all' && in_array($filter, ['live', 'scheduled', 'cancelled', 'ended'])) {
+            $query->where('status', $filter);
+        }
+        
+        $auctions = $query->latest()->get();
+        
+        return view('admin.auctions.index', [
+            'auctions' => $auctions,
+            'filter' => $filter,
+        ]);
     }
 
     public function create()
