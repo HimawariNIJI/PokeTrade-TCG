@@ -38,6 +38,7 @@ Route::get('/shop/{shopItem:slug}', [ShopController::class, 'show'])->name('shop
 // Auctions for real, physical cards.
 Route::get('/auctions', [AuctionController::class, 'index'])->name('auctions.index');
 Route::get('/auctions/{auction}', [AuctionController::class, 'show'])->name('auctions.show');
+Route::get('/auctions/{auction}/refresh', [AuctionController::class, 'refresh'])->name('auctions.refresh');
 
 // Digital gacha — pull packs, collect digital cards.
 Route::get('/gacha', [GachaController::class, 'index'])->name('gacha.index');
@@ -101,6 +102,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/auctions/{auction}/bid', [AuctionController::class, 'bid'])->name('auctions.bid');
     Route::post('/auctions/{auction}/pay', [AuctionController::class, 'pay'])->name('auctions.pay');
     Route::post('/auctions/{auction}/refund', [AuctionController::class, 'requestRefund'])->name('auctions.refund');
+    Route::get('/auctions/{auction}/refresh', [AuctionController::class, 'refresh'])->name('auctions.refresh');
+    Route::post('/auctions/{auction}/end', [AuctionController::class, 'end'])->name('auctions.end');
 
     // Gacha — pull a pack + view your digital collection.
     Route::post('/gacha/pull', [GachaController::class, 'pull'])->name('gacha.pull');
