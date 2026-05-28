@@ -102,7 +102,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/auctions/{auction}/bid', [AuctionController::class, 'bid'])->name('auctions.bid');
     Route::post('/auctions/{auction}/pay', [AuctionController::class, 'pay'])->name('auctions.pay');
     Route::post('/auctions/{auction}/refund', [AuctionController::class, 'requestRefund'])->name('auctions.refund');
-    Route::get('/auctions/{auction}/refresh', [AuctionController::class, 'refresh'])->name('auctions.refresh');
     Route::post('/auctions/{auction}/end', [AuctionController::class, 'end'])->name('auctions.end');
 
     // Gacha — pull a pack + view your digital collection.

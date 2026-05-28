@@ -19,8 +19,7 @@ class Auction extends Model
         'starting_bid', 'current_bid', 'bid_increment', 'buy_now_price',
         'starts_at', 'ends_at', 'status', 'is_highlighted',
         'winner_id', 'winning_amount', 'winner_paid_at',
-        'refund_status', 'refund_reason',
-        'refund_requested_at', 'refund_resolved_at',
+        'refund_status', 'refund_resolved_at',
     ];
 
     protected $casts = [
@@ -33,7 +32,6 @@ class Auction extends Model
         'ends_at' => 'datetime',
         'deleted_at' => 'datetime',
         'winner_paid_at' => 'datetime',
-        'refund_requested_at' => 'datetime',
         'refund_resolved_at' => 'datetime',
     ];
 
