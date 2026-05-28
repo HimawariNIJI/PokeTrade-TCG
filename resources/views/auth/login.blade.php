@@ -28,8 +28,8 @@
                 <input type="checkbox" name="remember" class="rounded border-ink-300 text-prism-violet focus:ring-prism-violet">
                 <span class="text-sm text-ink-700">Remember me</span>
             </label>
-            @if (Route::has('password.request'))
-                <a class="text-sm font-semibold text-ink-700 hover:text-prism-violet" href="{{ route('password.request') }}">
+            @if (Route::has('otp.forgot-password'))
+                <a class="text-sm font-semibold text-ink-700 hover:text-prism-violet" href="{{ route('otp.forgot-password') }}">
                     Forgot password?
                 </a>
             @endif

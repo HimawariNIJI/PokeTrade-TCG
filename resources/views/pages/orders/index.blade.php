@@ -28,7 +28,7 @@
         @if ($orders->isEmpty())
             <x-empty-state icon="◆"
                 title="{{ $selectedStatus ? 'No ' . $selectedStatus . ' orders' : 'No orders yet' }}"
-                message="{{ $selectedStatus ? 'No orders match this status. Try another filter.' : 'When you place an order, it\'ll show up here with tracking and a digital invoice.' }}">
+                message="{{ $selectedStatus ? 'No orders match this status. Try another filter.' : 'When you place an order, it will show up here with tracking and a digital invoice.' }}">
                 <x-prism-button :href="route('cards.index')" size="md">Browse Items</x-prism-button>
             </x-empty-state>
         @else
@@ -63,12 +63,12 @@
                                     @endphp
                                     @if ($checkstatus === 'paid' || $checkstatus === 'shipped' || $checkstatus === 'delivered')
                                         {{ ucfirst($checkstatus) }} at
-                                        {{ $order->{$checkstatus . '_at'}?->format('M d, Y') ?? 'Unknown Date' }}
+                                        {{ $order->{$checkstatus . '_at'}?->format('M d, Y g:i A') ?? 'Unknown Date' }}
                                     @elseif ($checkstatus === 'cancelled')
                                         Cancelled at
-                                        {{ $order->updated_at->format('M d, Y') ?? 'Unknown Date' }}
+                                        {{ $order->updated_at->format('M d, Y g:i A') ?? 'Unknown Date' }}
                                     @else
-                                        Order created at {{ $order->created_at->format('M d, Y') }}
+                                        Order created at {{ $order->created_at->format('M d, Y g:i A') }}
                                     @endif
                                 </p>
                             </div>
@@ -121,6 +121,14 @@
                                         </div>
                                     </div>
                                 @endforeach
+                                @php
+                                    $point = floor($order->subtotal / 10000);
+                                @endphp
+                                @if($order->status === 'paid' || $order->status === 'shipped' || $order->status === 'delivered')
+                                    <div>
+                                        <span class="text-sm font-semibold">Points earned: </span><span class="prism-text font-semibold">{{ $point }} points</span>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
