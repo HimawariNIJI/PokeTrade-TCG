@@ -5,11 +5,27 @@ namespace App\Http\Controllers;
 use App\Models\Auction;
 use App\Models\Bid;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AuctionController extends Controller
 {
     public function index()
     {
+        // Auto start scheduled auctions
+        Auction::where('status', 'scheduled')
+            ->where('starts_at', '<=', now())
+            ->update(['status' => 'live']);
+
+        // Auto end expired auctions
+        $expiredAuctions = Auction::where('status', 'live')
+            ->where('ends_at', '<=', now())
+            ->get();
+
+        foreach ($expiredAuctions as $auction) {
+            $auction->snapshotWinner();
+            $auction->update(['status' => 'ended']);
+        }
+
         // Hero / highlighted auction
         $highlighted = Auction::query()
             ->with('card', 'currentLeader')
@@ -48,7 +64,7 @@ class AuctionController extends Controller
             ->get();
 
         $ended = Auction::query()
-            ->with('card', 'currentLeader')
+            ->with('card', 'currentLeader', 'winner')
             ->where('status', 'ended')
             ->orderByDesc('ends_at')
             ->limit(6)
@@ -107,15 +123,69 @@ class AuctionController extends Controller
             ],
         ]);
 
-        Bid::create([
-            'auction_id' => $auction->id,
-            'user_id' => $request->user()->id,
-            'amount' => $validated['amount'],
-        ]);
+        try {  
+            DB::beginTransaction();
 
-        $auction->current_bid = $validated['amount'];
-        $auction->current_leader_id = $request->user()->id;
-        $auction->save();
+            $bid = Bid::create([
+                'auction_id' => $auction->id,
+                'user_id' => $request->user()->id,
+                'amount' => $validated['amount'],
+            ]);
+
+            $auction->current_bid = $validated['amount'];
+            $auction->current_leader_id = $request->user()->id;
+
+            $shouldEnd = $auction->buy_now_price !== null
+                && $validated['amount'] >= $auction->buy_now_price;
+
+            $auction->save();
+
+            if ($shouldEnd) {
+                $auction->snapshotWinner();
+
+                $auction->update([
+                    'status' => 'ended',
+                    'ends_at' => now(),
+                ]);
+            }
+
+            \Midtrans\Config::$serverKey = config('midtrans.server_key');
+            \Midtrans\Config::$isProduction = config('midtrans.is_production');
+            \Midtrans\Config::$isSanitized = true;
+            \Midtrans\Config::$is3ds = true;
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => sprintf('auction-%s-bid-%s', $auction->id, $bid->id),
+                    'gross_amount' => (int) round($bid->amount),
+                ],
+                'item_details' => [
+                    [
+                        'id' => 'auction_' . $auction->id,
+                        'price' => (int) round($bid->amount),
+                        'quantity' => 1,
+                        'name' => 'Auction bid for ' . ($auction->card?->name ?? 'auction'),
+                    ],
+                ],
+                'customer_details' => [
+                    'first_name' => $request->user()->name,
+                    'email' => $request->user()->email,
+                    'phone' => $request->user()->phone,
+                ],
+            ];
+
+            $snapToken = \Midtrans\Snap::getSnapToken($params);
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to initiate payment. Please try again.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
 
         $auction->load([
             'bids.user',
@@ -135,7 +205,6 @@ class AuctionController extends Controller
                 ];
             });
 
-
         $latestBid = [
             'user' => $request->user()->name,
             'amount' => $validated['amount'],
@@ -144,11 +213,13 @@ class AuctionController extends Controller
         
         return response()->json([
             'success' => true,
-            'message' => 'Bid placed successfully.',
+            'message' => 'Bid placed successfully. Complete your payment to confirm the bid.',
             'current_bid' => $auction->current_bid,
             'min_next_bid' => $auction->min_next_bid,
             'leaderboard' => $leaderboard,
             'latest_bid' => $latestBid,
+            'snap_token' => $snapToken,
+            'auction_status' => $auction->status,
         ]);
     }
 
@@ -202,5 +273,89 @@ class AuctionController extends Controller
         ]);
 
         return back()->with('status', 'Refund request submitted. An admin will review it.');
+    }
+
+    /**
+     * Refresh auction data for AJAX polling. Returns updated auction
+     * info including status, bids, and leaderboard.
+     */
+    public function refresh(Auction $auction)
+    {
+
+        if ($auction->status === 'scheduled' && now()->gte($auction->starts_at)) {
+            $auction->update(['status' => 'live']);
+            $auction->refresh();
+        }
+
+        // Auto end if expired
+        if ($auction->status === 'live' && now()->gte($auction->ends_at)) {
+            $auction->snapshotWinner();
+            $auction->update(['status' => 'ended']);
+            $auction->refresh();
+        }
+
+        $auction->load('card', 'seller', 'bids.user', 'currentLeader');
+
+        $rankedBids = $auction->bids->sortByDesc('amount')->values();
+        $topUniqueBids = $rankedBids
+            ->unique('user_id')
+            ->take(3)
+            ->values();
+
+        $leaderboard = $topUniqueBids->map(function ($bid) use ($auction) {
+            return [
+                'user' => $bid->user?->name ?? 'Anonymous',
+                'amount' => $bid->amount,
+                'is_leader' => $bid->user_id === $auction->current_leader_id,
+            ];
+        });
+
+        $feedBids = $auction->bids->sortByDesc('created_at')->take(20)->values();
+        $bidFeed = $feedBids->map(function ($bid) {
+            return [
+                'user' => $bid->user?->name ?? 'Anonymous',
+                'amount' => $bid->amount,
+                'time' => $bid->created_at?->diffForHumans(),
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'status' => $auction->status,
+            'is_live' => $auction->is_live,
+            'current_bid' => $auction->current_bid,
+            'min_next_bid' => $auction->min_next_bid,
+            'current_leader' => $auction->currentLeader?->name ?? 'Anonymous',
+            'current_leader_id' => $auction->current_leader_id,
+            'ends_at' => $auction->ends_at?->toIso8601String(),
+            'winner_id' => $auction->winner_id,
+            'leaderboard' => $leaderboard,
+            'bid_feed' => $bidFeed,
+        ]);
+    }
+
+    /**
+     * End an auction when its time expires. Snapshots the winner and
+     * marks it as ended. Called via AJAX when the countdown reaches zero.
+     */
+    public function end(Request $request, Auction $auction)
+    {
+        // Allow the request if the auction is still live and has actually expired
+        if ($auction->status !== 'live' || now()->lt($auction->ends_at)) {
+            return response()->json([
+                'message' => 'This auction cannot be ended at this time.'
+            ], 422);
+        }
+
+        // Snapshot winner and update status
+        $auction->snapshotWinner();
+        $auction->update(['status' => 'ended']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Auction ended.',
+            'status' => 'ended',
+            'winner_id' => $auction->winner_id,
+        ]);
     }
 }

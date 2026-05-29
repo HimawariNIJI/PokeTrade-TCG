@@ -143,7 +143,13 @@
                     </div>
                     <div class="min-w-0 flex-1">
                         <p class="line-clamp-1 text-sm font-bold">{{ $a->card?->name }}</p>
-                        <p class="text-xs text-ink-500">Sold for @idr($a->current_bid)</p>
+                        <p class="text-xs text-ink-500 text-prism-violet font-semibold">Sold for @idr($a->current_bid)</p>
+                        <p class="text-[11px] uppercase tracking-[0.2em] text-ink-500 font-bold">
+                            Winner: <span class="font-bold prism-text">{{ $a->winner?->name ?? $a->currentLeader?->name ?? 'Unknown' }}</span>
+                        </p>
+                        <p class="text-xs text-ink-500">
+                            Duration: {{ $a->starts_at && $a->ends_at ? $a->starts_at->diffForHumans($a->ends_at, true) : 'Unknown' }}
+                        </p>
                     </div>
                 </div>
             @endforeach

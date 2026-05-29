@@ -7,6 +7,7 @@ use App\Models\Card;
 use App\Models\Order;
 use App\Models\ShopItem;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -34,11 +35,21 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // Last 6 months revenue stub — friend can wire to actual order totals
-        $monthlyRevenue = collect(range(5, 0))->map(fn ($i) => [
-            'month'  => now()->subMonths($i)->format('M'),
-            'amount' => 0,
-        ]);
+        // Get last 6 months revenue aggregation by orders.paid_at
+        $monthlyRevenue = collect(range(5, 0))->map(function ($i) {
+            $startDate = now()->subMonths($i)->startOfMonth();
+            $endDate = now()->subMonths($i)->endOfMonth();
+            $month = $startDate->format('M');
+            
+            $amount = Order::where('payment_status', 'paid')
+                ->whereBetween('paid_at', [$startDate, $endDate])
+                ->sum('total');
+            
+            return [
+                'month'  => $month,
+                'amount' => (float) $amount,
+            ];
+        });
 
         return view('admin.dashboard', compact(
             'stats', 'recentOrders', 'bestSelling', 'mostExpensive', 'monthlyRevenue'

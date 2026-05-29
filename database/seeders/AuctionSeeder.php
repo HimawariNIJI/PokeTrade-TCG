@@ -106,6 +106,7 @@ class AuctionSeeder extends Seeder
                     'auction_id' => $auction->id,
                     'user_id'    => $bidder->id,
                     'amount'     => $amount,
+                    'payment_status' => "paid"
                 ]);
                 $bid->created_at = $placedAt;
                 $bid->updated_at = $placedAt;

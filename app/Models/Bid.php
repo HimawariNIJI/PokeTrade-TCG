@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Bid extends Model
 {
-    protected $fillable = ['auction_id', 'user_id', 'amount'];
+    protected $fillable = ['auction_id', 'user_id', 'amount', 'payment_status', 'midtrans_id'];
 
     protected $casts = [
         'amount' => 'decimal:2',

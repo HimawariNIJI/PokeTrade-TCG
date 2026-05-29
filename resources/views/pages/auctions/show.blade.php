@@ -109,7 +109,7 @@
                         @csrf
                         <label class="flex-1">
                             <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Your bid</span>
-                            <input type="number" step="0.01" name="amount" min="{{ $auction->min_next_bid }}"
+                            <input type="number" step="{{ $auction->bid_increment }}" name="amount" min="{{ $auction->min_next_bid }}"
                                    placeholder="≥ @idr($auction->min_next_bid)"
                                    class="mt-1 w-full rounded-full border-white/15 bg-white/10 text-ink-50 placeholder-white/30 focus:border-prism-mint focus:ring-prism-mint">
                         </label>
@@ -154,48 +154,6 @@
                                 </button>
                             </form>
                         </div>
-                    @else
-                        <p class="mt-2 text-sm text-white/80">
-                            Paid {{ $auction->winner_paid_at->diffForHumans() }} ·
-                            @idr($auction->winning_amount ?? $auction->current_bid)
-                        </p>
-
-                        @if($auction->refund_status === 'none' && $auction->isRefundWindowOpen())
-                            <details class="mt-4">
-                                <summary class="cursor-pointer rounded-full border border-white/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white/80 inline-block hover:bg-white/10">
-                                    Request refund
-                                </summary>
-                                <form method="POST" action="{{ route('auctions.refund', $auction) }}" class="mt-3 space-y-2">
-                                    @csrf
-                                    <label class="block">
-                                        <span class="text-[10px] font-bold uppercase tracking-widest text-white/60">Tell us what went wrong</span>
-                                        <textarea name="reason" rows="3" required minlength="10" maxlength="1000"
-                                                  class="mt-1 w-full rounded-xl border-white/15 bg-white/10 text-ink-50 placeholder-white/30 focus:border-prism-pink focus:ring-prism-pink"
-                                                  placeholder="e.g. card arrived damaged"></textarea>
-                                    </label>
-                                    @error('reason') <p class="text-xs text-rose-300">{{ $message }}</p> @enderror
-                                    <button type="submit" class="rounded-full bg-rose-500/80 px-5 py-2 text-xs font-black uppercase tracking-widest text-white hover:bg-rose-500">
-                                        Submit refund request
-                                    </button>
-                                </form>
-                            </details>
-                        @elseif($auction->refund_status === 'requested')
-                            <p class="mt-3 inline-flex items-center gap-2 rounded-full bg-amber-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-amber-200">
-                                Refund pending admin review
-                            </p>
-                        @elseif($auction->refund_status === 'approved')
-                            <p class="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-emerald-200">
-                                Refund approved · resolved {{ $auction->refund_resolved_at?->diffForHumans() }}
-                            </p>
-                        @elseif($auction->refund_status === 'rejected')
-                            <p class="mt-3 inline-flex items-center gap-2 rounded-full bg-rose-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-rose-200">
-                                Refund rejected · resolved {{ $auction->refund_resolved_at?->diffForHumans() }}
-                            </p>
-                        @else
-                            <p class="mt-3 text-xs text-white/50">
-                                Refund window closed — sale is final.
-                            </p>
-                        @endif
                     @endif
                 </div>
             @endif
@@ -223,8 +181,170 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const auctionId = {{ $auction->id }};
+        const refreshUrl = '{{ route("auctions.refresh", $auction) }}';
+        const endUrl = '{{ route("auctions.end", $auction) }}';
         const form = document.getElementById('bid-form');
+        const statusEl = document.querySelector('[class*="rounded-full bg"]'); // Status badge
+        let refreshInterval = null;
+        let hasEnded = false;
 
+        // Auto-refresh auction data every 3 seconds
+        function startAutoRefresh() {
+            refreshInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(refreshUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                        }
+                    });
+
+                    if (!response.ok) return;
+
+                    const data = await response.json();
+
+                    // Update status if it changed
+                    if (data.status === 'ended' && !hasEnded) {
+                        await endAuction();
+                        return;
+                    }
+
+                    // Update current bid
+                    const currentBidEl = document.getElementById('current-bid');
+                    if (currentBidEl && data.current_bid) {
+                        currentBidEl.textContent = 'Rp ' + Number(data.current_bid).toLocaleString('id-ID');
+                    }
+
+                    // Update input minimum
+                    const amountInput = form?.querySelector('input[name="amount"]');
+                    if (amountInput && data.min_next_bid) {
+                        amountInput.min = data.min_next_bid;
+
+                        amountInput.placeholder =
+                            '≥ Rp ' + Number(data.min_next_bid).toLocaleString('id-ID');
+                    }
+
+                    // Update leaderboard
+                    const leaderboardEl = document.getElementById('leaderboard');
+                    if (leaderboardEl && data.leaderboard && data.leaderboard.length > 0) {
+                        leaderboardEl.innerHTML = '';
+                        data.leaderboard.forEach((bid, index) => {
+                            leaderboardEl.innerHTML +=
+                            `<div class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm
+                                ${bid.is_leader
+                                    ? 'border border-prism-pink bg-gradient-to-r from-prism-pink/25 to-prism-violet/15'
+                                    : 'bg-white/5'}">
+
+                                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-black
+                                    ${index === 0
+                                        ? 'bg-gradient-to-br from-prism-gold to-prism-pink text-ink-900'
+                                        : 'bg-white/10'}">
+                                    ${bid.is_leader ? '👑' : index + 1}
+                                </span>
+
+                                <span class="font-bold">${bid.user}</span>
+
+                                ${bid.is_leader ? `
+                                    <span class="rounded-full bg-prism-pink/30 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider">
+                                        Winning
+                                    </span>` : ''}
+
+                                <span class="ml-auto font-mono font-bold">
+                                    Rp ${Number(bid.amount).toLocaleString('id-ID')}
+                                </span>
+                            </div>`;
+                        });
+                    }
+
+                    // Update bid feed
+                    const feedEl = document.getElementById('bid-feed');
+                    if (feedEl && data.bid_feed && data.bid_feed.length > 0) {
+                        feedEl.innerHTML = '';
+                        data.bid_feed.forEach((bid) => {
+                            feedEl.innerHTML +=
+                            `<div class="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-1.5 text-xs">
+                                <span class="text-prism-mint">⚡</span>
+                                <span class="font-bold">${bid.user}</span>
+                                <span class="text-white/40">bid</span>
+                                <span class="font-mono font-bold text-prism-sky">
+                                    Rp ${Number(bid.amount).toLocaleString('id-ID')}
+                                </span>
+                                <span class="ml-auto text-white/30">${bid.time}</span>
+                            </div>`;
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error refreshing auction:', error);
+                }
+            }, 3000); // Refresh every 3 seconds
+        }
+
+        // End auction and update UI
+        async function endAuction() {
+            if (hasEnded) return;
+            hasEnded = true;
+
+            try {
+                const response = await fetch(endUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    }
+                });
+
+                if (!response.ok) return;
+
+                // Update status badge
+                const statusEl = document.querySelector('span[class*="rounded-full"]');
+                if (statusEl) {
+                    statusEl.innerHTML = '<span class="rounded-full bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-widest">Ended</span>';
+                }
+
+                // Disable bid form
+                if (form) {
+                    form.style.display = 'none';
+                    const container = form.parentElement;
+                    if (container) {
+                        container.innerHTML += '<div class="mt-6 rounded-2xl bg-white/5 p-4 text-sm text-white/70">This auction has ended.</div>';
+                    }
+                }
+
+                // Reload page after 2 seconds to show winner section
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } catch (error) {
+                console.error('Error ending auction:', error);
+            }
+        }
+
+        // Check if auction should be ended based on countdown
+        if (window.auctionCountdown) {
+            // Get the Alpine.js countdown data
+            const endsAtEl = document.querySelector('[x-data*="auctionCountdown"]');
+            if (endsAtEl) {
+                // We'll check on each refresh if the time has expired
+                const checkExpired = setInterval(() => {
+                    const endsAtStr = '{{ $auction->ends_at?->toIso8601String() }}';
+                    if (endsAtStr) {
+                        const endsAt = new Date(endsAtStr);
+                        const now = new Date();
+                        if (now > endsAt && !hasEnded) {
+                            clearInterval(checkExpired);
+                            clearInterval(refreshInterval);
+                            endAuction();
+                        }
+                    }
+                }, 1000);
+            }
+        }
+
+        // Start auto-refresh
+        startAutoRefresh();
+
+        // Bid form submission
         if (!form) return;
 
         form.addEventListener('submit', async (e) => {
@@ -237,7 +357,6 @@
             successEl.textContent = '';
 
             const submitBtn = form.querySelector('button[type="submit"]');
-
             submitBtn.disabled = true;
 
             const formData = new FormData(form);
@@ -261,6 +380,7 @@
                     else {
                         errorEl.textContent = data.message || 'Failed to place bid.';
                     }
+                    submitBtn.disabled = false;
                     return;
                 }
 
@@ -268,20 +388,17 @@
 
                 // Update current bid
                 const currentBidEl = document.getElementById('current-bid');
-
                 if (currentBidEl) {
                     currentBidEl.textContent = 'Rp ' + Number(data.current_bid).toLocaleString('id-ID');
                 }
 
                 // Update input minimum
                 const amountInput = form.querySelector('input[name="amount"]');
-
                 amountInput.min = data.min_next_bid;
                 amountInput.placeholder = '≥ Rp ' + Number(data.min_next_bid).toLocaleString('id-ID');
                 amountInput.value = '';
 
                 const leaderboardEl = document.getElementById('leaderboard');
-
                 if (leaderboardEl) {
                     leaderboardEl.innerHTML = '';
 
@@ -314,7 +431,6 @@
                 }
 
                 const feedEl = document.getElementById('bid-feed');
-
                 if (feedEl) {
                     feedEl.insertAdjacentHTML(
                         'afterbegin',
@@ -329,13 +445,40 @@
                         </div>`
                     );
                 }
+
+                if (data.snap_token && window.snap) {
+                    window.snap.pay(data.snap_token, {
+                        onSuccess: function(result) {
+                            window.location.reload();
+                        },
+                        onPending: function(result) {
+                            window.location.reload();
+                        },
+                        onError: function(result) {
+                            errorEl.textContent = 'Payment failed. Please try again.';
+                            submitBtn.disabled = false;
+                        },
+                        onClose: function() {
+                            errorEl.textContent = 'Payment was not completed.';
+                            submitBtn.disabled = false;
+                        }
+                    });
+                } else {
+                    submitBtn.disabled = false;
+                }
             } catch (error) {
                 errorEl.textContent = 'Something went wrong.';
+                submitBtn.disabled = false;
             }
 
             submitBtn.disabled = false;
             submitBtn.textContent = 'Place Your Bid ⚡';
         });
     });
+</script>
+
+<script
+    src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
+    data-client-key="{{ config('midtrans.client_key') }}">
 </script>
 </x-app-layout>

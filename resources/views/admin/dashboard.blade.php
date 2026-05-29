@@ -27,16 +27,38 @@
         </div>
 
         {{-- Tiny bar chart placeholder --}}
+        @php
+            // Cari nilai pendapatan paling tinggi dari semua bulan
+            $maxAmount = 0;
+            foreach($monthlyRevenue as $item) {
+                $maxAmount = max($maxAmount, $item['amount'] ?? 0);
+            }
+            // Mencegah error pembagian dengan nol jika toko belum ada pemasukan sama sekali
+            $maxAmount = $maxAmount > 0 ? $maxAmount : 1; 
+
+            // Tentukan tinggi maksimal balok chart dalam satuan pixel (misal: 100px)
+            $maxChartHeight = 100;
+        @endphp
+
         <div class="mt-6 grid grid-cols-6 items-end gap-2">
             @foreach($monthlyRevenue as $m)
-                @php $h = max(8, ($m['amount'] ?? 0) > 0 ? min(100, $m['amount']) : 8); @endphp
+                @php 
+                    $amount = $m['amount'] ?? 0;
+                    
+                    // Hitung tinggi proporsional: 
+                    // (Pendapatan bulan ini / Pendapatan tertinggi) x Tinggi maksimal
+                    // max(8, ...) memastikan tinggi minimal tetap 8px agar balok tidak hilang sama sekali
+                    $h = max(8, ($amount / $maxAmount) * $maxChartHeight); 
+                @endphp
                 <div class="flex flex-col items-center">
-                    <div class="w-full rounded-t-md prism-bg opacity-80" style="height: {{ $h }}px"></div>
+                    {{-- Tambahkan title agar muncul tooltip jumlah uang saat cursor diarahkan ke balok --}}
+                    <div class="w-full rounded-t-md prism-bg opacity-80 transition-all hover:opacity-100" 
+                         style="height: {{ $h }}px"
+                         title="Rp {{ number_format($amount, 0, ',', '.') }}"></div>
                     <p class="mt-1 text-[10px] font-mono text-ink-500">{{ $m['month'] }}</p>
                 </div>
             @endforeach
         </div>
-        <p class="mt-3 text-[11px] text-ink-500">TODO(team-backend): wire actual monthly revenue aggregation by orders.paid_at.</p>
     </div>
 
     {{-- TOP PRICED --}}

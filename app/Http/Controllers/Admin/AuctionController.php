@@ -9,17 +9,59 @@ use App\Notifications\WishlistAuctionNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
+use App\Jobs\SendWishlistAuctionNotification;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+
 
 class AuctionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $auctions = Auction::query()
-            ->with('card', 'currentLeader')
-            ->latest()
-            ->get();
-
-        return view('admin.auctions.index', ['auctions' => $auctions]);
+        $filter = $request->query('filter', 'all');
+        
+        $query = Auction::query()
+            ->with('card', 'currentLeader');
+        
+        // Apply filter
+        if ($filter !== 'all' && in_array($filter, ['live', 'scheduled', 'cancelled', 'ended'])) {
+            $query->where('status', $filter);
+        }
+        
+        // Limit to 10 most recent auctions
+        $auctions = $query->latest()->limit(10)->get();
+        
+        // Get counts for each status
+        $statusCounts = [
+            'all' => Auction::count(),
+            'live' => Auction::where('status', 'live')->count(),
+            'scheduled' => Auction::where('status', 'scheduled')->count(),
+            'ended' => Auction::where('status', 'ended')->count(),
+            'cancelled' => Auction::where('status', 'cancelled')->count(),
+        ];
+        
+        // Get auction revenue from winning bids (ended auctions only)
+        $auctionRevenue = collect(range(5, 0))->map(function ($i) {
+            $startDate = now()->subMonths($i)->startOfMonth();
+            $endDate = now()->subMonths($i)->endOfMonth();
+            $month = $startDate->format('M');
+            
+            $amount = Auction::where('status', 'ended')
+                ->whereBetween('ends_at', [$startDate, $endDate])
+                ->sum('winning_amount');
+            
+            return [
+                'month'  => $month,
+                'amount' => (float) $amount,
+            ];
+        });
+        
+        return view('admin.auctions.index', [
+            'auctions' => $auctions,
+            'filter' => $filter,
+            'statusCounts' => $statusCounts,
+            'auctionRevenue' => $auctionRevenue,
+        ]);
     }
 
     public function create()
@@ -47,7 +89,7 @@ class AuctionController extends Controller
                 'card_id' => 'Card already has an active auction.'
             ]);
         }
-        
+
         $startsAt = Carbon::parse($validated['starts_at']);
         $endsAt = Carbon::parse($validated['ends_at']);
         $status = $startsAt->isFuture()
@@ -68,9 +110,16 @@ class AuctionController extends Controller
 
         // Notify everyone who wishlisted this card that an auction is live.
         $auction->load('card');
-        $watchers = $auction->card?->wishlistedBy()->get() ?? collect();
-        if ($watchers->isNotEmpty()) {
-            Notification::send($watchers, new WishlistAuctionNotification($auction));
+        $userIds = DB::table('wishlists')
+            ->where('card_id', $auction->card_id)
+            ->pluck('user_id');
+
+        // Query the User model using those gathered IDs
+        $usersWithWishlist = User::whereIn('id', $userIds)->get();
+        
+        // Dispatch the worker background tasks
+        foreach ($usersWithWishlist as $user) {
+            SendWishlistAuctionNotification::dispatch($user, $auction->card->name);
         }
 
         return redirect()->route('admin.auctions.index')
@@ -91,7 +140,7 @@ class AuctionController extends Controller
                 'auction' => 'Ended auctions cannot be edited.'
             ]);
         }
-    
+
         $validated = $request->validate([
             'starting_bid'  => ['required', 'numeric', 'min:0'],
             'bid_increment' => ['required', 'numeric', 'min:1'],
@@ -102,10 +151,10 @@ class AuctionController extends Controller
         ]);
 
         $allowedTransitions = [
-            'scheduled' => ['live','cancelled'],
-            'live' => ['ended','cancelled'],
+            'scheduled' => ['live', 'cancelled'],
+            'live' => ['ended', 'cancelled'],
             'ended' => [],
-            'cancelled' => ['scheduled','live','ended',],
+            'cancelled' => ['scheduled', 'live', 'ended',],
         ];
 
         $oldStatus = $auction->status;
@@ -147,7 +196,7 @@ class AuctionController extends Controller
                 ]);
             }
         }
-        
+
         if ($request->boolean('is_highlighted')) {
             Auction::where('id', '!=', $auction->id)
                 ->update([
@@ -220,11 +269,53 @@ class AuctionController extends Controller
         $q = trim((string) $request->query('q', ''));
 
         $cards = Card::query()
-            ->when($q !== '', fn ($query) => $query->where('name', 'like', "%{$q}%"))
+            ->when($q !== '', fn($query) => $query->where('name', 'like', "%{$q}%"))
             ->orderBy('name')
             ->limit(24)
             ->get(['id', 'name', 'set_name', 'rarity', 'image_small']);
 
         return response()->json(['data' => $cards]);
+    }
+
+    public function refund(Auction $auction)
+    {
+        if ($auction->status !== 'ended') {
+            return back()->with('error', 'Auction must be ended first.');
+        }
+
+        if ($auction->refund_status === 'approved') {
+            return back()->with('error', 'Auction already refunded.');
+        }
+
+        // Get all non-winning bids (loser bids)
+        $loserBids = $auction->bids()
+            ->where('user_id', '!=', $auction->winner_id)
+            ->with('user')
+            ->orderByDesc('amount')
+            ->get();
+
+        return view('admin.auctions.refund-confirm', [
+            'auction' => $auction,
+            'loserBids' => $loserBids,
+        ]);
+    }
+
+    public function confirmRefund(Auction $auction)
+    {
+        if ($auction->status !== 'ended') {
+            return back()->with('error', 'Auction must be ended first.');
+        }
+
+        if ($auction->refund_status === 'approved') {
+            return back()->with('error', 'Auction already refunded.');
+        }
+
+        $auction->update([
+            'refund_status' => 'approved',
+            'refund_resolved_at' => now(),
+        ]);
+
+        return redirect()->route('admin.auctions.index')
+            ->with('success', 'Successfully refunded all users for this auction.');
     }
 }
