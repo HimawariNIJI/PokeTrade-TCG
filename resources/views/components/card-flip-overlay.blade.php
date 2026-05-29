@@ -29,7 +29,7 @@
             <div class="group relative" style="width: min(80vw, 360px);" @click.stop>
                 <div class="prism-halo-glow" :class="phase === 'settled' ? 'always-on' : ''"></div>
 
-                <div class="relative aspect-[245/342]">
+                <div class="relative aspect-[245/342]" style="perspective: 1000px;">
                     <div
                         class="cf-card"
                         x-ref="bigcard"
