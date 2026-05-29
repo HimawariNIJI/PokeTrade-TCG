@@ -1,13 +1,30 @@
 @props(['card'])
 
+@php
+    // Payload handed to the flip overlay. Large image for the
+    // big centred card; small as a fallback.
+    $flipPayload = [
+        'img'  => $card->image_large ?: $card->image_small,
+        'name' => $card->name,
+    ];
+@endphp
+
 {{-- Price-tracker tile. Cards are NOT for sale here: no stock / sold-out
-     badges. Hovering tilts the card (gallery-style); clicking opens its
-     market-price page. No click-to-spin overlay. --}}
+     badges. Clicking spins the card to centre (tilt + glint hover there);
+     the Market Price button opens its market-price page. --}}
 <div class="group relative block">
     {{-- Rainbow halo behind the card, fades in on group hover --}}
     <div class="prism-halo-glow"></div>
 
-    <a href="{{ route('cards.show', $card) }}" class="block w-full" aria-label="View {{ $card->name }} market price">
+    {{-- Clicking the card spins it to centre — handled by the
+         single <x-card-flip-overlay /> living in the layout. --}}
+    <button
+        type="button"
+        x-data
+        x-on:click="$dispatch('flip-card', @js($flipPayload))"
+        class="block w-full cursor-pointer text-left"
+        aria-label="View {{ $card->name }}"
+    >
         <x-tilted-card
             :src="$card->image_small"
             :alt="$card->name"
@@ -21,7 +38,7 @@
                 </span>
             @endif
         </x-tilted-card>
-    </a>
+    </button>
 
     <div class="relative mt-3 px-1">
         <div class="flex items-start justify-between gap-2">

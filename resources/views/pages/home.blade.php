@@ -244,9 +244,9 @@
         <div class="relative order-2 lg:order-1 lg:col-span-5">
             <div class="absolute -inset-6 -z-10 rounded-[3rem] prism-bg opacity-20 blur-2xl"></div>
             {{-- Two fanned cards — a mini "pull" preview --}}
-            <div class="relative mx-auto h-[300px] w-full max-w-[340px]">
-                <div class="absolute left-1/2 top-1/2 w-[180px] -translate-x-[80%] -translate-y-1/2"
-                     style="transform: translate(-80%, -50%) rotate(-9deg);">
+            <div class="relative mx-auto h-[380px] w-full max-w-[400px]">
+                <div class="absolute left-1/2 top-1/2 w-[220px] -translate-x-[80%] -translate-y-[38%]"
+                     style="transform: translate(-80%, -38%) rotate(-9deg);">
                     <x-tilted-card
                         :src="$row3CardOffer?->image_large"
                         alt="Gacha card"
@@ -254,8 +254,8 @@
                         :scaleOnHover="1.05"
                     />
                 </div>
-                <div class="absolute left-1/2 top-1/2 w-[200px] -translate-x-[10%] -translate-y-1/2"
-                     style="transform: translate(-10%, -50%) rotate(8deg);">
+                <div class="absolute left-1/2 top-1/2 w-[240px] -translate-x-[10%] -translate-y-[38%]"
+                     style="transform: translate(-10%, -38%) rotate(8deg);">
                     <x-tilted-card
                         :src="$row3CardWant?->image_large"
                         alt="Gacha card"
