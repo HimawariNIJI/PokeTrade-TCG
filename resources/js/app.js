@@ -62,11 +62,41 @@ document.addEventListener('alpine:init', () => {
     }));
 
     /**
+     * liveLeaderboard — the trainer rankings page. Seeds from the
+     * server-rendered boards, then polls the data endpoint every 15s so
+     * the standings update live without a full reload.
+     */
+    Alpine.data('liveLeaderboard', ({ url, boards }) => ({
+        url,
+        boards: boards || [],
+        timer: null,
+        start() {
+            this.timer = setInterval(() => this.poll(), 15000);
+        },
+        destroy() {
+            if (this.timer) clearInterval(this.timer);
+        },
+        async poll() {
+            try {
+                const res = await fetch(this.url, { headers: { Accept: 'application/json' } });
+                if (!res.ok) return;
+                const json = await res.json();
+                if (Array.isArray(json.boards)) this.boards = json.boards;
+            } catch (e) { /* offline / transient — keep current standings */ }
+        },
+        fmt(n) {
+            return Number(n).toLocaleString('en-US');
+        },
+        rankClass(rank) {
+            if (rank === 1) return 'bg-gradient-to-br from-prism-gold to-prism-pink text-ink-900';
+            if (rank === 2) return 'bg-ink-200 text-ink-900';
+            if (rank === 3) return 'bg-amber-200 text-amber-900';
+            return 'bg-ink-100 text-ink-700';
+        },
+    }));
+
+    /**
      * auctionCountdown — ticks the "ends in" display on the auction page.
-     *
-     * TODO(backend): to make the leaderboard + live feed update in real time,
-     * poll a bids endpoint inside tick() (or, preferred, subscribe to a
-     * broadcast channel). The frontend deliberately leaves this as a stub.
      */
     Alpine.data('auctionCountdown', (endsAtIso) => ({
         endsAt: endsAtIso ? new Date(endsAtIso).getTime() : 0,

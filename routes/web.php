@@ -58,6 +58,7 @@ Route::get('/u/{user}', [PublicProfileController::class, 'show'])->name('profile
 
 // Trainer leaderboard.
 Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
+Route::get('/leaderboard/data', [LeaderboardController::class, 'data'])->name('leaderboard.data');
 
 // robots.txt served via route so it returns 200 on every server (Herd's
 // static handler 404s root .txt files; production falls through to here).
