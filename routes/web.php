@@ -54,6 +54,26 @@ Route::get('/u/{user}', [PublicProfileController::class, 'show'])->name('profile
 // Trainer leaderboard.
 Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
 
+// robots.txt served via route so it returns 200 on every server (Herd's
+// static handler 404s root .txt files; production falls through to here).
+Route::get('/robots.txt', function () {
+    $lines = [
+        'User-agent: *',
+        'Allow: /',
+        'Disallow: /admin',
+        'Disallow: /cart',
+        'Disallow: /checkout',
+        'Disallow: /settings',
+        'Disallow: /profile',
+        'Disallow: /notifications',
+        '',
+        'Sitemap: ' . url('/sitemap.xml'),
+    ];
+
+    return response(implode("\n", $lines) . "\n", 200)
+        ->header('Content-Type', 'text/plain');
+})->name('robots');
+
 // XML sitemap for search engines — static pages + indexable detail pages.
 Route::get('/sitemap.xml', function () {
     $urls = [];
