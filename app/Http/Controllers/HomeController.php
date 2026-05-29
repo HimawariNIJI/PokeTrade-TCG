@@ -24,6 +24,11 @@ class HomeController extends Controller
             $featuredCards = Card::query()->inRandomOrder()->limit(6)->get();
         }
 
+        $heroCards = Card::query()
+            ->orderByDesc('market_price')
+            ->limit(3)
+            ->get();
+
         $featuredItems = ShopItem::query()
             ->where('featured', true)
             ->where('is_active', true)
@@ -53,6 +58,7 @@ class HomeController extends Controller
 
         return view('pages.home', [
             'featuredCards' => $featuredCards,
+            'heroCards' => $heroCards,
             'featuredItems' => $featuredItems,
             'totalCards' => Card::query()->count(),
             'featuredAuction' => $featuredAuction,

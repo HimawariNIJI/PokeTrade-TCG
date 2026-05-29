@@ -55,8 +55,6 @@
         {{-- Hero card stack — flippable, not floating. Click to flip. --}}
         <div class="relative lg:col-span-6 xl:col-span-5">
             <div class="relative mx-auto h-[460px] w-full max-w-[520px] md:h-[560px]">
-                @php $heroCards = $featuredCards->take(3); @endphp
-
                 @foreach($heroCards as $i => $card)
                     @php
                         $rot   = [-9, 4, 12][$i] ?? 0;
