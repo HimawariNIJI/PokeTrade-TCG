@@ -13,3 +13,9 @@ Schedule::command('cards:refresh-prices')
     ->daily()
     ->withoutOverlapping()
     ->runInBackground();
+
+// Keep the demo auction floor populated so the home "Live auctions" panel
+// and /auctions never go empty as seeded windows lapse.
+Schedule::command('auctions:keep-live')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping();
