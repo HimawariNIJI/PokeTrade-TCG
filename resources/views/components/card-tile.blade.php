@@ -1,27 +1,13 @@
 @props(['card'])
 
-@php
-    // Payload handed to the flip overlay. Large image for the
-    // big centred card; small as a fallback.
-    $flipPayload = [
-        'img'  => $card->image_large ?: $card->image_small,
-        'name' => $card->name,
-    ];
-@endphp
-
+{{-- Price-tracker tile. Cards are NOT for sale here: no stock / sold-out
+     badges. Hovering tilts the card (gallery-style); clicking opens its
+     market-price page. No click-to-spin overlay. --}}
 <div class="group relative block">
     {{-- Rainbow halo behind the card, fades in on group hover --}}
     <div class="prism-halo-glow"></div>
 
-    {{-- Clicking the card spins it to centre — handled by the
-         single <x-card-flip-overlay /> living in the layout. --}}
-    <button
-        type="button"
-        x-data
-        x-on:click="$dispatch('flip-card', @js($flipPayload))"
-        class="block w-full cursor-pointer text-left"
-        aria-label="View {{ $card->name }}"
-    >
+    <a href="{{ route('cards.show', $card) }}" class="block w-full" aria-label="View {{ $card->name }} market price">
         <x-tilted-card
             :src="$card->image_small"
             :alt="$card->name"
@@ -34,18 +20,8 @@
                     <span class="sparkle">✦</span> Featured
                 </span>
             @endif
-
-            @if($card->stock <= 0)
-                <span class="absolute right-3 top-3 z-20 rounded-full bg-ink-900/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white pointer-events-none [transform:translateZ(20px)]">
-                    Sold out
-                </span>
-            @elseif($card->stock <= 3)
-                <span class="absolute right-3 top-3 z-20 rounded-full bg-amber-400 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-900 pointer-events-none [transform:translateZ(20px)]">
-                    Only {{ $card->stock }} left
-                </span>
-            @endif
         </x-tilted-card>
-    </button>
+    </a>
 
     <div class="relative mt-3 px-1">
         <div class="flex items-start justify-between gap-2">
@@ -64,19 +40,12 @@
             @endif
         </div>
 
+        {{-- Live market value — tracking only, not a sale price. --}}
         <div class="mt-2 flex items-baseline justify-between">
-            <span class="font-display text-base font-bold text-ink-900">@idr($card->display_price)</span>
-            @if($card->market_price && $card->market_price > 0)
-                <span class="text-[10px] text-ink-500">
-                    Market <span class="font-mono">@idr($card->market_price)</span>
-                </span>
-            @endif
+            <span class="font-display text-base font-bold text-ink-900">@idr($card->market_price ?: $card->display_price)</span>
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-ink-500">Market</span>
         </div>
 
-        {{-- Market Price → price-history page.
-             TODO(backend): point at a dedicated price-chart route
-             once the price-tracker pivot lands; for now it opens
-             the existing card detail page. --}}
         <a
             href="{{ route('cards.show', $card) }}"
             class="group/btn relative mt-3 flex items-center justify-center gap-1.5 overflow-hidden rounded-xl prism-bg-deep px-3 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-[var(--shadow-soft)] transition-transform duration-200 ease-[var(--ease-spring)] hover:-translate-y-0.5 active:scale-[.97]"
