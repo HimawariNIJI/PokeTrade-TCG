@@ -17,12 +17,7 @@
 
     <div class="relative mx-auto grid max-w-[1400px] grid-cols-1 items-center gap-12 px-4 pb-24 pt-16 md:px-8 md:pt-20 lg:grid-cols-12 lg:gap-8 lg:pb-32">
         <div class="lg:col-span-6 xl:col-span-7">
-            <div class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink-700 backdrop-blur">
-                <span class="inline-block h-2 w-2 rounded-full bg-prism-mint"></span>
-                Scarlet &amp; Violet · sv8pt5 · 180 cards live
-            </div>
-
-            <h1 class="mt-5 font-display text-5xl font-black leading-[0.95] tracking-tight md:text-7xl xl:text-[5.75rem]">
+            <h1 class="font-display text-5xl font-black leading-[0.95] tracking-tight md:text-7xl xl:text-[5.75rem]">
                 <span class="block text-ink-900">Track the</span>
                 <span class="prism-text block">Prismatic</span>
                 <span class="block text-ink-900">Evolutions.</span>
@@ -43,7 +38,7 @@
 
             <dl class="mt-10 grid max-w-lg grid-cols-3 gap-8 border-t border-ink-200 pt-8">
                 <div>
-                    <dt class="font-display text-3xl font-black prism-text">180</dt>
+                    <dt class="font-display text-3xl font-black prism-text">{{ number_format($totalCards) }}</dt>
                     <dd class="mt-1 text-xs uppercase tracking-widest text-ink-500">cards tracked</dd>
                 </div>
                 <div>
@@ -152,7 +147,7 @@
             </p>
             <div class="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
                 <div>
-                    <p class="font-mono text-2xl font-black text-ink-900">180</p>
+                    <p class="font-mono text-2xl font-black text-ink-900">{{ number_format($totalCards) }}</p>
                     <p class="text-xs text-ink-500">cards tracked</p>
                 </div>
                 <div>
@@ -245,7 +240,7 @@
             <div class="absolute -inset-6 -z-10 rounded-[3rem] prism-bg opacity-20 blur-2xl"></div>
             {{-- Two fanned cards — a mini "pull" preview --}}
             <div class="relative mx-auto h-[380px] w-full max-w-[400px]">
-                <div class="absolute left-1/2 top-1/2 w-[220px] -translate-x-[80%] -translate-y-[38%]"
+                <div class="absolute left-1/2 top-1/2 z-10 w-[220px] -translate-x-[80%] -translate-y-[38%]"
                      style="transform: translate(-80%, -38%) rotate(-9deg);">
                     <x-tilted-card
                         :src="$row3CardOffer?->image_large"

@@ -32,6 +32,7 @@ class HomeController extends Controller
         return view('pages.home', [
             'featuredCards' => $featuredCards,
             'featuredItems' => $featuredItems,
+            'totalCards' => Card::query()->count(),
         ]);
     }
 
