@@ -24,14 +24,15 @@
                     Pull a <span class="prism-text">5-card</span><br />digital pack.
                 </h1>
                 <p class="mt-5 max-w-lg text-white/70">
-                    Tap to pull. Every pull drops 5 random Prismatic Evolutions cards straight into
-                    <strong class="text-white">your digital collection</strong> — higher rarities drop
-                    less often, so chase the Special Illustration Rare Eevee ex. These are digital
-                    collectibles for your binder, not physical cards.
+                    One <strong class="text-white">free pull every day</strong> — after that, spend
+                    points earned from the merch store. Every pull drops 5 random Prismatic Evolutions
+                    cards straight into <strong class="text-white">your digital collection</strong>,
+                    rarity-weighted so the Special Illustration Rare Eevee ex stays a real chase.
+                    These are digital collectibles for your binder, not physical cards.
                 </p>
 
                 <ul class="mt-8 grid grid-cols-2 gap-3 text-sm">
-                    @foreach ([['rarity' => 'Common', 'rate' => '60%'], ['rarity' => 'Uncommon', 'rate' => '25%'], ['rarity' => 'Rare', 'rate' => '10%'], ['rarity' => 'Illustration', 'rate' => '4%'], ['rarity' => 'Special Illu.', 'rate' => '0.9%'], ['rarity' => 'Hyper Rare', 'rate' => '0.1%']] as $r)
+                    @foreach ($tiers as $r)
                         <li
                             class="flex items-center justify-between rounded-2xl border border-white/20 bg-white/5 px-4 py-2 text-white">
                             <span class="font-semibold">{{ $r['rarity'] }}</span>
@@ -47,7 +48,11 @@
                             <div class="relative w-full max-w-sm rounded-2xl border border-white/20 bg-gradient-to-b from-ink-800 to-ink-900 p-6 shadow-2xl" @click.away="confirmOpen = false">
                                 <h3 class="text-lg font-bold text-white">Confirm Pull</h3>
                                 <p class="mt-3 text-white/80">
-                                    Convert <span class="font-bold text-prism-gold">10 points</span> to pull a pack?
+                                    @if ($freePullAvailable)
+                                        Claim your <span class="font-bold text-prism-gold">free daily pull</span>? One pack of 5 cards, on the house.
+                                    @else
+                                        Spend <span class="font-bold text-prism-gold">{{ $pullCost }} points</span> to pull a pack?
+                                    @endif
                                 </p>
                                 <div class="mt-6 flex gap-3">
                                     <button @click="confirmOpen = false" type="button"
@@ -71,17 +76,31 @@
                             <button @click="confirmOpen = true" type="button"
                                 class="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full px-10 py-5 text-base font-bold text-white shadow-2xl transition hover:scale-[1.02] shrink-0">
                                 <span class="absolute inset-0 prism-bg"></span>
-                                <span class="relative font-display text-lg font-black uppercase tracking-widest">Pull a pack (10 Points)</span>
+                                <span class="relative font-display text-lg font-black uppercase tracking-widest">
+                                    {{ $freePullAvailable ? 'Pull free pack' : 'Pull a pack (' . $pullCost . ' Points)' }}
+                                </span>
                             </button>
 
-                            <span class="animate-pulse rounded-full bg-white/20 px-4 py-2 text-sm font-bold text-white">
-                                You have {{ auth()->user()->points }} points
-                            </span>
+                            @if ($freePullAvailable)
+                                <span class="rounded-full bg-prism-gold/20 px-4 py-2 text-sm font-bold text-prism-gold ring-1 ring-prism-gold/40">
+                                    Free daily pull ready
+                                </span>
+                            @else
+                                <span class="animate-pulse rounded-full bg-white/20 px-4 py-2 text-sm font-bold text-white">
+                                    You have {{ auth()->user()->points }} points
+                                </span>
+                            @endif
 
                         </div>
 
                         <p class="mt-3 text-xs text-white/60">
-                            Convert your points to pull a pack! · cards are added to your collection ·
+                            @if ($freePullAvailable)
+                                Your free pull resets every day · extra pulls cost {{ $pullCost }} points ·
+                            @else
+                                Out of free pulls today — earn points by buying from the
+                                <a href="{{ route('shop.index') }}" class="font-bold text-white underline-offset-4 hover:underline">merch store</a> ·
+                            @endif
+                            cards are added to your collection ·
                             <a href="{{ route('collection.index') }}"
                                 class="font-bold text-white underline-offset-4 hover:underline">View my collection →</a>
                         </p>
@@ -101,7 +120,7 @@
                     @foreach ($previewCards as $i => $card)
                         @php
                             $rot = [-12, 0, 14][$i] ?? 0;
-                            $tx = [-90, 0, 100][$i] ?? 0;
+                            $tx = [-76, 0, 100][$i] ?? 0;
                             $ty = [40, 0, 60][$i] ?? 0;
                             $delay = $i * 0.5;
                         @endphp

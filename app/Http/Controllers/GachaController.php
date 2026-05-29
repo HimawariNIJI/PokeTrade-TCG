@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Card;
 use App\Models\CollectionCard;
+use App\Support\Gacha;
 use Illuminate\Http\Request;
 
 /**
@@ -12,38 +13,50 @@ use Illuminate\Http\Request;
  * random cards; the cards are DIGITAL collectibles that land in
  * their personal collection (they are NOT the real, tracked cards
  * sold/auctioned elsewhere on the site).
+ *
+ * Pulls are rarity-weighted via {@see Gacha}. The first pull of each
+ * day is free; the rest cost points earned from the merch store.
  */
 class GachaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $preview = Card::query()->inRandomOrder()->limit(5)->get();
 
         return view('pages.gacha.index', [
-            'preview' => $preview,
+            'preview'           => $preview,
+            'tiers'             => Gacha::rateTable(),
+            'freePullAvailable' => (bool) $request->user()?->freeGachaAvailable(),
+            'pullCost'          => Gacha::PULL_COST,
         ]);
     }
 
     /**
-     * Roll 5 random cards and award them to the trainer's digital
-     * collection (one CollectionCard row per pull, source 'gacha').
+     * Roll a rarity-weighted pack and award it to the trainer's digital
+     * collection (one CollectionCard row per card, source 'gacha').
      *
-     * TODO(team-backend): charge the user + weight the roll by rarity
-     * (Common 60% / Uncommon 25% / Rare 10% / IR 4% / SIR ~1%).
-     * The roll weighting stays stubbed — plain random is fine for now —
-     * but the awarding-to-collection below IS the real implementation.
+     * The first pull of the day is free; afterwards each pull costs
+     * {@see Gacha::PULL_COST} points (earned from the merch store).
      */
     public function pull(Request $request)
     {
         $user = $request->user();
 
-        if ($user->points < 10) {
-            return redirect()->route('gacha.index')->with('status', 'Not enough points to pull a pack!');
+        if ($user->freeGachaAvailable()) {
+            $user->last_free_gacha_at = now();
+            $user->save();
+        } else {
+            if ($user->points < Gacha::PULL_COST) {
+                return redirect()->route('gacha.index')->with(
+                    'status',
+                    "You've used today's free pull. Earn points by buying from the merch store to pull again."
+                );
+            }
+            $user->points -= Gacha::PULL_COST;
+            $user->save();
         }
-        $user->points -= 10;
-        $user->save();
 
-        $pulls = Card::query()->inRandomOrder()->limit(5)->get();
+        $pulls = Gacha::roll();
         $now = now();
 
         // How many copies of each pulled card the trainer held BEFORE this
@@ -76,8 +89,10 @@ class GachaController extends Controller
         }
 
         return view('pages.gacha.reveal', [
-            'pulls'     => $pulls,
-            'ownership' => $ownership,
+            'pulls'             => $pulls,
+            'ownership'         => $ownership,
+            'freePullAvailable' => $user->freeGachaAvailable(),
+            'pullCost'          => Gacha::PULL_COST,
         ]);
     }
 

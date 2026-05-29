@@ -33,7 +33,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name', 'email', 'password',
-        'role', 'google_id', 'avatar', 'phone', 'points',
+        'role', 'google_id', 'avatar', 'phone', 'points', 'last_free_gacha_at',
         'bio', 'location', 'social_links', 'profile_settings',
     ];
 
@@ -47,12 +47,23 @@ class User extends Authenticatable
             'social_links' => 'array',
             'profile_settings' => 'array',
             'points' => 'integer',
+            'last_free_gacha_at' => 'datetime',
         ];
     }
 
     public function isAdmin(): bool
     {
         return $this->role === self::ROLE_ADMIN;
+    }
+
+    /**
+     * Whether this trainer still has their free daily gacha pull. The
+     * first pull of each calendar day is free; the rest cost points.
+     */
+    public function freeGachaAvailable(): bool
+    {
+        return $this->last_free_gacha_at === null
+            || ! $this->last_free_gacha_at->isToday();
     }
 
     /**

@@ -80,7 +80,11 @@
                     <div class="relative w-full max-w-sm rounded-2xl border border-white/20 bg-gradient-to-b from-ink-800 to-ink-900 p-6 shadow-2xl">
                         <h3 class="text-lg font-bold text-white">Confirm Pull</h3>
                         <p class="mt-3 text-white/80">
-                            Convert <span class="font-bold text-prism-gold">10 points</span> to pull a pack?
+                            @if ($freePullAvailable)
+                                Claim your <span class="font-bold text-prism-gold">free daily pull</span>? One pack of 5 cards, on the house.
+                            @else
+                                Spend <span class="font-bold text-prism-gold">{{ $pullCost }} points</span> to pull a pack?
+                            @endif
                         </p>
                         <div class="mt-6 flex gap-3">
                             <button @click="confirmOpen = false" type="button"
@@ -103,17 +107,24 @@
                     <button @click="confirmOpen = true" type="button"
                         class="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-base font-bold text-white shadow-xl transition hover:scale-[1.02]">
                         <span class="absolute inset-0 prism-bg"></span>
-                        <span class="relative font-display text-sm font-black uppercase tracking-widest">Pull again
-                            (10 Points)</span>
+                        <span class="relative font-display text-sm font-black uppercase tracking-widest">
+                            {{ $freePullAvailable ? 'Pull free pack' : 'Pull again (' . $pullCost . ' Points)' }}
+                        </span>
                     </button>
                     <x-prism-button :href="route('collection.index')" variant="ghost" size="md">View collection</x-prism-button>
                     <x-prism-button :href="route('collection.history')" variant="ghost" size="md">Pull history</x-prism-button>
                 </div>
                 <div x-show="phase === 'spread'" x-transition:enter.duration.500ms
                     class="flex flex-wrap justify-center gap-3">
-                    <span class="animate-pulse rounded-full bg-white/20 px-4 py-2 text-sm font-bold text-white">
-                        You have {{ auth()->user()->points }} points
-                    </span>
+                    @if ($freePullAvailable)
+                        <span class="rounded-full bg-prism-gold/20 px-4 py-2 text-sm font-bold text-prism-gold ring-1 ring-prism-gold/40">
+                            Free daily pull ready
+                        </span>
+                    @else
+                        <span class="animate-pulse rounded-full bg-white/20 px-4 py-2 text-sm font-bold text-white">
+                            You have {{ auth()->user()->points }} points
+                        </span>
+                    @endif
                 </div>
             </div>
         </div>
