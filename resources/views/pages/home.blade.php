@@ -4,31 +4,47 @@
 {{-- =====================================================
      HERO
      ===================================================== --}}
-<section class="relative isolate overflow-hidden bg-ink-900 text-white">
-    {{-- Immersive aurora + texture backdrop --}}
-    <div class="absolute inset-0 -z-10 prism-mesh opacity-80"></div>
-    <div class="absolute inset-0 -z-10 dot-grid-light opacity-40"></div>
-    <div class="aurora-blob -left-24 -top-16 h-[30rem] w-[30rem] bg-prism-violet/40" style="animation-delay:-2s"></div>
-    <div class="aurora-blob -right-16 top-0 h-[26rem] w-[26rem] bg-prism-sky/30" style="animation-delay:-7s"></div>
-    <div class="aurora-blob -bottom-24 left-1/3 h-[24rem] w-[24rem] bg-prism-pink/30" style="animation-delay:-4s"></div>
-    <div class="pokeball-watermark -right-40 -top-40 hidden h-[36rem] w-[36rem] text-white md:block" style="opacity:.05"></div>
-    <div class="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-48 bg-gradient-to-b from-transparent to-ink-900"></div>
+<section class="relative isolate overflow-hidden bg-white" x-data="heroParallax()" @mousemove.window="track($event)">
+    {{-- Soft prism colour washes — white-dominant, just the brand colours --}}
+    <div class="pointer-events-none absolute -left-40 -top-20 -z-10 h-[40rem] w-[40rem] rounded-full bg-prism-pink/15 blur-3xl"></div>
+    <div class="pointer-events-none absolute right-0 top-1/4 -z-10 h-[34rem] w-[34rem] rounded-full bg-prism-sky/15 blur-3xl"></div>
+    <div class="pointer-events-none absolute -bottom-24 left-1/3 -z-10 h-[30rem] w-[30rem] rounded-full bg-prism-violet/10 blur-3xl"></div>
 
-    <div class="relative mx-auto grid max-w-[1400px] grid-cols-1 items-center gap-12 px-4 pb-20 pt-16 md:px-8 md:pb-28 md:pt-24 lg:grid-cols-12 lg:gap-6">
+    {{-- Real Eevee-evolution artwork floating as parallax depth layers.
+         Outer wrapper = mouse parallax, inner img = idle float. Hidden on
+         small screens to keep mobile clean. --}}
+    @php
+        $eevee = [
+            ['flareon',  'left-[3%] top-[12%]',     'w-20', 3.0],
+            ['jolteon',  'left-[46%] top-[1%]',     'w-16', 1.4],
+            ['eevee',    'left-[1%] bottom-[8%]',   'w-28', 2.2],
+            ['vaporeon', 'right-[1%] top-[4%]',     'w-20', 1.8],
+            ['sylveon',  'right-[2%] bottom-[10%]', 'w-24', 2.6],
+        ];
+    @endphp
+    @foreach($eevee as $i => [$mon, $pos, $size, $depth])
+        <div class="pointer-events-none absolute {{ $pos }} z-0 hidden lg:block" aria-hidden="true"
+             :style="`transform: translate(${px * -{{ $depth }}}px, ${py * -{{ $depth }}}px)`">
+            <img src="{{ asset('images/eevee/' . $mon . '.png') }}" alt=""
+                 class="{{ $size }} animate-float drop-shadow-xl" style="animation-delay: {{ $i * 0.6 }}s" />
+        </div>
+    @endforeach
+
+    <div class="relative z-10 mx-auto grid max-w-[1400px] grid-cols-1 items-center gap-12 px-4 pb-16 pt-14 md:px-8 md:pb-24 md:pt-20 lg:grid-cols-12 lg:gap-6">
         {{-- LEFT --}}
         <div class="lg:col-span-6">
-            <div class="enter inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest backdrop-blur" style="--d:0">
+            <div class="enter inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/80 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink-700 shadow-sm backdrop-blur" style="--d:0">
                 <span class="inline-block h-2 w-2 animate-pulse rounded-full bg-prism-mint"></span>
                 Scarlet &amp; Violet · sv8pt5 · 180 cards live
             </div>
 
             <h1 class="enter mt-6 font-display text-6xl font-bold leading-[0.9] tracking-tight md:text-7xl xl:text-[5.5rem]" style="--d:90">
-                Track the<br>
-                <span class="prism-text">Prismatic</span><br>
-                Evolutions.
+                <span class="block text-ink-900">Track the</span>
+                <span class="block prism-text">Prismatic</span>
+                <span class="block text-ink-900">Evolutions.</span>
             </h1>
 
-            <p class="enter mt-6 max-w-xl text-lg leading-relaxed text-white/70" style="--d:170">
+            <p class="enter mt-6 max-w-xl text-lg leading-relaxed text-ink-700" style="--d:170">
                 Live market prices, real-card auctions, a digital gacha, and a trainer community. Every Eevee evolution, fully holographic.
             </p>
 
@@ -43,16 +59,16 @@
 
             <dl class="enter mt-10 grid max-w-lg grid-cols-3 gap-3" style="--d:330">
                 @foreach([['180', 'cards tracked'], ['24/7', 'live auctions'], ['∞', 'gacha pulls']] as [$n, $l])
-                    <div class="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 backdrop-blur">
+                    <div class="rounded-2xl border border-ink-200 bg-white px-4 py-3 shadow-[var(--shadow-soft)]">
                         <dt class="font-display text-3xl font-bold prism-text">{{ $n }}</dt>
-                        <dd class="mt-1 text-[11px] uppercase tracking-widest text-white/55">{{ $l }}</dd>
+                        <dd class="mt-1 text-[11px] uppercase tracking-widest text-ink-500">{{ $l }}</dd>
                     </div>
                 @endforeach
             </dl>
         </div>
 
-        {{-- RIGHT: dramatic fanned holographic card showcase with mouse parallax --}}
-        <div class="enter-pop relative lg:col-span-6" style="--d:220" x-data="heroParallax()" @mousemove.window="track($event)">
+        {{-- RIGHT: fanned holographic card showcase with mouse parallax --}}
+        <div class="enter-pop relative lg:col-span-6" style="--d:220">
             <div class="relative mx-auto h-[420px] w-full max-w-[560px] md:h-[600px]">
                 @php $heroCards = $featuredCards->take(3); @endphp
                 @foreach($heroCards as $i => $card)
@@ -64,30 +80,29 @@
                        class="group absolute left-1/2 top-1/2 w-[200px] animate-float md:w-[280px]"
                        style="transform: translate(calc(-50% + {{ $cfg[1] }}), calc(-50% + {{ $cfg[2] }})) rotate({{ $cfg[0] }}); z-index: {{ $cfg[3] }}; animation-delay: {{ $i * 0.7 }}s"
                        :style="`--px:${px * {{ $cfg[4] }}}px; --py:${py * {{ $cfg[4] }}}px`">
-                        <div class="prism-halo-glow always-on" style="opacity:.7"></div>
-                        <div class="holo-foil relative overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/25 transition-transform duration-300 ease-out group-hover:scale-[1.04]"
+                        <div class="prism-halo-glow always-on" style="opacity:.55"></div>
+                        <div class="holo-foil relative overflow-hidden rounded-2xl shadow-2xl ring-1 ring-ink-100 transition-transform duration-300 ease-out group-hover:scale-[1.04]"
                              style="transform: translate3d(var(--px,0), var(--py,0), 0)">
                             <img src="{{ $card->image_large ?? $card->image_small }}" alt="{{ $card->name }}"
                                  class="block aspect-[245/342] w-full object-cover" />
                         </div>
                     </a>
                 @endforeach
-                <span class="sparkle pointer-events-none absolute left-4 top-8 text-2xl text-prism-gold">✦</span>
-                <span class="sparkle pointer-events-none absolute bottom-10 right-6 text-xl text-prism-sky" style="animation-delay:.3s">✦</span>
             </div>
         </div>
     </div>
 
-    {{-- Bottom quick-links ribbon — glass on dark, prism on hover --}}
-    <div class="relative border-t border-white/10 backdrop-blur">
-        <div class="mx-auto grid max-w-[1400px] grid-cols-1 divide-y divide-white/10 md:grid-cols-3 md:divide-x md:divide-y-0">
+    {{-- Bottom quick-links ribbon — white, prism top seam + prism hover --}}
+    <div class="relative border-t border-ink-100 bg-white">
+        <div class="absolute inset-x-0 top-0 h-[3px] prism-bg"></div>
+        <div class="mx-auto grid max-w-[1400px] grid-cols-1 divide-y divide-ink-100 md:grid-cols-3 md:divide-x md:divide-y-0">
             @foreach([
                 ['route' => 'cards.index', 'label' => 'See full card list'],
                 ['route' => 'shop.index',  'label' => 'Booster Boxes & Merch'],
                 ['route' => 'about',       'label' => 'About Prismatic Evolutions'],
             ] as $cta)
                 <a href="{{ route($cta['route']) }}"
-                   class="group flex min-h-[64px] items-center justify-center gap-3 px-6 py-5 text-center font-display text-sm font-bold uppercase tracking-widest text-white/80 transition hover:bg-white/10 hover:text-white">
+                   class="group flex min-h-[64px] items-center justify-center gap-3 px-6 py-5 text-center font-display text-sm font-bold uppercase tracking-widest text-ink-700 transition hover:bg-ink-50 hover:text-prism-violet">
                     <span class="line-clamp-1">{{ $cta['label'] }}</span>
                     <svg class="h-4 w-4 shrink-0 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/>

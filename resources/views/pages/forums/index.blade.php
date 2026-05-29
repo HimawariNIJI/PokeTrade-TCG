@@ -18,34 +18,23 @@
 @endphp
 
 {{-- ── Hero ─────────────────────────────────────────────────────── --}}
-<section class="relative overflow-hidden">
-    <div class="absolute inset-0 -z-10 bg-gradient-to-b from-ink-900 via-prism-violet/20 to-ink-900"></div>
-    <div class="absolute inset-0 -z-10 halftone opacity-10"></div>
-    <div class="absolute inset-x-0 top-0 -z-10 h-px prism-bg"></div>
-
-    <div class="mx-auto max-w-[1400px] px-4 pb-14 pt-16 md:px-8 md:pt-20">
-        <span class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur">
-            <span class="h-2 w-2 rounded-full bg-prism-mint"></span>
-            Community
-        </span>
-        <h1 class="mt-4 font-display text-5xl font-black tracking-tight text-white md:text-6xl">
-            The <span class="prism-text">Forums</span>.
-        </h1>
-        <p class="mt-3 max-w-2xl text-white/70">
-            Trade talk, pull brags, deck tech and grading questions — this is where the collector community gathers.
-        </p>
-        @auth
-            <div class="mt-7">
-                <x-prism-button :href="route('forums.create')">
-                    Start a thread
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m-7-7h14"/>
-                    </svg>
-                </x-prism-button>
-            </div>
-        @endauth
-    </div>
-</section>
+<x-page-hero
+    compact
+    mon="jolteon"
+    eyebrow="Community"
+    title='The <span class="prism-text">Forums</span>.'
+    subtitle="Trade talk, pull brags, deck tech, and grading questions. This is where the collector community gathers.">
+    @auth
+        <x-slot:actions>
+            <x-prism-button :href="route('forums.create')">
+                Start a thread
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m-7-7h14"/>
+                </svg>
+            </x-prism-button>
+        </x-slot:actions>
+    @endauth
+</x-page-hero>
 
 <div class="mx-auto max-w-[1400px] px-4 py-16 md:px-8 md:py-20">
     <div class="grid gap-12 lg:grid-cols-12">

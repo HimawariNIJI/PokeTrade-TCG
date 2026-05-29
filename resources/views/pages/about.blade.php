@@ -6,24 +6,11 @@
 {{-- =====================================================
      HERO
      ===================================================== --}}
-<section class="relative isolate overflow-hidden">
-    <div class="absolute inset-0 -z-10 halftone opacity-50"></div>
-    <div class="pointer-events-none absolute -left-32 top-1/3 -z-10 h-96 w-96 rounded-full bg-prism-pink/20 blur-3xl"></div>
-    <div class="pointer-events-none absolute right-1/4 top-10 -z-10 h-96 w-96 rounded-full bg-prism-sky/20 blur-3xl"></div>
-
-    <div class="mx-auto max-w-3xl px-4 pb-16 pt-24 text-center md:px-8">
-        <span class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink-700 backdrop-blur">
-            <span class="inline-block h-2 w-2 rounded-full bg-prism-pink"></span>
-            About the project
-        </span>
-        <h1 class="mt-5 font-display text-5xl font-black leading-[0.95] tracking-tight md:text-7xl">
-            <span class="prism-text">PokeTrade</span><br/>is a love letter to <em>Eevee.</em>
-        </h1>
-        <p class="mt-6 text-base text-ink-700 md:text-lg">
-            We built PokeTrade to celebrate <strong>Scarlet &amp; Violet — Prismatic Evolutions</strong>, the set that put Eevee and every one of its evolutions in their own dazzling Special Illustration Rare. A price tracker, a merch shop, an auction house, a digital gacha, and a community — all wrapped in the iridescent foil that gave the set its name.
-        </p>
-    </div>
-</section>
+<x-page-hero
+    mon="flareon"
+    eyebrow="About the project"
+    title='A love letter to <span class="prism-text">Eevee</span>.'
+    subtitle="We built PokeTrade to celebrate Scarlet &amp; Violet: Prismatic Evolutions, the set that put Eevee and every one of its evolutions in their own dazzling Special Illustration Rare. A price tracker, a merch shop, an auction house, a digital gacha, and a community, all wrapped in the iridescent foil that gave the set its name." />
 
 {{-- =====================================================
      EEVEELUTION LINEUP — the rainbow itself
