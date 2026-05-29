@@ -109,7 +109,7 @@
                         @csrf
                         <label class="flex-1">
                             <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Your bid</span>
-                            <input type="number" step="0.01" name="amount" min="{{ $auction->min_next_bid }}"
+                            <input type="number" step="{{ $auction->bid_increment }}" name="amount" min="{{ $auction->min_next_bid }}"
                                    placeholder="≥ @idr($auction->min_next_bid)"
                                    class="mt-1 w-full rounded-full border-white/15 bg-white/10 text-ink-50 placeholder-white/30 focus:border-prism-mint focus:ring-prism-mint">
                         </label>

@@ -28,11 +28,39 @@ class AuctionController extends Controller
             $query->where('status', $filter);
         }
         
-        $auctions = $query->latest()->get();
+        // Limit to 10 most recent auctions
+        $auctions = $query->latest()->limit(10)->get();
+        
+        // Get counts for each status
+        $statusCounts = [
+            'all' => Auction::count(),
+            'live' => Auction::where('status', 'live')->count(),
+            'scheduled' => Auction::where('status', 'scheduled')->count(),
+            'ended' => Auction::where('status', 'ended')->count(),
+            'cancelled' => Auction::where('status', 'cancelled')->count(),
+        ];
+        
+        // Get auction revenue from winning bids (ended auctions only)
+        $auctionRevenue = collect(range(5, 0))->map(function ($i) {
+            $startDate = now()->subMonths($i)->startOfMonth();
+            $endDate = now()->subMonths($i)->endOfMonth();
+            $month = $startDate->format('M');
+            
+            $amount = Auction::where('status', 'ended')
+                ->whereBetween('ends_at', [$startDate, $endDate])
+                ->sum('winning_amount');
+            
+            return [
+                'month'  => $month,
+                'amount' => (float) $amount,
+            ];
+        });
         
         return view('admin.auctions.index', [
             'auctions' => $auctions,
             'filter' => $filter,
+            'statusCounts' => $statusCounts,
+            'auctionRevenue' => $auctionRevenue,
         ]);
     }
 
