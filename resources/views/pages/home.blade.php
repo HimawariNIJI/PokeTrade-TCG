@@ -257,8 +257,8 @@
             <div class="absolute -inset-6 -z-10 rounded-[3rem] prism-bg opacity-20 blur-2xl"></div>
             {{-- Two fanned cards — a mini "pull" preview --}}
             <div class="relative mx-auto h-[380px] w-full max-w-[400px]">
-                <div class="absolute left-1/2 top-1/2 z-10 w-[220px] -translate-x-[80%] -translate-y-[38%]"
-                     style="transform: translate(-80%, -38%) rotate(-9deg);">
+                <div class="absolute left-1/2 top-1/2 w-[220px] -translate-x-[71%] -translate-y-[38%]"
+                     style="transform: translate(-71%, -38%) rotate(-9deg);">
                     <x-tilted-card
                         :src="$row3CardOffer?->image_large"
                         alt="Gacha card"
