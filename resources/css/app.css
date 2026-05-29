@@ -844,12 +844,99 @@
     p { text-wrap: pretty; }
 }
 
+/* ============================================================
+   MOTION — entrance choreography + scroll reveals.
+   Storytelling: content arrives in sequence on load, and key
+   sections rise as they scroll into view. Both degrade to fully
+   visible/static (no gating of content) and honor reduced-motion.
+   ============================================================ */
+@keyframes enter-rise {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: none; }
+}
+@keyframes enter-pop {
+    0%   { opacity: 0; transform: translateY(20px) scale(.94); }
+    100% { opacity: 1; transform: none; }
+}
+
+/* On-load entrance: set --d (delay, ms) inline for stagger. */
+@media (prefers-reduced-motion: no-preference) {
+    .enter {
+        opacity: 0;
+        animation: enter-rise .85s var(--ease-out-quint) forwards;
+        animation-delay: calc(var(--d, 0) * 1ms);
+    }
+    .enter-pop {
+        opacity: 0;
+        animation: enter-pop .9s var(--ease-spring) forwards;
+        animation-delay: calc(var(--d, 0) * 1ms);
+    }
+}
+
+/* Scroll reveal: only where view-timeline exists, so content is always
+   visible by default (never gated behind JS/headless). */
+@supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+        .reveal {
+            opacity: 0;
+            animation: enter-rise both linear;
+            animation-timeline: view();
+            animation-range: entry 0% entry 42%;
+        }
+    }
+}
+
+/* A big animated prism aurora for immersive dark heroes/sections. */
+@keyframes aurora-drift {
+    0%   { transform: translate3d(0,0,0) scale(1); }
+    50%  { transform: translate3d(4%, -3%, 0) scale(1.12); }
+    100% { transform: translate3d(0,0,0) scale(1); }
+}
+@utility aurora-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(60px);
+    pointer-events: none;
+    animation: aurora-drift 14s ease-in-out infinite;
+    will-change: transform;
+}
+
+/* Holographic foil sweep that stays alive on a card (for the hero
+   showcase + premium tiles). Idle, gentle; not a hover-only effect. */
+@utility holo-foil {
+    position: relative;
+    overflow: hidden;
+}
+.holo-foil::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg,
+        transparent 20%,
+        rgba(255,255,255,.18) 38%,
+        rgba(106,215,255,.28) 47%,
+        rgba(180,107,255,.28) 53%,
+        rgba(255,255,255,.18) 62%,
+        transparent 80%);
+    background-size: 250% 250%;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    animation: holo-pan 6s linear infinite;
+}
+@keyframes holo-pan {
+    0%   { background-position: 0% 0%; }
+    100% { background-position: 200% 200%; }
+}
+
 /* Honor reduced-motion across all the new idle/loop animations. */
 @media (prefers-reduced-motion: reduce) {
     .btn-tactile,
     .surface-card { transition-duration: 1ms; }
-    .pokeball-spin { animation: none; }
+    .pokeball-spin,
+    .aurora-blob { animation: none; }
+    .holo-foil::after { animation: none; opacity: .25; }
     .group:hover .sparkle { animation: none; opacity: 1; }
+    .enter, .enter-pop, .reveal { opacity: 1 !important; animation: none !important; transform: none !important; }
     .animate-float,
     .animate-float-slow,
     .animate-float-fast,

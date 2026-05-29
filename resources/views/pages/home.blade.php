@@ -4,110 +4,90 @@
 {{-- =====================================================
      HERO
      ===================================================== --}}
-<section class="relative isolate overflow-hidden">
-    <div class="absolute inset-0 -z-10 halftone opacity-60"></div>
-    <div class="absolute -top-24 right-0 -z-10 hidden h-[120%] w-[55%] -rotate-12 md:block">
-        <div class="absolute inset-y-0 left-0 w-12 prism-bg opacity-25 blur-sm"></div>
-        <div class="absolute inset-y-0 left-24 w-6 prism-bg opacity-15"></div>
-        <div class="absolute inset-y-0 left-36 w-4 prism-bg opacity-25"></div>
-        <div class="absolute inset-y-0 left-44 w-2 prism-bg opacity-40"></div>
-    </div>
-    <div class="pointer-events-none absolute -left-32 top-1/3 -z-10 h-96 w-96 rounded-full bg-prism-pink/20 blur-3xl"></div>
-    <div class="pointer-events-none absolute right-1/3 top-0 -z-10 h-96 w-96 rounded-full bg-prism-mint/20 blur-3xl"></div>
+<section class="relative isolate overflow-hidden bg-ink-900 text-white">
+    {{-- Immersive aurora + texture backdrop --}}
+    <div class="absolute inset-0 -z-10 prism-mesh opacity-80"></div>
+    <div class="absolute inset-0 -z-10 dot-grid-light opacity-40"></div>
+    <div class="aurora-blob -left-24 -top-16 h-[30rem] w-[30rem] bg-prism-violet/40" style="animation-delay:-2s"></div>
+    <div class="aurora-blob -right-16 top-0 h-[26rem] w-[26rem] bg-prism-sky/30" style="animation-delay:-7s"></div>
+    <div class="aurora-blob -bottom-24 left-1/3 h-[24rem] w-[24rem] bg-prism-pink/30" style="animation-delay:-4s"></div>
+    <div class="pokeball-watermark -right-40 -top-40 hidden h-[36rem] w-[36rem] text-white md:block" style="opacity:.05"></div>
+    <div class="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-48 bg-gradient-to-b from-transparent to-ink-900"></div>
 
-    <div class="relative mx-auto grid max-w-[1400px] grid-cols-1 items-center gap-12 px-4 pb-24 pt-16 md:px-8 md:pt-20 lg:grid-cols-12 lg:gap-8 lg:pb-32">
-        <div class="lg:col-span-6 xl:col-span-7">
-            <div class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink-700 backdrop-blur">
-                <span class="inline-block h-2 w-2 rounded-full bg-prism-mint"></span>
+    <div class="relative mx-auto grid max-w-[1400px] grid-cols-1 items-center gap-12 px-4 pb-20 pt-16 md:px-8 md:pb-28 md:pt-24 lg:grid-cols-12 lg:gap-6">
+        {{-- LEFT --}}
+        <div class="lg:col-span-6">
+            <div class="enter inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest backdrop-blur" style="--d:0">
+                <span class="inline-block h-2 w-2 animate-pulse rounded-full bg-prism-mint"></span>
                 Scarlet &amp; Violet · sv8pt5 · 180 cards live
             </div>
 
-            <h1 class="mt-5 font-display text-5xl font-black leading-[0.95] tracking-tight md:text-7xl xl:text-[5.75rem]">
-                <span class="block text-ink-900">Track the</span>
-                <span class="prism-text block">Prismatic</span>
-                <span class="block text-ink-900">Evolutions.</span>
+            <h1 class="enter mt-6 font-display text-6xl font-bold leading-[0.9] tracking-tight md:text-7xl xl:text-[5.5rem]" style="--d:90">
+                Track the<br>
+                <span class="prism-text">Prismatic</span><br>
+                Evolutions.
             </h1>
 
-            <p class="mt-6 max-w-xl text-base leading-relaxed text-ink-700 md:text-lg">
-                Eevee and its rainbow of evolutions in <strong>special illustration rares</strong>, hyper rares, and shiny holos — track their market value, pull digital packs, bid in live auctions, and talk shop with the community. Your binder, your prices.
+            <p class="enter mt-6 max-w-xl text-lg leading-relaxed text-white/70" style="--d:170">
+                Live market prices, real-card auctions, a digital gacha, and a trainer community. Every Eevee evolution, fully holographic.
             </p>
 
-            <div class="mt-8 flex flex-wrap gap-3">
+            <div class="enter mt-8 flex flex-wrap gap-3" style="--d:250">
                 <x-prism-button :href="route('cards.index')" size="lg">
                     Track prices
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
                 </x-prism-button>
+                <x-prism-button :href="route('gacha.index')" variant="gold" size="lg">Pull a pack</x-prism-button>
                 <x-prism-button :href="route('auctions.index')" variant="ghost" size="lg">Live auctions</x-prism-button>
-                <x-prism-button :href="route('gacha.index')" variant="outline" size="lg">Pull a pack</x-prism-button>
             </div>
 
-            <dl class="mt-10 grid max-w-lg grid-cols-3 gap-8 border-t border-ink-200 pt-8">
-                <div>
-                    <dt class="font-display text-3xl font-black prism-text">180</dt>
-                    <dd class="mt-1 text-xs uppercase tracking-widest text-ink-500">cards tracked</dd>
-                </div>
-                <div>
-                    <dt class="font-display text-3xl font-black prism-text">24/7</dt>
-                    <dd class="mt-1 text-xs uppercase tracking-widest text-ink-500">live auctions</dd>
-                </div>
-                <div>
-                    <dt class="font-display text-3xl font-black prism-text">∞</dt>
-                    <dd class="mt-1 text-xs uppercase tracking-widest text-ink-500">gacha pulls</dd>
-                </div>
+            <dl class="enter mt-10 grid max-w-lg grid-cols-3 gap-3" style="--d:330">
+                @foreach([['180', 'cards tracked'], ['24/7', 'live auctions'], ['∞', 'gacha pulls']] as [$n, $l])
+                    <div class="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 backdrop-blur">
+                        <dt class="font-display text-3xl font-bold prism-text">{{ $n }}</dt>
+                        <dd class="mt-1 text-[11px] uppercase tracking-widest text-white/55">{{ $l }}</dd>
+                    </div>
+                @endforeach
             </dl>
         </div>
 
-        {{-- Hero card stack — flippable, not floating. Click to flip. --}}
-        <div class="relative lg:col-span-6 xl:col-span-5">
-            <div class="relative mx-auto h-[460px] w-full max-w-[520px] md:h-[560px]">
+        {{-- RIGHT: dramatic fanned holographic card showcase with mouse parallax --}}
+        <div class="enter-pop relative lg:col-span-6" style="--d:220" x-data="heroParallax()" @mousemove.window="track($event)">
+            <div class="relative mx-auto h-[420px] w-full max-w-[560px] md:h-[600px]">
                 @php $heroCards = $featuredCards->take(3); @endphp
-
                 @foreach($heroCards as $i => $card)
                     @php
-                        $rot   = [-9, 4, 12][$i] ?? 0;
-                        $tx    = [-90, 0, 90][$i] ?? 0;
-                        $ty    = [40, 0, 30][$i] ?? 0;
-                        $z     = [10, 30, 20][$i] ?? 10;
-                        $delay = $i * 0.6;
+                        $cfg = [['-15deg', '-130px', '28px', 10, 1.4], ['7deg', '6px', '-14px', 30, 1.0], ['17deg', '150px', '46px', 20, 0.65]][$i]
+                            ?? ['0deg', '0px', '0px', 10, 1.0];
                     @endphp
-                    {{-- Outer wrapper does the static layout transform (translate+rotate)
-                         AND the idle float bob (translateY oscillation via animation). --}}
-                    <div class="absolute left-1/2 top-1/2 w-[230px] md:w-[280px]"
-                         style="transform: translate(calc(-50% + {{ $tx }}px), calc(-50% + {{ $ty }}px)) rotate({{ $rot }}deg); z-index: {{ $z }};">
-                        <a href="{{ route('cards.show', $card) }}"
-                           class="group relative block animate-float"
-                           style="animation-delay: {{ $delay }}s;">
-                            <div class="prism-halo-glow always-on opacity-40"></div>
-                            <x-tilted-card
-                                :src="$card->image_large ?? $card->image_small"
-                                :alt="$card->name"
-                                :rotate="14"
-                                :scaleOnHover="1.05"
-                                innerClass="shadow-2xl ring-1 ring-white/50"
-                            />
-                        </a>
-                    </div>
+                    <a href="{{ route('cards.show', $card) }}"
+                       class="group absolute left-1/2 top-1/2 w-[200px] animate-float md:w-[280px]"
+                       style="transform: translate(calc(-50% + {{ $cfg[1] }}), calc(-50% + {{ $cfg[2] }})) rotate({{ $cfg[0] }}); z-index: {{ $cfg[3] }}; animation-delay: {{ $i * 0.7 }}s"
+                       :style="`--px:${px * {{ $cfg[4] }}}px; --py:${py * {{ $cfg[4] }}}px`">
+                        <div class="prism-halo-glow always-on" style="opacity:.7"></div>
+                        <div class="holo-foil relative overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/25 transition-transform duration-300 ease-out group-hover:scale-[1.04]"
+                             style="transform: translate3d(var(--px,0), var(--py,0), 0)">
+                            <img src="{{ $card->image_large ?? $card->image_small }}" alt="{{ $card->name }}"
+                                 class="block aspect-[245/342] w-full object-cover" />
+                        </div>
+                    </a>
                 @endforeach
-
-                <div class="pointer-events-none absolute right-0 top-0 h-12 w-12 rounded-tr-2xl border-r-2 border-t-2 border-prism-violet/40"></div>
-                <div class="pointer-events-none absolute bottom-0 left-0 h-12 w-12 rounded-bl-2xl border-b-2 border-l-2 border-prism-pink/40"></div>
+                <span class="sparkle pointer-events-none absolute left-4 top-8 text-2xl text-prism-gold">✦</span>
+                <span class="sparkle pointer-events-none absolute bottom-10 right-6 text-xl text-prism-sky" style="animation-delay:.3s">✦</span>
             </div>
         </div>
     </div>
 
-    {{-- Bottom CTA strip — full-width prism ribbon, content centered.
-         prism-bg on the wrapper means the rainbow covers the whole
-         strip on every screen size (it was previously an absolute
-         h-20 backdrop that only covered ~80px). --}}
-    <div class="prism-bg">
-        <div class="mx-auto grid max-w-[1400px] grid-cols-1 divide-y divide-white/30 text-white md:grid-cols-3 md:divide-x md:divide-y-0">
+    {{-- Bottom quick-links ribbon — glass on dark, prism on hover --}}
+    <div class="relative border-t border-white/10 backdrop-blur">
+        <div class="mx-auto grid max-w-[1400px] grid-cols-1 divide-y divide-white/10 md:grid-cols-3 md:divide-x md:divide-y-0">
             @foreach([
                 ['route' => 'cards.index', 'label' => 'See full card list'],
                 ['route' => 'shop.index',  'label' => 'Booster Boxes & Merch'],
                 ['route' => 'about',       'label' => 'About Prismatic Evolutions'],
             ] as $cta)
                 <a href="{{ route($cta['route']) }}"
-                   class="group flex min-h-[64px] items-center justify-center gap-3 px-6 py-5 text-center font-display text-sm font-bold uppercase tracking-widest transition hover:bg-white/15">
+                   class="group flex min-h-[64px] items-center justify-center gap-3 px-6 py-5 text-center font-display text-sm font-bold uppercase tracking-widest text-white/80 transition hover:bg-white/10 hover:text-white">
                     <span class="line-clamp-1">{{ $cta['label'] }}</span>
                     <svg class="h-4 w-4 shrink-0 transition group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/>
@@ -141,7 +121,7 @@
     </div>
 
     {{-- ROW 1 — PRICE TRACKER: 7/5 split, big card on right --}}
-    <article class="mt-16 grid items-center gap-10 lg:grid-cols-12">
+    <article class="reveal mt-16 grid items-center gap-10 lg:grid-cols-12">
         <div class="lg:col-span-7">
             <p class="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-500">01 — Price tracker</p>
             <h3 class="mt-2 font-display text-3xl font-black leading-tight md:text-4xl">
@@ -190,7 +170,7 @@
     </article>
 
     {{-- ROW 2 — AUCTIONS: dark slab, ticker on left, copy right --}}
-    <article class="mt-24 overflow-hidden rounded-3xl bg-ink-900 text-white">
+    <article class="reveal mt-24 overflow-hidden rounded-3xl bg-ink-900 text-white">
         <div class="grid items-center gap-0 lg:grid-cols-12">
             <div class="relative p-8 md:p-12 lg:col-span-6">
                 <p class="font-mono text-[11px] font-bold uppercase tracking-widest text-white/60">02 — Live auctions</p>
@@ -240,7 +220,7 @@
     </article>
 
     {{-- ROW 3 — DIGITAL GACHA: 5/7 split, fanned pull on the left --}}
-    <article class="mt-24 grid items-center gap-10 lg:grid-cols-12">
+    <article class="reveal mt-24 grid items-center gap-10 lg:grid-cols-12">
         <div class="relative order-2 lg:order-1 lg:col-span-5">
             <div class="absolute -inset-6 -z-10 rounded-[3rem] prism-bg opacity-20 blur-2xl"></div>
             {{-- Two fanned cards — a mini "pull" preview --}}
