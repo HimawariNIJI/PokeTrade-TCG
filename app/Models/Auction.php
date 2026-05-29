@@ -82,6 +82,26 @@ class Auction extends Model
     }
 
     /**
+     * Promote due scheduled auctions to 'live' and retire expired live
+     * auctions to 'ended'. Shared by the auctions page and the home page
+     * so both render the same notion of "what's live right now".
+     */
+    public static function settleDueStatuses(): void
+    {
+        static::where('status', 'scheduled')
+            ->where('starts_at', '<=', now())
+            ->update(['status' => 'live']);
+
+        static::where('status', 'live')
+            ->where('ends_at', '<=', now())
+            ->get()
+            ->each(function (self $auction) {
+                $auction->snapshotWinner();
+                $auction->update(['status' => 'ended']);
+            });
+    }
+
+    /**
      * Stamp the current leader as the official winner. Called when an
      * auction transitions to 'ended'. Idempotent — won't overwrite a
      * winner that has already been recorded.

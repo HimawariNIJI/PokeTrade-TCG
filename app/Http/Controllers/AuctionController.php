@@ -11,20 +11,7 @@ class AuctionController extends Controller
 {
     public function index()
     {
-        // Auto start scheduled auctions
-        Auction::where('status', 'scheduled')
-            ->where('starts_at', '<=', now())
-            ->update(['status' => 'live']);
-
-        // Auto end expired auctions
-        $expiredAuctions = Auction::where('status', 'live')
-            ->where('ends_at', '<=', now())
-            ->get();
-
-        foreach ($expiredAuctions as $auction) {
-            $auction->snapshotWinner();
-            $auction->update(['status' => 'ended']);
-        }
+        Auction::settleDueStatuses();
 
         // Hero / highlighted auction
         $highlighted = Auction::query()

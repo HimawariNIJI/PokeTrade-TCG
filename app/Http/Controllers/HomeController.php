@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Auction;
 use App\Models\Card;
 use App\Models\ShopItem;
 
@@ -29,10 +30,34 @@ class HomeController extends Controller
             ->limit(4)
             ->get();
 
+        // Keep the home "Live auctions" panel in sync with the auctions page.
+        Auction::settleDueStatuses();
+
+        $featuredAuction = Auction::query()
+            ->with('card', 'currentLeader')
+            ->where('status', 'live')
+            ->where('is_highlighted', true)
+            ->first()
+            ?? Auction::query()
+                ->with('card', 'currentLeader')
+                ->where('status', 'live')
+                ->orderByDesc('current_bid')
+                ->first();
+
+        $liveAuctions = Auction::query()
+            ->with('card', 'currentLeader')
+            ->where('status', 'live')
+            ->orderByDesc('current_bid')
+            ->limit(3)
+            ->get();
+
         return view('pages.home', [
             'featuredCards' => $featuredCards,
             'featuredItems' => $featuredItems,
             'totalCards' => Card::query()->count(),
+            'featuredAuction' => $featuredAuction,
+            'liveAuctions' => $liveAuctions,
+            'liveAuctionCount' => Auction::query()->where('status', 'live')->count(),
         ]);
     }
 

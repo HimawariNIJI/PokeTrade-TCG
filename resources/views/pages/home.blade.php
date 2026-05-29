@@ -119,8 +119,6 @@
 @php
     $rowCards = $featuredCards->shuffle()->values();
     $row1Card = $rowCards->get(0);
-    $row2CardA = $rowCards->get(1);
-    $row2CardB = $rowCards->get(2);
     $row3CardOffer = $rowCards->get(3) ?? $rowCards->get(0);
     $row3CardWant  = $rowCards->get(4) ?? $rowCards->get(1);
 @endphp
@@ -184,7 +182,8 @@
         </div>
     </article>
 
-    {{-- ROW 2 — AUCTIONS: dark slab, ticker on left, copy right --}}
+    {{-- ROW 2 — AUCTIONS: dark slab, real live bids on left, featured lot right --}}
+    @php $lot = $featuredAuction; @endphp
     <article class="mt-24 overflow-hidden rounded-3xl bg-ink-900 text-white">
         <div class="grid items-center gap-0 lg:grid-cols-12">
             <div class="relative p-8 md:p-12 lg:col-span-6">
@@ -193,43 +192,61 @@
                     Bid in real time.<br/>Snipe at the <span class="prism-text">final second</span>.
                 </h3>
 
-                {{-- Live "ticker" mockup — uses real card data --}}
-                <div class="mt-6 space-y-2 rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white/60">
-                        <span class="inline-block h-2 w-2 rounded-full bg-rose-500"></span> Live · 3 bids in last 12s
-                    </div>
-                    @foreach([
-                        ['name' => $row2CardA?->name ?? 'Eevee ex', 'amount' => 1850000, 'leader' => 'kanto.trainer'],
-                        ['name' => $row2CardB?->name ?? 'Umbreon ex', 'amount' => 4200000, 'leader' => 'gymleader.giovanni'],
-                    ] as $tick)
-                        <div class="flex items-center justify-between border-t border-white/10 pt-2 text-sm">
-                            <span class="line-clamp-1 font-semibold">{{ $tick['name'] }}</span>
-                            <div class="flex items-center gap-3 text-right">
-                                <span class="font-mono text-xs text-white/60">@ {{ $tick['leader'] }}</span>
-                                <span class="font-mono font-bold prism-text">@idr($tick['amount'])</span>
-                            </div>
+                @if($liveAuctions->isNotEmpty())
+                    {{-- Live ticker — real auctions currently running, top bids first --}}
+                    <div class="mt-6 space-y-2 rounded-2xl border border-white/10 bg-white/5 p-4">
+                        <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white/60">
+                            <span class="inline-block h-2 w-2 animate-pulse rounded-full bg-rose-500"></span>
+                            Live · {{ $liveAuctionCount }} {{ $liveAuctionCount === 1 ? 'auction' : 'auctions' }} running
                         </div>
-                    @endforeach
-                </div>
+                        @foreach($liveAuctions as $a)
+                            <a href="{{ route('auctions.show', $a) }}" class="flex items-center justify-between border-t border-white/10 pt-2 text-sm transition hover:text-prism-gold">
+                                <span class="line-clamp-1 font-semibold">{{ $a->card?->name ?? 'Pokémon card' }}</span>
+                                <div class="flex items-center gap-3 text-right">
+                                    <span class="font-mono text-xs text-white/60">@ {{ $a->currentLeader?->name ?? 'no bids yet' }}</span>
+                                    <span class="font-mono font-bold prism-text">@idr($a->current_bid)</span>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
 
-                <a href="{{ route('auctions.index') }}" class="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 font-display text-sm font-bold text-ink-900 hover:bg-prism-gold">
-                    Watch live bids
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
-                </a>
+                    <a href="{{ route('auctions.index') }}" class="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 font-display text-sm font-bold text-ink-900 hover:bg-prism-gold">
+                        Watch live bids
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
+                    </a>
+                @else
+                    {{-- No live auctions — mirror the auctions page empty state --}}
+                    <div class="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5">
+                        <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white/50">
+                            <span class="inline-block h-2 w-2 rounded-full bg-white/30"></span> Quiet right now
+                        </div>
+                        <p class="mt-2 font-display text-lg font-bold">No live auctions right now.</p>
+                        <p class="mt-1 text-sm text-white/60">Sellers list new lots throughout the day — check the auction house for what's scheduled next.</p>
+                    </div>
+
+                    <a href="{{ route('auctions.index') }}" class="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 font-display text-sm font-bold text-ink-900 hover:bg-prism-gold">
+                        Visit the auction house
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
+                    </a>
+                @endif
             </div>
 
             <div class="relative bg-gradient-to-br from-prism-violet/40 via-prism-pink/30 to-prism-sky/40 p-8 md:p-12 lg:col-span-6">
                 <div class="mx-auto w-full max-w-[260px]" style="transform: rotate(3deg);">
                     <x-tilted-card
-                        :src="$row2CardB?->image_large"
-                        :alt="$row2CardB?->name ?? 'Card'"
+                        :src="$lot?->card?->image_large ?? $lot?->card?->image_small ?? $row1Card?->image_large"
+                        :alt="$lot?->card?->name ?? $row1Card?->name ?? 'Featured card'"
                         :rotate="14"
                         :scaleOnHover="1.05"
                     />
                 </div>
-                <div class="absolute left-6 top-6 inline-flex items-center gap-1.5 rounded-full bg-rose-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-lg">
-                    <span class="h-1.5 w-1.5 rounded-full bg-white"></span> Ends in 02:14
-                </div>
+                @if($lot)
+                    <div class="absolute left-6 top-6 inline-flex items-center gap-1.5 rounded-full bg-rose-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-lg"
+                         x-data="auctionCountdown('{{ $lot->ends_at?->toIso8601String() }}')">
+                        <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-white"></span>
+                        Ends in <span class="font-mono" x-text="display">—</span>
+                    </div>
+                @endif
             </div>
         </div>
     </article>
