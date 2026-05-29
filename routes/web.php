@@ -54,6 +54,37 @@ Route::get('/u/{user}', [PublicProfileController::class, 'show'])->name('profile
 // Trainer leaderboard.
 Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
 
+// XML sitemap for search engines — static pages + indexable detail pages.
+Route::get('/sitemap.xml', function () {
+    $urls = [];
+    foreach ([
+        ['home', 'daily', '1.0'],
+        ['about', 'monthly', '0.5'],
+        ['cards.index', 'daily', '0.9'],
+        ['shop.index', 'daily', '0.8'],
+        ['auctions.index', 'hourly', '0.8'],
+        ['gacha.index', 'weekly', '0.7'],
+        ['forums.index', 'daily', '0.7'],
+        ['leaderboard.index', 'daily', '0.6'],
+    ] as [$name, $freq, $priority]) {
+        $urls[] = ['loc' => route($name), 'changefreq' => $freq, 'priority' => $priority];
+    }
+
+    \App\Models\Card::query()->select('slug', 'updated_at')->get()->each(function ($c) use (&$urls) {
+        $urls[] = ['loc' => route('cards.show', $c->slug), 'lastmod' => optional($c->updated_at)->toAtomString(), 'changefreq' => 'weekly', 'priority' => '0.6'];
+    });
+    \App\Models\ShopItem::query()->select('slug', 'updated_at')->get()->each(function ($s) use (&$urls) {
+        $urls[] = ['loc' => route('shop.show', $s->slug), 'lastmod' => optional($s->updated_at)->toAtomString(), 'changefreq' => 'weekly', 'priority' => '0.6'];
+    });
+    \App\Models\Auction::query()->select('id', 'updated_at')->get()->each(function ($a) use (&$urls) {
+        $urls[] = ['loc' => route('auctions.show', $a->id), 'lastmod' => optional($a->updated_at)->toAtomString(), 'changefreq' => 'hourly', 'priority' => '0.7'];
+    });
+
+    return response()
+        ->view('sitemap', ['urls' => $urls])
+        ->header('Content-Type', 'application/xml');
+})->name('sitemap');
+
 // Google
 Route::get('/auth/google', [GoogleController::class, 'redirect'])
     ->name('google.login');

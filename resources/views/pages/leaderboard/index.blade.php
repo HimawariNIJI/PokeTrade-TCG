@@ -1,4 +1,7 @@
-<x-app-layout>
+<x-app-layout
+    title="Trainer Leaderboard"
+    description="See the top PokeTrade trainers ranked by collection, points, and activity. Climb the ranks and earn your spot.">
+
 
 <section class="relative overflow-hidden">
     <div class="absolute inset-0 -z-10 bg-gradient-to-b from-ink-900 via-prism-violet/20 to-ink-900"></div>

@@ -1,4 +1,5 @@
-<x-app-layout>
+<x-app-layout
+    description="Track Pokemon TCG Prismatic Evolutions card prices with live market values, bid in real-time auctions, pull a digital gacha, and join the trainer community.">
 
 {{-- =====================================================
      HERO
@@ -298,8 +299,9 @@
 {{-- =====================================================
      FEATURED CARDS — the hot drops grid
      ===================================================== --}}
-<section class="relative">
+<section class="relative overflow-hidden">
     <div class="absolute inset-x-0 top-0 -z-10 h-1/2 bg-gradient-to-b from-ink-50 to-transparent"></div>
+    <div class="pokeball-watermark -right-16 top-12 -z-10 hidden h-72 w-72 text-prism-violet md:block"></div>
 
     <div class="mx-auto max-w-[1400px] px-4 py-20 md:px-8">
         <div class="flex items-end justify-between gap-6">

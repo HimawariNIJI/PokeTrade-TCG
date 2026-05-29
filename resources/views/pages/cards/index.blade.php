@@ -1,4 +1,6 @@
-<x-app-layout>
+<x-app-layout
+    title="Price Tracker"
+    description="Browse and track every Pokemon TCG Prismatic Evolutions card with live market values. Filter by set, type, rarity, and regulation, and watch your chase cards.">
 
 {{-- =====================================================
      PAGE HEADER
@@ -43,35 +45,35 @@
                    class="w-full rounded-full border-ink-200 pl-10 pr-4 text-sm focus:border-prism-violet focus:ring-prism-violet" />
         </label>
 
-        <select name="set" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
+        <select name="set" aria-label="Filter by set" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
             <option value="">All sets</option>
             @foreach($allSets as $s)
                 <option value="{{ $s->set_id }}" @selected(request('set') === $s->set_id)>{{ $s->set_name }}</option>
             @endforeach
         </select>
 
-        <select name="supertype" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
+        <select name="supertype" aria-label="Filter by category" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
             <option value="">All categories</option>
             @foreach(['Pokémon', 'Trainer', 'Energy'] as $st)
                 <option value="{{ $st }}" @selected(request('supertype') === $st)>{{ $st }}</option>
             @endforeach
         </select>
 
-        <select name="type" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
+        <select name="type" aria-label="Filter by type" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
             <option value="">All types</option>
             @foreach($allTypes as $t)
                 <option value="{{ $t }}" @selected(request('type') === $t)>{{ $t }}</option>
             @endforeach
         </select>
 
-        <select name="rarity" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
+        <select name="rarity" aria-label="Filter by rarity" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
             <option value="">All rarities</option>
             @foreach($allRarities as $r)
                 <option value="{{ $r }}" @selected(request('rarity') === $r)>{{ $r }}</option>
             @endforeach
         </select>
 
-        <select name="regulation" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
+        <select name="regulation" aria-label="Filter by regulation mark" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
             <option value="">All regulations</option>
             @foreach($allRegMarks as $m)
                 <option value="{{ $m }}" @selected(request('regulation') === $m)>Reg. {{ $m }}</option>
@@ -79,7 +81,7 @@
         </select>
 
         <div class="ml-auto flex flex-wrap items-center gap-3">
-            <select name="sort" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
+            <select name="sort" aria-label="Sort cards" class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
                 <option value="number"     @selected(request('sort', 'number') === 'number')>Sort: by number</option>
                 <option value="name"       @selected(request('sort') === 'name')>Sort: by name</option>
                 <option value="price_asc"  @selected(request('sort') === 'price_asc')>Price: low → high</option>

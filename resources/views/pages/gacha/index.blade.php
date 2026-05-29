@@ -1,4 +1,7 @@
-<x-app-layout>
+<x-app-layout
+    title="Digital Gacha"
+    description="Pull a digital pack and drop 5 random Prismatic Evolutions cards into your collection. Chase the Special Illustration Rares and build your digital binder.">
+
 
     {{-- =====================================================
      GACHA HERO — pull a digital pack, cards land in your

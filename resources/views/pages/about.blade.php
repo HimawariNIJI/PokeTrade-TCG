@@ -1,4 +1,7 @@
-<x-app-layout>
+<x-app-layout
+    title="About"
+    description="PokeTrade is a Prismatic Evolutions price tracker with official merch, real-card auctions, a digital gacha, and a trainer community.">
+
 
 {{-- =====================================================
      HERO

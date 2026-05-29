@@ -1,4 +1,7 @@
-<x-app-layout>
+<x-app-layout
+    title="Community Forums"
+    description="Talk Pokemon TCG with the PokeTrade community: deck talk, pulls, trades, market chat, and Prismatic Evolutions news.">
+
 
 @php
     // Map a category's prism accent token to FULL utility class strings.

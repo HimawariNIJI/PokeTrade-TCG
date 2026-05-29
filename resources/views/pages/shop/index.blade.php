@@ -1,4 +1,7 @@
-<x-app-layout>
+<x-app-layout
+    title="Merch Shop"
+    description="Official Pokemon TCG merch: sealed booster boxes, bundles, sleeves, playmats, and plushies. Curated drops, ready to ship.">
+
 
 <section class="relative overflow-hidden">
     <div class="absolute inset-0 -z-10 halftone opacity-50"></div>
@@ -21,7 +24,7 @@
     <div class="mx-auto flex max-w-[1400px] flex-wrap items-center gap-3 px-4 py-3 md:px-8">
         <input type="search" name="q" value="{{ request('q') }}" placeholder="Search merch…"
                class="flex-1 min-w-[200px] rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet" />
-        <select name="category" class="rounded-full border-ink-200 text-sm">
+        <select name="category" aria-label="Filter by category" class="rounded-full border-ink-200 text-sm">
             <option value="">All categories</option>
             @foreach($categories as $c)
                 <option value="{{ $c }}" @selected(request('category') === $c)>{{ ucfirst($c) }}</option>

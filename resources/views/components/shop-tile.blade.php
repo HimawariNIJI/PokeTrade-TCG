@@ -4,7 +4,7 @@
     {{-- Halo bloom behind the tile --}}
     <div class="prism-halo-glow"></div>
 
-    <div class="relative overflow-hidden rounded-2xl border border-ink-200 bg-white transition hover:-translate-y-1 hover:border-prism-violet hover:shadow-xl duration-400 ease-[cubic-bezier(.22,1,.36,1)]">
+    <div class="relative overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-[var(--shadow-soft)] transition-all duration-400 ease-[var(--ease-out-quint)] hover:-translate-y-1.5 hover:border-prism-violet/60 hover:shadow-[var(--shadow-lift)]">
         <div class="holo-sheen aspect-square overflow-hidden bg-gradient-to-br from-ink-50 to-ink-100">
             @if($item->image)
                 <img src="{{ asset('storage/' . $item->image) }}"
@@ -27,7 +27,7 @@
                     {{ $item->category }}
                 </span>
                 @if($item->featured)
-                    <span class="rounded-full prism-bg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                    <span class="rounded-full prism-bg-deep px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
                         Hot
                     </span>
                 @endif

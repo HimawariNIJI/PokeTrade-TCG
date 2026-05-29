@@ -7,7 +7,7 @@
     <title>{{ config('app.name', 'PokeTrade') }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-white antialiased text-ink-900">
@@ -23,23 +23,24 @@
             <div class="absolute -right-20 bottom-1/3 h-72 w-72 rounded-full bg-prism-mint/30 blur-3xl"></div>
 
             <div class="relative flex h-full flex-col justify-between p-12 text-white">
-                <a href="{{ route('home') }}" class="inline-flex items-center gap-2.5">
-                    <span class="relative inline-flex h-9 w-9 items-center justify-center">
-                        <span class="absolute inset-0 rotate-45 rounded-md bg-white"></span>
-                        <span class="absolute inset-[3px] rotate-45 rounded-[5px] prism-bg"></span>
-                        <span class="absolute inset-[7px] rotate-45 rounded-[3px] bg-white"></span>
+                <a href="{{ route('home') }}" class="group inline-flex items-center gap-2.5">
+                    <span class="relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full shadow-lg ring-2 ring-white/80 transition-transform duration-300 ease-[var(--ease-spring)] group-hover:-rotate-12">
+                        <span class="absolute inset-x-0 bottom-0 top-1/2 bg-white"></span>
+                        <span class="absolute inset-x-0 top-0 h-1/2 bg-poke-red"></span>
+                        <span class="absolute inset-x-0 top-1/2 h-[2px] -translate-y-1/2 bg-ink-900"></span>
+                        <span class="relative h-1/3 w-1/3 rounded-full bg-white ring-2 ring-ink-900"></span>
                     </span>
-                    <span class="font-display text-2xl font-black tracking-tight">
-                        Poke<span class="prism-text">Trade</span>
+                    <span class="font-display text-2xl font-bold tracking-tight">
+                        Poke<span class="text-prism-gold">Trade</span>
                     </span>
                 </a>
 
                 <div>
-                    <h2 class="font-display text-5xl font-black leading-[0.95] xl:text-6xl">
+                    <h2 class="font-display text-5xl font-bold leading-[0.95] xl:text-6xl">
                         Build your<br/>prismatic<br/>binder.
                     </h2>
                     <p class="mt-5 max-w-md text-white/80">
-                        Buy, sell, auction, trade, and pull packs from the Scarlet &amp; Violet — Prismatic Evolutions expansion. 180 cards, every Eevee evolution, fully holographic.
+                        Track market prices, bid in live auctions, pull digital gacha packs, and show off your collection. The Scarlet &amp; Violet: Prismatic Evolutions home base, fully holographic.
                     </p>
                 </div>
 

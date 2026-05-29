@@ -1,4 +1,7 @@
-<x-app-layout>
+<x-app-layout
+    title="Live Auctions"
+    description="Bid in real time on graded and rare physical Pokemon TCG Prismatic Evolutions cards. Watch live bids and snipe at the final second.">
+
 
 <section class="relative overflow-hidden">
     <div class="absolute inset-0 -z-10 bg-gradient-to-b from-ink-900 to-ink-700"></div>
@@ -143,7 +146,7 @@
                     </div>
                     <div class="min-w-0 flex-1">
                         <p class="line-clamp-1 text-sm font-bold">{{ $a->card?->name }}</p>
-                        <p class="text-xs text-ink-500 text-prism-violet font-semibold">Sold for @idr($a->current_bid)</p>
+                        <p class="text-xs font-bold text-ink-900">Sold for @idr($a->current_bid)</p>
                         <p class="text-[11px] uppercase tracking-[0.2em] text-ink-500 font-bold">
                             Winner: <span class="font-bold prism-text">{{ $a->winner?->name ?? $a->currentLeader?->name ?? 'Unknown' }}</span>
                         </p>
