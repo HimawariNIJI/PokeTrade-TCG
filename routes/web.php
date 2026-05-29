@@ -107,6 +107,7 @@ Route::middleware('auth')->group(function () {
     // Gacha — pull a pack + view your digital collection.
     Route::post('/gacha/pull', [GachaController::class, 'pull'])->name('gacha.pull');
     Route::get('/collection', [GachaController::class, 'collection'])->name('collection.index');
+    Route::get('/collection/history', [GachaController::class, 'history'])->name('collection.history');
 
     // Forums — creating threads + replying.
     Route::get('/forums/new', [ForumController::class, 'create'])->name('forums.create');

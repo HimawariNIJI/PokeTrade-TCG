@@ -20,7 +20,10 @@
         </div>
 
         @if($uniqueCards > 0)
-            <x-prism-button :href="route('gacha.index')" size="md">Pull another pack</x-prism-button>
+            <div class="flex flex-wrap gap-3">
+                <x-prism-button :href="route('collection.history')" variant="ghost" size="md">Pull history</x-prism-button>
+                <x-prism-button :href="route('gacha.index')" size="md">Pull another pack</x-prism-button>
+            </div>
         @endif
     </div>
 

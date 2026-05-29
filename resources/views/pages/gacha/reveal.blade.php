@@ -53,13 +53,22 @@
                     </div>
                 @endforeach
 
-                {{-- name + rarity tags — un-scaled layer, faded in once spread --}}
+                {{-- name + rarity tags — un-scaled layer, faded in once spread.
+                     Beneath each card we surface whether the trainer already
+                     owned it and how many copies they now hold. --}}
                 @foreach ($pulls as $i => $card)
+                    @php($own = $ownership[$card->id] ?? null)
                     <div class="gacha-label absolute left-1/2 top-0 text-center"
                         :style="labelStyle({{ $i }})">
                         <p class="line-clamp-1 text-sm font-bold">{{ $card->name }}</p>
                         <p class="text-[10px] uppercase tracking-widest text-white/60">{{ $card->rarity ?? 'Common' }}
                         </p>
+                        @if ($own)
+                            <p class="mt-1.5 text-[10px] font-bold uppercase tracking-widest {{ $own['owned_before'] ? 'text-white/50' : 'text-prism-gold' }}">
+                                {{ $own['owned_before'] ? 'Already owned' : 'New card!' }}
+                                <span class="text-white/40">· ×{{ $own['quantity'] }} held</span>
+                            </p>
+                        @endif
                     </div>
                 @endforeach
             </div>
@@ -98,6 +107,7 @@
                             (10 Points)</span>
                     </button>
                     <x-prism-button :href="route('collection.index')" variant="ghost" size="md">View collection</x-prism-button>
+                    <x-prism-button :href="route('collection.history')" variant="ghost" size="md">Pull history</x-prism-button>
                 </div>
                 <div x-show="phase === 'spread'" x-transition:enter.duration.500ms
                     class="flex flex-wrap justify-center gap-3">
