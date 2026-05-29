@@ -7,10 +7,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Bid extends Model
 {
-    protected $fillable = ['auction_id', 'user_id', 'amount', 'payment_status', 'midtrans_id'];
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_PAID = 'paid';
+    public const STATUS_FAILED = 'failed';
+    public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_EXPIRED = 'expired';
+    
+    protected $fillable = ['auction_id','user_id','amount','status','order_id','paid_at',];
 
     protected $casts = [
         'amount' => 'decimal:2',
+        'paid_at' => 'datetime',
     ];
 
     public function auction(): BelongsTo

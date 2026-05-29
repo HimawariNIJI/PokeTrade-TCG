@@ -80,7 +80,7 @@ class AuctionController extends Controller
 
     public function show(Auction $auction)
     {
-        $auction->load('card', 'seller', 'bids.user');
+        $auction->load('card', 'seller', 'paidBids.user');
 
         return view('pages.auctions.show', [
             'auction' => $auction,
@@ -126,28 +126,15 @@ class AuctionController extends Controller
         try {  
             DB::beginTransaction();
 
+            $orderId = 'auction-'.$auction->id.'-'.uniqid();
+
             $bid = Bid::create([
                 'auction_id' => $auction->id,
                 'user_id' => $request->user()->id,
                 'amount' => $validated['amount'],
+                'status' => Bid::STATUS_PENDING,
+                'order_id' => $orderId,
             ]);
-
-            $auction->current_bid = $validated['amount'];
-            $auction->current_leader_id = $request->user()->id;
-
-            $shouldEnd = $auction->buy_now_price !== null
-                && $validated['amount'] >= $auction->buy_now_price;
-
-            $auction->save();
-
-            if ($shouldEnd) {
-                $auction->snapshotWinner();
-
-                $auction->update([
-                    'status' => 'ended',
-                    'ends_at' => now(),
-                ]);
-            }
 
             \Midtrans\Config::$serverKey = config('midtrans.server_key');
             \Midtrans\Config::$isProduction = config('midtrans.is_production');
@@ -156,7 +143,7 @@ class AuctionController extends Controller
 
             $params = [
                 'transaction_details' => [
-                    'order_id' => sprintf('auction-%s-bid-%s', $auction->id, $bid->id),
+                    'order_id' => $bid->order_id,
                     'gross_amount' => (int) round($bid->amount),
                 ],
                 'item_details' => [
@@ -188,11 +175,11 @@ class AuctionController extends Controller
         }
 
         $auction->load([
-            'bids.user',
+            'paidBids.user',
             'currentLeader'
         ]);
 
-        $leaderboard = $auction->bids
+        $leaderboard = $auction->paidBids
             ->sortByDesc('amount')
             ->unique('user_id')
             ->take(3)
@@ -282,6 +269,7 @@ class AuctionController extends Controller
     public function refresh(Auction $auction)
     {
 
+
         if ($auction->status === 'scheduled' && now()->gte($auction->starts_at)) {
             $auction->update(['status' => 'live']);
             $auction->refresh();
@@ -294,9 +282,9 @@ class AuctionController extends Controller
             $auction->refresh();
         }
 
-        $auction->load('card', 'seller', 'bids.user', 'currentLeader');
+        $auction->load('card', 'seller', 'paidBids.user', 'currentLeader');
 
-        $rankedBids = $auction->bids->sortByDesc('amount')->values();
+        $rankedBids = $auction->paidBids->sortByDesc('amount')->values();
         $topUniqueBids = $rankedBids
             ->unique('user_id')
             ->take(3)
@@ -310,7 +298,7 @@ class AuctionController extends Controller
             ];
         });
 
-        $feedBids = $auction->bids->sortByDesc('created_at')->take(20)->values();
+        $feedBids = $auction->paidBids->sortByDesc('created_at')->take(20)->values();
         $bidFeed = $feedBids->map(function ($bid) {
             return [
                 'user' => $bid->user?->name ?? 'Anonymous',

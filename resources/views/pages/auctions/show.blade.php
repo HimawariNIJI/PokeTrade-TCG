@@ -14,8 +14,8 @@
     @endif
 
     @php
-        $rankedBids = $auction->bids->sortByDesc('amount')->values();
-        $feedBids   = $auction->bids->sortByDesc('created_at')->take(20);
+        $rankedBids = $auction->paidBids->sortByDesc('amount')->values();
+        $feedBids   = $auction->paidBids->sortByDesc('created_at')->take(20);
     @endphp
 
     <div
@@ -386,65 +386,8 @@
 
                 successEl.textContent = data.message;
 
-                // Update current bid
-                const currentBidEl = document.getElementById('current-bid');
-                if (currentBidEl) {
-                    currentBidEl.textContent = 'Rp ' + Number(data.current_bid).toLocaleString('id-ID');
-                }
-
-                // Update input minimum
                 const amountInput = form.querySelector('input[name="amount"]');
-                amountInput.min = data.min_next_bid;
-                amountInput.placeholder = '≥ Rp ' + Number(data.min_next_bid).toLocaleString('id-ID');
                 amountInput.value = '';
-
-                const leaderboardEl = document.getElementById('leaderboard');
-                if (leaderboardEl) {
-                    leaderboardEl.innerHTML = '';
-
-                    data.leaderboard.forEach((bid, index) => {
-                        leaderboardEl.innerHTML +=
-                        `<div class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm
-                            ${bid.is_leader
-                                ? 'border border-prism-pink bg-gradient-to-r from-prism-pink/25 to-prism-violet/15'
-                                : 'bg-white/5'}">
-
-                            <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-black
-                                ${index === 0
-                                    ? 'bg-gradient-to-br from-prism-gold to-prism-pink text-ink-900'
-                                    : 'bg-white/10'}">
-                                ${bid.is_leader ? '👑' : index + 1}
-                            </span>
-
-                            <span class="font-bold">${bid.user}</span>
-
-                            ${bid.is_leader ? `
-                                <span class="rounded-full bg-prism-pink/30 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider">
-                                    Winning
-                                </span>` : ''}
-
-                            <span class="ml-auto font-mono font-bold">
-                                Rp ${Number(bid.amount).toLocaleString('id-ID')}
-                            </span>
-                        </div>`;
-                    });
-                }
-
-                const feedEl = document.getElementById('bid-feed');
-                if (feedEl) {
-                    feedEl.insertAdjacentHTML(
-                        'afterbegin',
-                        `<div class="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-1.5 text-xs">
-                            <span class="text-prism-mint">⚡</span>
-                            <span class="font-bold">${data.latest_bid.user}</span>
-                            <span class="text-white/40">bid</span>
-                            <span class="font-mono font-bold text-prism-sky">
-                                Rp ${Number(data.latest_bid.amount).toLocaleString('id-ID')}
-                            </span>
-                            <span class="ml-auto text-white/30">just now</span>
-                        </div>`
-                    );
-                }
 
                 if (data.snap_token && window.snap) {
                     window.snap.pay(data.snap_token, {
