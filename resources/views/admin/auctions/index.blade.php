@@ -32,15 +32,15 @@
         </a>
         <a href="{{ route('admin.auctions.index', ['filter' => 'scheduled']) }}"
            class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $filter === 'scheduled' ? 'bg-amber-100 text-amber-700' : 'border border-ink-200 text-ink-700 hover:border-amber-300 hover:text-amber-600' }}">
-            ⏰ Scheduled <span class="rounded-full {{ $filter === 'scheduled' ? 'bg-amber-200' : 'bg-amber-50' }} px-2 py-0.5 text-xs font-bold">{{ $statusCounts['scheduled'] }}</span>
+            Scheduled <span class="rounded-full {{ $filter === 'scheduled' ? 'bg-amber-200' : 'bg-amber-50' }} px-2 py-0.5 text-xs font-bold">{{ $statusCounts['scheduled'] }}</span>
         </a>
         <a href="{{ route('admin.auctions.index', ['filter' => 'ended']) }}"
            class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $filter === 'ended' ? 'bg-ink-200 text-ink-700' : 'border border-ink-200 text-ink-700 hover:border-ink-300' }}">
-            ✓ Ended <span class="rounded-full {{ $filter === 'ended' ? 'bg-ink-300' : 'bg-ink-100' }} px-2 py-0.5 text-xs font-bold">{{ $statusCounts['ended'] }}</span>
+            Ended <span class="rounded-full {{ $filter === 'ended' ? 'bg-ink-300' : 'bg-ink-100' }} px-2 py-0.5 text-xs font-bold">{{ $statusCounts['ended'] }}</span>
         </a>
         <a href="{{ route('admin.auctions.index', ['filter' => 'cancelled']) }}"
            class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $filter === 'cancelled' ? 'bg-red-100 text-red-700' : 'border border-ink-200 text-ink-700 hover:border-red-300 hover:text-red-600' }}">
-            ✕ Cancelled <span class="rounded-full {{ $filter === 'cancelled' ? 'bg-red-200' : 'bg-red-50' }} px-2 py-0.5 text-xs font-bold">{{ $statusCounts['cancelled'] }}</span>
+            Cancelled <span class="rounded-full {{ $filter === 'cancelled' ? 'bg-red-200' : 'bg-red-50' }} px-2 py-0.5 text-xs font-bold">{{ $statusCounts['cancelled'] }}</span>
         </a>
     </div>
 
@@ -127,10 +127,7 @@
                                         action="{{ route('admin.auctions.refund', $auction) }}"
                                         class="inline">
                                         @csrf
-                                        @method('PATCH')
-
                                         <button type="submit"
-                                                onclick="return confirm('Refund all users for this auction?')"
                                                 class="text-xs font-semibold text-emerald-600 hover:text-emerald-800">
                                             Refund
                                         </button>

@@ -287,11 +287,35 @@ class AuctionController extends Controller
             return back()->with('error', 'Auction already refunded.');
         }
 
+        // Get all non-winning bids (loser bids)
+        $loserBids = $auction->bids()
+            ->where('user_id', '!=', $auction->winner_id)
+            ->with('user')
+            ->orderByDesc('amount')
+            ->get();
+
+        return view('admin.auctions.refund-confirm', [
+            'auction' => $auction,
+            'loserBids' => $loserBids,
+        ]);
+    }
+
+    public function confirmRefund(Auction $auction)
+    {
+        if ($auction->status !== 'ended') {
+            return back()->with('error', 'Auction must be ended first.');
+        }
+
+        if ($auction->refund_status === 'approved') {
+            return back()->with('error', 'Auction already refunded.');
+        }
+
         $auction->update([
             'refund_status' => 'approved',
             'refund_resolved_at' => now(),
         ]);
 
-        return back()->with('success', 'Refund approved successfully.');
+        return redirect()->route('admin.auctions.index')
+            ->with('success', 'Successfully refunded all users for this auction.');
     }
 }
