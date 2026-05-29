@@ -3,12 +3,22 @@
     description="Bid in real time on graded and rare physical Pokemon TCG Prismatic Evolutions cards. Watch live bids and snipe at the final second.">
 
 
-<x-page-hero
-    compact
-    mon="umbreon"
-    eyebrow="Live now"
-    title='Auction <span class="prism-text">house</span>.'
-    subtitle="Bid in real time on illustration rares and chase cards. Bidding requires login. Highest bid when the timer hits zero wins." />
+<section class="relative overflow-hidden">
+    <div class="absolute inset-0 -z-10 bg-gradient-to-b from-ink-900 to-ink-700"></div>
+    <div class="absolute inset-0 -z-10 opacity-20" style="background: radial-gradient(closest-side, rgba(180, 107, 255, 0.6), transparent 70%);"></div>
+    <div class="absolute inset-x-0 top-0 -z-10 h-px prism-bg"></div>
+
+    <div class="mx-auto max-w-[1400px] px-4 pb-14 pt-16 md:px-8 md:pt-20">
+        <span class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur">
+            <span class="h-2 w-2 animate-pulse rounded-full bg-prism-mint"></span>
+            Live now
+        </span>
+        <h1 class="mt-4 font-display text-5xl font-black tracking-tight text-white md:text-6xl">
+            Auction <span class="prism-text">house</span>.
+        </h1>
+        <p class="mt-3 max-w-2xl text-white/70">Bid in real time on illustration rares and chase cards. Bidding requires login. Highest bid at the timer wins.</p>
+    </div>
+</section>
 
 @php
     $heroAuction = $highlighted;

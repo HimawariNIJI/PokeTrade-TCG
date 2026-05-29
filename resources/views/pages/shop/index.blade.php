@@ -3,12 +3,22 @@
     description="Official Pokemon TCG merch: sealed booster boxes, bundles, sleeves, playmats, and plushies. Curated drops, ready to ship.">
 
 
-<x-page-hero
-    compact
-    mon="sylveon"
-    eyebrow="Custom shop"
-    title='Boxes, plushies, <span class="prism-text">gear</span>.'
-    subtitle="Sealed product, sleeves, playmats, and merch. Admin-curated, image-uploaded, and ready to ship." />
+<section class="relative overflow-hidden">
+    <div class="absolute inset-0 -z-10 halftone opacity-50"></div>
+    <div class="mx-auto max-w-[1400px] px-4 pb-10 pt-16 md:px-8 md:pt-20">
+        <div class="flex flex-wrap items-end justify-between gap-6">
+            <div>
+                <span class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink-700 backdrop-blur">
+                    Custom shop
+                </span>
+                <h1 class="mt-4 font-display text-5xl font-black tracking-tight md:text-6xl">
+                    Boxes, plushies, <span class="prism-text">gear</span>.
+                </h1>
+                <p class="mt-3 max-w-2xl text-ink-700">Sealed product, sleeves, playmats and merch — admin-curated, image-uploaded, ready to ship.</p>
+            </div>
+        </div>
+    </div>
+</section>
 
 <form method="GET" class="border-y border-ink-200 bg-white/90 backdrop-blur sticky top-[68px] z-20">
     <div class="mx-auto flex max-w-[1400px] flex-wrap items-center gap-3 px-4 py-3 md:px-8">

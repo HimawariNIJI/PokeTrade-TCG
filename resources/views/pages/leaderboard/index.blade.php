@@ -3,12 +3,24 @@
     description="See the top PokeTrade trainers ranked by collection, points, and activity. Climb the ranks and earn your spot.">
 
 
-<x-page-hero
-    compact
-    mon="espeon"
-    eyebrow="Trainer rankings"
-    title='The <span class="prism-text">leaderboard</span>.'
-    subtitle="Top collectors by deck depth, fiercest bidders, and the trainers with the deepest point banks." />
+<section class="relative overflow-hidden">
+    <div class="absolute inset-0 -z-10 bg-gradient-to-b from-ink-900 via-prism-violet/20 to-ink-900"></div>
+    <div class="absolute inset-0 -z-10 halftone opacity-10"></div>
+
+    <div class="mx-auto max-w-[1200px] px-4 py-20 md:px-8">
+        <div class="text-center">
+            <span class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur">
+                Trainer rankings
+            </span>
+            <h1 class="mt-4 font-display text-5xl font-black leading-[0.95] text-white md:text-7xl">
+                The <span class="prism-text">leaderboard</span>.
+            </h1>
+            <p class="mt-4 mx-auto max-w-2xl text-white/70">
+                Top collectors by deck depth, fiercest bidders, and the trainers with the deepest point banks.
+            </p>
+        </div>
+    </div>
+</section>
 
 <section class="mx-auto max-w-[1200px] px-4 py-16 md:px-8">
     <div class="grid gap-8 md:grid-cols-3">

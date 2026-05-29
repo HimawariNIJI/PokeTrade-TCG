@@ -5,19 +5,32 @@
 {{-- =====================================================
      PAGE HEADER
      ===================================================== --}}
-<x-page-hero
-    compact
-    mon="eevee"
-    eyebrow="Price tracker · Scarlet &amp; Violet"
-    title='<span class="prism-text">Price</span> tracker.'
-    subtitle="Track every Prismatic Evolutions card's market value. Filter by set, type, rarity, and regulation, sort by price, and add cards to your chase list to watch what they're worth.">
-    <x-slot:actions>
-        <span class="inline-flex items-center gap-2 rounded-2xl border border-ink-200 bg-white px-4 py-2.5 shadow-[var(--shadow-soft)]">
-            <span class="font-display text-2xl font-bold prism-text">{{ number_format($cards->total()) }}</span>
-            <span class="text-xs uppercase tracking-widest text-ink-500">cards tracked</span>
-        </span>
-    </x-slot:actions>
-</x-page-hero>
+<section class="relative overflow-hidden">
+    <div class="absolute inset-0 -z-10 halftone opacity-50"></div>
+    <div class="absolute -top-32 right-0 -z-10 h-96 w-96 rounded-full bg-prism-pink/15 blur-3xl"></div>
+    <div class="absolute -top-32 left-0 -z-10 h-96 w-96 rounded-full bg-prism-mint/15 blur-3xl"></div>
+
+    <div class="mx-auto max-w-[1400px] px-4 pb-10 pt-16 md:px-8 md:pb-12 md:pt-20">
+        <div class="flex flex-wrap items-end justify-between gap-6">
+            <div>
+                <span class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink-700 backdrop-blur">
+                    Price tracker · Scarlet &amp; Violet
+                </span>
+                <h1 class="mt-4 font-display text-5xl font-black tracking-tight md:text-6xl">
+                    <span class="prism-text">Price</span> tracker.
+                </h1>
+                <p class="mt-3 max-w-2xl text-ink-700">
+                    Track every Prismatic Evolutions card's market value. Filter by set, type, rarity, and regulation, sort by price — and add the cards you want to your chase list to keep an eye on what they're worth.
+                </p>
+            </div>
+
+            <div class="rounded-2xl border border-ink-200 bg-white px-4 py-3 text-right">
+                <p class="text-[11px] uppercase tracking-widest text-ink-500">Tracking</p>
+                <p class="font-display text-2xl font-black text-ink-900">{{ number_format($cards->total()) }}<span class="text-ink-500"> cards</span></p>
+            </div>
+        </div>
+    </div>
+</section>
 
 {{-- =====================================================
      FILTER BAR (sticky)

@@ -4,24 +4,6 @@ import Alpine from 'alpinejs';
 
 document.addEventListener('alpine:init', () => {
     /**
-     * heroParallax — gentle cursor-driven parallax for the hero card
-     * showcase. Each card multiplies px/py by its own depth factor so
-     * nearer cards drift further. Skipped under reduced-motion.
-     */
-    Alpine.data('heroParallax', () => ({
-        px: 0,
-        py: 0,
-        reduce: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-        track(e) {
-            if (this.reduce) return;
-            const cx = window.innerWidth / 2;
-            const cy = window.innerHeight / 2;
-            this.px = ((e.clientX - cx) / cx) * 8;
-            this.py = ((e.clientY - cy) / cy) * 8;
-        },
-    }));
-
-    /**
      * auctionCountdown — ticks the "ends in" display on the auction page.
      *
      * TODO(backend): to make the leaderboard + live feed update in real time,
