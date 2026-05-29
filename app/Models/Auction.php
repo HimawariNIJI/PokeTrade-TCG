@@ -57,7 +57,14 @@ class Auction extends Model
 
     public function bids(): HasMany
     {
-        return $this->hasMany(Bid::class)->latest('amount');
+        return $this->hasMany(Bid::class);
+    }
+
+    public function paidBids(): HasMany
+    {
+        return $this->hasMany(Bid::class)
+            ->where('status', Bid::STATUS_PAID)
+            ->latest('amount');
     }
 
     public function getIsLiveAttribute(): bool
@@ -85,7 +92,7 @@ class Auction extends Model
             return;
         }
 
-        $latestBid = $this->bids()
+        $latestBid = $this->paidBids()
             ->where('user_id', $this->current_leader_id)
             ->orderByDesc('created_at')
             ->first();
