@@ -4,6 +4,64 @@ import Alpine from 'alpinejs';
 
 document.addEventListener('alpine:init', () => {
     /**
+     * shoutbox — persisted community chat in the forums sidebar. Seeds
+     * from server-rendered messages, posts via fetch, and polls every
+     * 10s for new messages (near-live without websockets).
+     */
+    Alpine.data('shoutbox', (initial, canPost, pollUrl, postUrl) => ({
+        messages: initial || [],
+        canPost,
+        draft: '',
+        sending: false,
+        timer: null,
+        init() {
+            this.scrollToEnd();
+            this.timer = setInterval(() => this.refresh(), 10000);
+        },
+        destroy() {
+            if (this.timer) clearInterval(this.timer);
+        },
+        scrollToEnd() {
+            this.$nextTick(() => {
+                const el = this.$refs.stream;
+                if (el) el.scrollTop = el.scrollHeight;
+            });
+        },
+        async refresh() {
+            try {
+                const res = await fetch(pollUrl, { headers: { Accept: 'application/json' } });
+                if (!res.ok) return;
+                const json = await res.json();
+                // server returns newest-first; display oldest-first
+                this.messages = (json.messages || []).slice().reverse();
+            } catch (e) { /* offline / transient — keep current view */ }
+        },
+        async send() {
+            const text = this.draft.trim();
+            if (!text || this.sending) return;
+            this.sending = true;
+            try {
+                const res = await fetch(postUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    },
+                    body: JSON.stringify({ body: text }),
+                });
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.message) this.messages.push(json.message);
+                    this.draft = '';
+                    this.scrollToEnd();
+                }
+            } catch (e) { /* keep the draft so the user can retry */ }
+            this.sending = false;
+        },
+    }));
+
+    /**
      * auctionCountdown — ticks the "ends in" display on the auction page.
      *
      * TODO(backend): to make the leaderboard + live feed update in real time,

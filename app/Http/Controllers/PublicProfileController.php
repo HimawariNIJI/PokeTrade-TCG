@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ProfileComment;
 use App\Models\User;
+use App\Notifications\ProfileCommentNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -62,8 +63,35 @@ class PublicProfileController extends Controller
             'body'            => $validated['body'],
         ]);
 
+        // Let the wall owner know (not when commenting on your own wall).
+        if ($user->id !== $request->user()->id) {
+            $user->notify(new ProfileCommentNotification($request->user()));
+        }
+
         return redirect()
             ->route('profiles.show', $user)
             ->with('status', 'Comment posted');
+    }
+
+    /**
+     * Delete a wall comment — allowed for the comment's author, the
+     * wall owner, or an admin.
+     */
+    public function destroyComment(Request $request, User $user, ProfileComment $comment): RedirectResponse
+    {
+        abort_unless($comment->profile_user_id === $user->id, 404);
+
+        $actor = $request->user();
+        $canDelete = $actor->id === $comment->author_id
+            || $actor->id === $user->id
+            || $actor->isAdmin();
+
+        abort_unless($canDelete, 403);
+
+        $comment->delete();
+
+        return redirect()
+            ->route('profiles.show', $user)
+            ->with('status', 'Comment removed.');
     }
 }

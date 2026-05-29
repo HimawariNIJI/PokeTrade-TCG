@@ -7,7 +7,10 @@ use App\Http\Controllers\CardController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ForumController;
+use App\Http\Controllers\ForumPostController;
 use App\Http\Controllers\GachaController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ShoutboxController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\MidtransController;
@@ -46,6 +49,7 @@ Route::get('/gacha', [GachaController::class, 'index'])->name('gacha.index');
 
 // Community forums.
 Route::get('/forums', [ForumController::class, 'index'])->name('forums.index');
+Route::get('/forums/shoutbox', [ShoutboxController::class, 'index'])->name('shoutbox.index');
 Route::get('/forums/c/{category:slug}', [ForumController::class, 'category'])->name('forums.category');
 Route::get('/forums/t/{thread}', [ForumController::class, 'thread'])->name('forums.thread');
 
@@ -166,10 +170,26 @@ Route::middleware('auth')->group(function () {
     // Forums — creating threads + replying.
     Route::get('/forums/new', [ForumController::class, 'create'])->name('forums.create');
     Route::post('/forums', [ForumController::class, 'store'])->name('forums.store');
+    Route::get('/forums/t/{thread}/edit', [ForumController::class, 'edit'])->name('forums.edit');
+    Route::put('/forums/t/{thread}', [ForumController::class, 'update'])->name('forums.update');
+    Route::delete('/forums/t/{thread}', [ForumController::class, 'destroy'])->name('forums.destroy');
     Route::post('/forums/t/{thread}/reply', [ForumController::class, 'reply'])->name('forums.reply');
+    Route::patch('/forums/t/{thread}/pin', [ForumController::class, 'togglePin'])->name('forums.pin');
+    Route::patch('/forums/t/{thread}/lock', [ForumController::class, 'toggleLock'])->name('forums.lock');
+
+    // Forum replies (edit / delete own).
+    Route::put('/forums/posts/{post}', [ForumPostController::class, 'update'])->name('forums.posts.update');
+    Route::delete('/forums/posts/{post}', [ForumPostController::class, 'destroy'])->name('forums.posts.destroy');
+
+    // Community shoutbox (posting).
+    Route::post('/forums/shoutbox', [ShoutboxController::class, 'store'])->name('shoutbox.store');
+
+    // Reporting content (threads / posts / profile comments).
+    Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
 
     // Profile comment wall.
     Route::post('/u/{user}/comments', [PublicProfileController::class, 'comment'])->name('profiles.comment');
+    Route::delete('/u/{user}/comments/{comment}', [PublicProfileController::class, 'destroyComment'])->name('profiles.comment.destroy');
 
     // Notifications inbox.
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
@@ -198,6 +218,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('users',          [Admin\UserController::class, 'index'])->name('users.index');
     Route::get('users/{user}',   [Admin\UserController::class, 'show'])->name('users.show');
     Route::patch('users/{user}/role', [Admin\UserController::class, 'updateRole'])->name('users.updateRole');
+
+    // Community reports — review + resolve flagged content.
+    Route::get('reports', [Admin\ReportController::class, 'index'])->name('reports.index');
+    Route::patch('reports/{report}', [Admin\ReportController::class, 'update'])->name('reports.update');
 
     // Auctions — admin bidding console.
     // Custom/literal routes registered BEFORE the {auction} routes so the

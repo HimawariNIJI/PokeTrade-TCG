@@ -244,6 +244,20 @@
                         <p class="mt-1.5 whitespace-pre-line text-sm leading-relaxed text-ink-700">
                             {{ $comment->body }}
                         </p>
+                        @auth
+                            <div class="mt-3 flex items-center gap-4 text-xs">
+                                @if(auth()->id() === $comment->author_id || auth()->id() === $user->id || auth()->user()->isAdmin())
+                                    <form method="POST" action="{{ route('profiles.comment.destroy', [$user, $comment]) }}"
+                                          onsubmit="return confirm('Delete this comment?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="font-semibold text-ink-400 transition hover:text-rose-600">Delete</button>
+                                    </form>
+                                @endif
+                                @if($comment->author_id !== auth()->id())
+                                    <x-report-button type="comment" :id="$comment->id" />
+                                @endif
+                            </div>
+                        @endauth
                     </div>
                 </div>
             @empty

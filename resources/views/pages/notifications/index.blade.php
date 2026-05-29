@@ -14,7 +14,7 @@
         <x-empty-state
             icon="◇"
             title="Nothing here yet"
-            message="When a card on your wishlist hits the auction block, you'll see it here." />
+            message="Replies to your threads, comments on your wall, and wishlist auction alerts will show up here." />
     @else
         <div class="space-y-3">
             @foreach($notifications as $note)
@@ -37,6 +37,11 @@
                         <a href="{{ route('auctions.show', $data['auction_id']) }}"
                            class="rounded-full bg-ink-900 px-4 py-1.5 text-xs font-bold text-white hover:bg-ink-700">
                             View auction
+                        </a>
+                    @elseif(isset($data['url']))
+                        <a href="{{ $data['url'] }}"
+                           class="rounded-full bg-ink-900 px-4 py-1.5 text-xs font-bold text-white hover:bg-ink-700">
+                            View
                         </a>
                     @endif
                     <form method="POST" action="{{ route('notifications.destroy', $note->id) }}">

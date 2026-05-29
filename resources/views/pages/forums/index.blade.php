@@ -6,8 +6,6 @@
 @php
     // Map a category's prism accent token to FULL utility class strings.
     // accent ∈ violet|pink|mint|sky|gold — defaults to violet if unset.
-    // Full literal classes (no interpolation) so Tailwind's JIT scanner
-    // picks every variant up at build time.
     $accentMap = [
         'violet' => ['border' => 'hover:border-prism-violet', 'bg' => 'bg-prism-violet'],
         'pink'   => ['border' => 'hover:border-prism-pink',   'bg' => 'bg-prism-pink'],
@@ -15,6 +13,14 @@
         'sky'    => ['border' => 'hover:border-prism-sky',    'bg' => 'bg-prism-sky'],
         'gold'   => ['border' => 'hover:border-prism-gold',   'bg' => 'bg-prism-gold'],
     ];
+
+    // Initial shoutbox payload, oldest-first for chat-style display.
+    $initialShouts = $shouts->map(fn ($m) => [
+        'id'   => $m->id,
+        'name' => $m->user?->name ?? 'Trainer',
+        'body' => $m->body,
+        'ago'  => $m->created_at->diffForHumans(null, true) . ' ago',
+    ])->reverse()->values();
 @endphp
 
 {{-- ── Hero ─────────────────────────────────────────────────────── --}}
@@ -32,18 +38,25 @@
             The <span class="prism-text">Forums</span>.
         </h1>
         <p class="mt-3 max-w-2xl text-white/70">
-            Trade talk, pull brags, deck tech and grading questions — this is where the collector community gathers.
+            Trade talk, pull brags, deck tech, and grading questions. This is where the collector community gathers.
         </p>
-        @auth
-            <div class="mt-7">
-                <x-prism-button :href="route('forums.create')">
+
+        <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+            {{-- Search --}}
+            <form method="GET" action="{{ route('forums.index') }}" class="relative w-full sm:max-w-md">
+                <svg class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="search" name="q" value="{{ $query }}" placeholder="Search threads…"
+                       class="w-full rounded-full border-white/20 bg-white/10 py-2.5 pl-11 pr-4 text-sm text-white placeholder:text-white/50 backdrop-blur focus:border-prism-mint focus:ring-prism-mint">
+            </form>
+            @auth
+                <x-prism-button :href="route('forums.create')" size="md">
                     Start a thread
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m-7-7h14"/>
                     </svg>
                 </x-prism-button>
-            </div>
-        @endauth
+            @endauth
+        </div>
     </div>
 </section>
 
@@ -52,6 +65,44 @@
 
         {{-- ── Main column ─────────────────────────────────────── --}}
         <div class="lg:col-span-8">
+
+            {{-- Search results --}}
+            @if($query !== '')
+                <div class="mb-12">
+                    <div class="flex items-end justify-between gap-4">
+                        <x-section-heading
+                            eyebrow="Search"
+                            title='Results for <span class="prism-text">{{ e($query) }}</span>' />
+                        <a href="{{ route('forums.index') }}" class="shrink-0 text-sm font-bold text-ink-500 hover:text-ink-900">Clear</a>
+                    </div>
+
+                    @if($results->isNotEmpty())
+                        <div class="mt-6 divide-y divide-ink-100 overflow-hidden rounded-3xl border border-ink-200 bg-white">
+                            @foreach($results as $thread)
+                                <a href="{{ route('forums.thread', $thread) }}" class="group flex items-center gap-4 px-5 py-4 transition hover:bg-ink-50">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="line-clamp-1 font-display text-sm font-bold text-ink-900 transition group-hover:text-prism-violet">{{ $thread->title }}</p>
+                                        <p class="mt-0.5 line-clamp-1 text-xs text-ink-500">
+                                            {{ $thread->author?->name ?? 'Unknown' }}
+                                            @if($thread->category) · in <span class="font-semibold">{{ $thread->category->name }}</span> @endif
+                                            · {{ $thread->last_posted_at?->diffForHumans() ?? $thread->created_at->diffForHumans() }}
+                                        </p>
+                                    </div>
+                                    <span class="hidden shrink-0 rounded-full bg-ink-100 px-2.5 py-1 font-mono text-[11px] font-bold text-ink-700 sm:inline">
+                                        {{ $thread->posts_count }} {{ Str::plural('reply', $thread->posts_count) }}
+                                    </span>
+                                </a>
+                            @endforeach
+                        </div>
+                        <div class="mt-6">{{ $results->links() }}</div>
+                    @else
+                        <div class="mt-6">
+                            <x-empty-state icon="✦" title="No threads found"
+                                message="Nothing matched “{{ $query }}”. Try a different search." />
+                        </div>
+                    @endif
+                </div>
+            @endif
 
             {{-- Category board --}}
             <x-section-heading
@@ -82,7 +133,7 @@
                                         Latest: <span class="font-semibold text-ink-700">{{ $latest->title }}</span>
                                     </span>
                                 @else
-                                    <span class="italic">No threads yet — be the first.</span>
+                                    <span class="italic">No threads yet. Be the first.</span>
                                 @endif
                             </div>
                         </a>
@@ -108,7 +159,6 @@
                         @foreach($recentThreads as $thread)
                             <a href="{{ route('forums.thread', $thread) }}"
                                class="group flex items-center gap-4 px-5 py-4 transition hover:bg-ink-50">
-                                {{-- Author avatar --}}
                                 @if($thread->author?->avatar)
                                     <img src="{{ $thread->author->avatar }}" alt="{{ $thread->author->name }}"
                                          class="h-10 w-10 shrink-0 rounded-full object-cover">
@@ -146,35 +196,17 @@
             </div>
         </div>
 
-        {{-- ── Community chat panel ────────────────────────────── --}}
-        {{--
-            Alpine-driven demo chat. Messages prepend client-side only —
-            nothing is persisted or broadcast. See ForumController@index.
-        --}}
+        {{-- ── Community shoutbox (persisted, polled) ──────────── --}}
         <aside class="lg:col-span-4">
-            <div x-data="{
-                    draft: '',
-                    messages: @js(collect($chatMessages)->map(fn ($m) => [
-                        'name' => $m['name'],
-                        'body' => $m['body'],
-                        'ago'  => $m['minutes_ago'] . 'm ago',
-                    ])->values()),
-                    send() {
-                        const text = this.draft.trim();
-                        if (! text) return;
-                        this.messages.unshift({ name: 'You', body: text, ago: 'just now' });
-                        this.draft = '';
-                    }
-                 }"
+            <div x-data="shoutbox(@js($initialShouts), @js(auth()->check()), @js(route('shoutbox.index')), @js(route('shoutbox.store')))"
                  class="sticky top-24 overflow-hidden rounded-3xl border border-ink-200 bg-white shadow-sm">
 
-                {{-- Panel header --}}
                 <div class="relative border-b border-ink-100 px-5 py-4">
                     <span class="absolute inset-x-0 top-0 h-1 prism-bg"></span>
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="font-display text-base font-black text-ink-900">Community chat</h3>
-                            <p class="text-xs text-ink-500">Live banter from the floor</p>
+                            <h3 class="font-display text-base font-black text-ink-900">Community shoutbox</h3>
+                            <p class="text-xs text-ink-500">Quick banter from the floor</p>
                         </div>
                         <span class="inline-flex items-center gap-1.5 rounded-full bg-prism-mint/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-ink-700">
                             <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-prism-mint"></span>
@@ -183,9 +215,9 @@
                     </div>
                 </div>
 
-                {{-- Message stream --}}
-                <div class="flex max-h-[420px] flex-col gap-3 overflow-y-auto px-5 py-4">
-                    <template x-for="(msg, i) in messages" :key="i">
+                {{-- Message stream (oldest at top, newest at bottom) --}}
+                <div class="flex max-h-[420px] flex-col gap-3 overflow-y-auto px-5 py-4" x-ref="stream">
+                    <template x-for="msg in messages" :key="msg.id">
                         <div class="flex items-start gap-3">
                             <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full prism-bg text-[11px] font-bold text-white"
                                   x-text="msg.name.charAt(0).toUpperCase()"></span>
@@ -194,26 +226,32 @@
                                     <span class="font-display text-xs font-bold text-ink-900" x-text="msg.name"></span>
                                     <span class="font-mono text-[10px] text-ink-500" x-text="msg.ago"></span>
                                 </p>
-                                <p class="mt-0.5 text-sm text-ink-700" x-text="msg.body"></p>
+                                <p class="mt-0.5 break-words text-sm text-ink-700" x-text="msg.body"></p>
                             </div>
                         </div>
                     </template>
+                    <p x-show="messages.length === 0" class="py-6 text-center text-sm text-ink-500">No messages yet. Say hi 👋</p>
                 </div>
 
                 {{-- Composer --}}
                 <div class="border-t border-ink-100 p-3">
-                    <form @submit.prevent="send()" class="flex items-center gap-2">
-                        <input type="text" x-model="draft"
-                               placeholder="Say something nice…"
-                               class="min-w-0 flex-1 rounded-full border-ink-200 bg-ink-50 px-4 py-2 text-sm placeholder:text-ink-500 focus:border-prism-violet focus:ring-prism-violet">
-                        <button type="submit"
-                                class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full prism-bg text-white transition hover:scale-105 active:scale-95">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.27 3.13a.5.5 0 0 1 .67-.6l16.5 8.5a.5.5 0 0 1 0 .94l-16.5 8.5a.5.5 0 0 1-.67-.6L6 12Zm0 0h8"/>
-                            </svg>
-                        </button>
-                    </form>
-                    <p class="mt-2 px-2 text-[11px] text-ink-500">Demo chat — messages aren't saved yet.</p>
+                    @auth
+                        <form @submit.prevent="send()" class="flex items-center gap-2">
+                            <input type="text" x-model="draft" maxlength="280"
+                                   placeholder="Say something nice…"
+                                   class="min-w-0 flex-1 rounded-full border-ink-200 bg-ink-50 px-4 py-2 text-sm placeholder:text-ink-500 focus:border-prism-violet focus:ring-prism-violet">
+                            <button type="submit" :disabled="sending" aria-label="Send message"
+                                    class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full prism-bg-deep text-white transition hover:scale-105 active:scale-95 disabled:opacity-50">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.27 3.13a.5.5 0 0 1 .67-.6l16.5 8.5a.5.5 0 0 1 0 .94l-16.5 8.5a.5.5 0 0 1-.67-.6L6 12Zm0 0h8"/>
+                                </svg>
+                            </button>
+                        </form>
+                    @else
+                        <p class="px-2 py-1 text-center text-[13px] text-ink-500">
+                            <a href="{{ route('login') }}" class="font-semibold text-prism-violet hover:underline">Log in</a> to join the chat.
+                        </p>
+                    @endauth
                 </div>
             </div>
         </aside>

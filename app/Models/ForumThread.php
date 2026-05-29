@@ -5,16 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class ForumThread extends Model
 {
     protected $fillable = [
         'forum_category_id', 'user_id', 'title', 'body',
-        'pinned', 'views', 'last_posted_at',
+        'pinned', 'locked', 'views', 'last_posted_at',
     ];
 
     protected $casts = [
         'pinned' => 'boolean',
+        'locked' => 'boolean',
         'last_posted_at' => 'datetime',
     ];
 
@@ -31,5 +33,10 @@ class ForumThread extends Model
     public function posts(): HasMany
     {
         return $this->hasMany(ForumPost::class)->oldest();
+    }
+
+    public function reports(): MorphMany
+    {
+        return $this->morphMany(Report::class, 'reportable');
     }
 }

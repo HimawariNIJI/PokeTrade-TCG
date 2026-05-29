@@ -20,7 +20,9 @@
             ['route' => 'admin.auctions.index','label' => 'Auctions',      'icon' => '⚡'],
             ['route' => 'admin.orders.index',  'label' => 'Orders',         'icon' => '⬢'],
             ['route' => 'admin.users.index','label' => 'Users',         'icon' => '◉'],
+            ['route' => 'admin.reports.index','label' => 'Reports',     'icon' => '⚑'],
         ];
+        $openReports = \App\Models\Report::where('status', 'open')->count();
     @endphp
 
     <div class="flex min-h-screen">
@@ -40,7 +42,10 @@
                        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition
                               {{ $active ? 'bg-ink-900 text-white' : 'text-ink-700 hover:bg-ink-100' }}">
                         <span class="font-mono text-base">{{ $i['icon'] }}</span>
-                        {{ $i['label'] }}
+                        <span class="flex-1">{{ $i['label'] }}</span>
+                        @if($i['route'] === 'admin.reports.index' && $openReports > 0)
+                            <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 text-[10px] font-bold text-white">{{ $openReports }}</span>
+                        @endif
                     </a>
                 @endforeach
             </nav>

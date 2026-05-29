@@ -5,14 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\ForumCategory;
 use App\Models\ForumPost;
 use App\Models\ForumThread;
+use App\Models\ShoutboxMessage;
+use App\Notifications\ForumReplyNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ForumController extends Controller
 {
     /**
-     * Forum landing — category board, recent discussions, live chat panel.
+     * Forum landing — category board, recent discussions, search, shoutbox.
      */
-    public function index()
+    public function index(Request $request)
     {
         $categories = ForumCategory::query()
             ->withCount('threads')
@@ -27,21 +30,28 @@ class ForumController extends Controller
             ->limit(6)
             ->get();
 
-        // TODO(team-backend): persist + broadcast live chat — these messages
-        // are static demo data. Replace with a real chat store + WebSocket
-        // broadcast so the panel updates for every connected member.
-        $chatMessages = [
-            ['name' => 'Mika',     'body' => 'Just pulled a Hyper Rare Eevee ex 😭 best day ever',           'minutes_ago' => 2],
-            ['name' => 'Reza',     'body' => 'anyone trading the SIR Sylveon? have doubles',                  'minutes_ago' => 5],
-            ['name' => 'Dewi',     'body' => 'the gacha rates feel generous this week ngl',                   'minutes_ago' => 9],
-            ['name' => 'Owen',     'body' => 'bid war on that Umbreon auction is wild rn',                    'minutes_ago' => 14],
-            ['name' => 'Sari',     'body' => 'finished my Prismatic Evolutions binder finally ✨',             'minutes_ago' => 21],
-            ['name' => 'Bagus',    'body' => 'new merch drop when? need that playmat',                        'minutes_ago' => 33],
-            ['name' => 'Lin',      'body' => 'grading question — anyone used the new submission flow?',       'minutes_ago' => 48],
-            ['name' => 'Hana',     'body' => 'gm collectors ☀️ what are we chasing today',                    'minutes_ago' => 60],
-        ];
+        // Thread search (title or body).
+        $query = trim((string) $request->query('q', ''));
+        $results = null;
+        if ($query !== '') {
+            $results = ForumThread::query()
+                ->with('author', 'category')
+                ->withCount('posts')
+                ->where(function ($q) use ($query) {
+                    $q->where('title', 'like', '%'.$query.'%')
+                      ->orWhere('body', 'like', '%'.$query.'%');
+                })
+                ->orderByDesc('last_posted_at')
+                ->paginate(10)
+                ->withQueryString();
+        }
 
-        return view('pages.forums.index', compact('categories', 'recentThreads', 'chatMessages'));
+        // Persisted community shoutbox (newest first; the panel reverses it).
+        $shouts = ShoutboxMessage::with('user')->latest()->limit(30)->get();
+
+        return view('pages.forums.index', compact(
+            'categories', 'recentThreads', 'query', 'results', 'shouts'
+        ));
     }
 
     /**
@@ -60,14 +70,16 @@ class ForumController extends Controller
     }
 
     /**
-     * A single thread — original post plus the reply timeline.
+     * A single thread — original post plus the paginated reply timeline.
      */
     public function thread(ForumThread $thread)
     {
         $thread->increment('views');
-        $thread->load('category', 'author', 'posts.author');
+        $thread->load('category', 'author');
 
-        return view('pages.forums.thread', compact('thread'));
+        $posts = $thread->posts()->with('author')->paginate(20);
+
+        return view('pages.forums.thread', compact('thread', 'posts'));
     }
 
     /**
@@ -105,24 +117,98 @@ class ForumController extends Controller
     }
 
     /**
-     * Add a reply to a thread and bump its activity timestamp.
+     * Edit the opening post (author or admin).
+     */
+    public function edit(ForumThread $thread)
+    {
+        Gate::authorize('update', $thread);
+
+        $categories = ForumCategory::orderBy('position')->get();
+
+        return view('pages.forums.edit', compact('thread', 'categories'));
+    }
+
+    public function update(Request $request, ForumThread $thread)
+    {
+        Gate::authorize('update', $thread);
+
+        $data = $request->validate([
+            'forum_category_id' => ['required', 'exists:forum_categories,id'],
+            'title'             => ['required', 'string', 'max:160'],
+            'body'              => ['required', 'string', 'max:10000'],
+        ]);
+
+        $thread->update($data);
+
+        return redirect()
+            ->route('forums.thread', $thread)
+            ->with('status', 'Thread updated.');
+    }
+
+    public function destroy(ForumThread $thread)
+    {
+        Gate::authorize('delete', $thread);
+
+        $category = $thread->category;
+        $thread->delete();
+
+        return redirect()
+            ->route($category ? 'forums.category' : 'forums.index', $category ?? [])
+            ->with('status', 'Thread deleted.');
+    }
+
+    /**
+     * Reply to a thread (blocked when locked, unless admin).
      */
     public function reply(Request $request, ForumThread $thread)
     {
+        if ($thread->locked && ! $request->user()->isAdmin()) {
+            return redirect()
+                ->route('forums.thread', $thread)
+                ->with('status', 'This thread is locked — no new replies.');
+        }
+
         $data = $request->validate([
             'body' => ['required', 'string', 'max:10000'],
         ]);
 
         ForumPost::create([
             'forum_thread_id' => $thread->id,
-            'user_id'         => auth()->id(),
+            'user_id'         => $request->user()->id,
             'body'            => $data['body'],
         ]);
 
         $thread->update(['last_posted_at' => now()]);
 
+        // Tell the thread author someone replied (not for self-replies).
+        if ($thread->author && $thread->user_id !== $request->user()->id) {
+            $thread->author->notify(new ForumReplyNotification($thread, $request->user()));
+        }
+
         return redirect()
             ->route('forums.thread', $thread)
             ->with('status', 'Reply posted.');
+    }
+
+    /**
+     * Toggle pin (moderator only).
+     */
+    public function togglePin(ForumThread $thread)
+    {
+        Gate::authorize('moderate', $thread);
+        $thread->update(['pinned' => ! $thread->pinned]);
+
+        return back()->with('status', $thread->pinned ? 'Thread pinned.' : 'Thread unpinned.');
+    }
+
+    /**
+     * Toggle lock (moderator only).
+     */
+    public function toggleLock(ForumThread $thread)
+    {
+        Gate::authorize('moderate', $thread);
+        $thread->update(['locked' => ! $thread->locked]);
+
+        return back()->with('status', $thread->locked ? 'Thread locked.' : 'Thread unlocked.');
     }
 }
