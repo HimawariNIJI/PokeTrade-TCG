@@ -1,5 +1,6 @@
 @if ($paginator->hasPages())
-    <nav role="navigation" aria-label="{{ __('Pagination Navigation') }}">
+    <nav role="navigation" aria-label="{{ __('Pagination Navigation') }}" class="pt-6">
+
 
         <div class="flex gap-2 items-center justify-between sm:hidden">
 
@@ -77,7 +78,7 @@
                             @foreach ($element as $page => $url)
                                 @if ($page == $paginator->currentPage())
                                     <span aria-current="page">
-                                        <span class="inline-flex items-center px-4 py-2 -ml-px text-sm font-bold text-white prism-bg-deep border border-prism-violet/40 cursor-default leading-5">{{ $page }}</span>
+                                        <span class="inline-flex items-center px-4 py-2 -ml-px text-sm font-bold text-prism-violet bg-white border-2 border-prism-violet cursor-default leading-5 relative z-10">{{ $page }}</span>
                                     </span>
                                 @else
                                     <a href="{{ $url }}" class="inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 hover:text-gray-700 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:text-gray-300 dark:active:bg-gray-700 dark:focus:border-blue-800 hover:bg-gray-100 dark:hover:bg-gray-900" aria-label="{{ __('Go to page :page', ['page' => $page]) }}">
