@@ -1,24 +1,27 @@
-<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f5f5f5; padding: 20px; border-radius: 8px;">
-    <div style="background: white; padding: 30px; border-radius: 8px; text-align: center;">
-        <h2 style="color: #333; margin-bottom: 10px;">Password Reset Request</h2>
-        <p style="color: #666; margin-bottom: 30px;">We received a request to reset your PokeTrade TCG password.</p>
+@component('emails._layout', [
+    'eyebrow' => 'Password reset',
+    'heading' => 'Your verification code',
+])
+    <p style="margin:0 0 16px;font-size:16px;line-height:1.6;">Hey trainer,</p>
 
-        <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin: 30px 0;">
-            <p style="color: #666; font-size: 14px; margin: 0 0 10px 0;">Your verification code is:</p>
-            <h1 style="color: #7c3aed; font-size: 48px; letter-spacing: 5px; margin: 10px 0; font-weight: bold;">
-                {{ $otp }}
-            </h1>
-            <p style="color: #999; font-size: 12px; margin: 10px 0 0 0;">This code expires in {{ $expiresIn }} minutes</p>
-        </div>
+    <p style="margin:0 0 24px;font-size:16px;line-height:1.6;">
+        We received a request to reset your {{ config('app.name') }} password. Use the code below to continue.
+    </p>
 
-        <p style="color: #666; font-size: 14px; margin: 20px 0;">
-            Enter this code on the verification page to reset your password.
-        </p>
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 24px;background:linear-gradient(135deg,#faf5ff 0%,#fdf2f8 50%,#fffbeb 100%);border:1px solid rgba(124,58,237,0.18);border-radius:16px;">
+        <tr>
+            <td style="padding:24px 20px;text-align:center;">
+                <p style="margin:0 0 8px;font-size:12px;color:#7c3aed;letter-spacing:2px;text-transform:uppercase;font-weight:700;">Your verification code</p>
+                <p style="margin:0;font-size:44px;font-weight:700;letter-spacing:10px;color:#1a1a1a;font-family:'Fredoka','Helvetica Neue',Arial,sans-serif;text-shadow:0 2px 4px rgba(124,58,237,0.15);">
+                    {{ $otp }}
+                </p>
+                <p style="margin:12px 0 0;font-size:12px;color:#999;">Expires in {{ $expiresIn }} minutes</p>
+            </td>
+        </tr>
+    </table>
 
-        <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-
-        <p style="color: #999; font-size: 12px;">
-            If you didn't request this, please ignore this email. Your account is safe.
-        </p>
-    </div>
-</div>
+    <p style="margin:0 0 24px;font-size:14px;color:#555;line-height:1.6;">
+        Enter this code on the verification page to finish resetting your password.
+        If you didn't request this, you can safely ignore this email — your account stays locked tight.
+    </p>
+@endcomponent
