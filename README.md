@@ -199,6 +199,80 @@ routes/web.php        — all HTTP routes
 
 ---
 
+## <a id="scheduler"></a>Keeping the scheduler running
+
+Two scheduled commands live in [`routes/console.php`](routes/console.php):
+
+| Command | Cadence | Purpose |
+|---|---|---|
+| `cards:refresh-prices` | daily (midnight) | Captures a real TCGplayer market-value snapshot per card. Without this, the price-history chart only ever shows synthetic backfill. |
+| `auctions:keep-live` | every 15 min | Keeps the demo auction floor populated. |
+
+These run automatically only if **some OS-level process calls `php artisan schedule:run` every minute**. Set this up per environment:
+
+### Local — macOS (LaunchAgent)
+
+A LaunchAgent calls `schedule:run` every minute. A template lives at [`deploy/macos-launchd.plist.example`](deploy/macos-launchd.plist.example). To install on a new Mac:
+
+```bash
+# 1. Copy the template into your user LaunchAgents folder
+cp deploy/macos-launchd.plist.example ~/Library/LaunchAgents/com.poketrade.schedule.plist
+
+# 2. Open it and replace the /Users/CHANGEME/... paths with your real
+#    PHP binary path (`which php`) and project path. Then:
+launchctl load ~/Library/LaunchAgents/com.poketrade.schedule.plist
+
+# 3. Verify it's loaded (should print the label):
+launchctl list | grep poketrade
+
+# Output goes to storage/logs/schedule.log
+```
+
+To remove:
+
+```bash
+launchctl unload ~/Library/LaunchAgents/com.poketrade.schedule.plist
+rm ~/Library/LaunchAgents/com.poketrade.schedule.plist
+```
+
+### Local — alternative: `schedule:work`
+
+If you'd rather not install a system agent, run this in a spare terminal whenever you're developing:
+
+```bash
+php artisan schedule:work
+```
+
+Foreground process — closing the terminal stops the scheduler.
+
+### Production — Linux VPS / DigitalOcean / Hetzner / etc.
+
+Add one line to the deploy user's crontab (`crontab -e`):
+
+```cron
+* * * * * cd /path/to/poketrade-tcg && php artisan schedule:run >> /dev/null 2>&1
+```
+
+### Production — Laravel Forge
+
+Forge has a built-in "Scheduler" toggle on each site — flip it on. Forge adds the cron entry for you.
+
+### Production — Railway / Render / Fly.io / Heroku
+
+Run a dedicated worker process / dyno with:
+
+```bash
+php artisan schedule:work
+```
+
+Some PaaS providers (Heroku) also offer a scheduler add-on you can use instead of a long-running worker.
+
+### Production — Docker
+
+Either run a sidecar container whose entrypoint is `php artisan schedule:work`, or add a cron entry to the same container that serves the app (less ideal — the container has to stay up).
+
+---
+
 ## <a id="alternative-no-herd"></a>Alternative: run without Herd
 
 If you can't or don't want to use Herd:
