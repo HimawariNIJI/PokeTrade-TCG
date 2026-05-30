@@ -12,12 +12,14 @@ class Bid extends Model
     public const STATUS_FAILED = 'failed';
     public const STATUS_CANCELLED = 'cancelled';
     public const STATUS_EXPIRED = 'expired';
-    
-    protected $fillable = ['auction_id','user_id','amount','status','order_id','paid_at',];
+    public const STATUS_REFUNDED = 'refunded';
+
+    protected $fillable = ['auction_id','user_id','amount','status','order_id','paid_at','refunded_at'];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'paid_at' => 'datetime',
+        'refunded_at' => 'datetime',
     ];
 
     public function auction(): BelongsTo

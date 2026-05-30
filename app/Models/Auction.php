@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Notifications\AuctionRefundedNotification;
+use App\Notifications\AuctionWonNotification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class Auction extends Model
 {
@@ -102,9 +106,11 @@ class Auction extends Model
     }
 
     /**
-     * Stamp the current leader as the official winner. Called when an
-     * auction transitions to 'ended'. Idempotent — won't overwrite a
-     * winner that has already been recorded.
+     * Stamp the current leader as the official winner, create their
+     * Order (mirroring the merch checkout flow so the win shows up in
+     * /orders), auto-refund every losing paid bid, and dispatch the
+     * appropriate notifications. Idempotent — guarded by winner_id so
+     * repeated calls don't double-charge or double-notify.
      */
     public function snapshotWinner(): void
     {
@@ -112,16 +118,109 @@ class Auction extends Model
             return;
         }
 
-        $latestBid = $this->paidBids()
+        $latestWinningBid = $this->paidBids()
             ->where('user_id', $this->current_leader_id)
             ->orderByDesc('created_at')
             ->first();
 
-        $this->forceFill([
-            'winner_id'      => $this->current_leader_id,
-            'winning_amount' => $this->current_bid,
-            'winner_paid_at' => $latestBid?->created_at ?? now(),
-        ])->save();
+        $order = null;
+
+        DB::transaction(function () use ($latestWinningBid, &$order) {
+            $this->forceFill([
+                'winner_id'      => $this->current_leader_id,
+                'winning_amount' => $this->current_bid,
+                'winner_paid_at' => $latestWinningBid?->created_at ?? now(),
+            ])->save();
+
+            $order = $this->createWinnerOrder($latestWinningBid);
+            $this->refundLosingBids();
+        });
+
+        if ($winner = $this->winner) {
+            $winner->notify(new AuctionWonNotification($this, $order));
+        }
+    }
+
+    /**
+     * Build an Order + OrderItem for the winner so the auction win
+     * appears in /orders alongside merch purchases. Money was already
+     * collected at bid time, so the order opens in a paid state.
+     * Shipping fields default from the user's most recent order, with
+     * a fallback to their profile — same approach as CheckoutController.
+     */
+    protected function createWinnerOrder(?Bid $winningBid): ?Order
+    {
+        $this->loadMissing('card');
+
+        $winner = $this->winner ?? User::find($this->current_leader_id);
+        if (! $winner) {
+            return null;
+        }
+
+        $lastOrder = $winner->orders()->latest()->first();
+        $amount    = (float) $this->current_bid;
+
+        $order = Order::create([
+            'code'                 => 'PT-' . date('YmdHis') . '-' . strtoupper(Str::random(6)),
+            'user_id'              => $winner->id,
+            'status'               => 'paid',
+            'payment_status'       => 'paid',
+            'payment_method'       => 'auction',
+            'payment_reference'    => $winningBid?->order_id,
+            'subtotal'             => $amount,
+            'shipping_fee'         => 0,
+            'tax'                  => 0,
+            'total'                => $amount,
+            'shipping_name'        => $lastOrder?->shipping_name        ?? $winner->name,
+            'shipping_phone'       => $lastOrder?->shipping_phone       ?? $winner->phone,
+            'shipping_address'     => $lastOrder?->shipping_address,
+            'shipping_city'        => $lastOrder?->shipping_city,
+            'shipping_postal_code' => $lastOrder?->shipping_postal_code,
+            'notes'                => 'Auction win — auction #' . $this->id,
+            'paid_at'              => now(),
+        ]);
+
+        OrderItem::create([
+            'order_id'       => $order->id,
+            'itemable_id'    => $this->card->id,
+            'itemable_type'  => Card::class,
+            'name_snapshot'  => $this->card->name,
+            'image_snapshot' => $this->card->image_small ?? $this->card->image_large,
+            'price_snapshot' => $amount,
+            'quantity'       => 1,
+            'subtotal'       => $amount,
+        ]);
+
+        return $order;
+    }
+
+    /**
+     * Flip every paid bid that isn't the winner's to 'refunded' and
+     * notify each losing bidder. The bid amount was charged via
+     * Midtrans at bid time, so this represents the actual refund
+     * being kicked off.
+     *
+     * TODO(team-backend): trigger the real Midtrans refund API call
+     * here. The bid carries the original Midtrans order_id needed.
+     */
+    protected function refundLosingBids(): void
+    {
+        $losingBids = $this->bids()
+            ->where('status', Bid::STATUS_PAID)
+            ->where('user_id', '!=', $this->winner_id)
+            ->with('user')
+            ->get();
+
+        foreach ($losingBids as $bid) {
+            $bid->update([
+                'status'      => Bid::STATUS_REFUNDED,
+                'refunded_at' => now(),
+            ]);
+
+            if ($bid->user) {
+                $bid->user->notify(new AuctionRefundedNotification($this, $bid));
+            }
+        }
     }
 
     public function isWinner(?int $userId): bool
@@ -140,5 +239,31 @@ class Auction extends Model
         return $this->isPaid()
             && $this->refund_status === 'none'
             && $this->winner_paid_at->gt(now()->subDays(7));
+    }
+
+    /**
+     * The Order this auction win produced, if any. Located via the
+     * winning Bid's order_id, which the settlement flow stamps onto
+     * Order.payment_reference.
+     */
+    public function winnerOrder(): ?Order
+    {
+        if (! $this->winner_id) {
+            return null;
+        }
+
+        $winningBid = $this->bids()
+            ->where('user_id', $this->winner_id)
+            ->where('status', Bid::STATUS_PAID)
+            ->orderByDesc('amount')
+            ->first();
+
+        if (! $winningBid?->order_id) {
+            return null;
+        }
+
+        return Order::where('payment_reference', $winningBid->order_id)
+            ->where('payment_method', 'auction')
+            ->first();
     }
 }

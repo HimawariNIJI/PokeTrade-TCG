@@ -198,26 +198,24 @@ class AuctionController extends Controller
     }
 
     /**
-     * Winner pays for an ended auction they won. No real payment gateway
-     * for auctions yet — clicking "Pay" just stamps winner_paid_at so the
-     * refund window opens. Replace with a Midtrans charge call when the
-     * auction payment integration lands.
+     * Legacy "Pay now" endpoint. Auctions are now settled automatically
+     * on close — the winning bid acts as the order payment and an Order
+     * is created during snapshotWinner(). This route stays for any
+     * cached UI / bookmarks and just forwards to the resulting order.
      */
     public function pay(Request $request, Auction $auction)
     {
         $auction->snapshotWinner();
 
         if (! $auction->isWinner($request->user()->id)) {
-            abort(403, 'Only the winner can pay for this auction.');
+            abort(403, 'Only the winner can view this auction order.');
         }
 
-        if ($auction->isPaid()) {
-            return back()->with('status', 'You have already paid for this auction.');
+        if ($order = $auction->winnerOrder()) {
+            return redirect()->route('orders.show', $order->code);
         }
 
-        $auction->update(['winner_paid_at' => now()]);
-
-        return back()->with('status', 'Payment recorded. You can now request a refund within 7 days if anything is off.');
+        return back()->with('status', 'Your auction order is being prepared. Refresh in a moment.');
     }
 
     /**

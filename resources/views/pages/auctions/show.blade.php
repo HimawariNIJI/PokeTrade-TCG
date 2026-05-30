@@ -134,27 +134,30 @@
             </div>
         </div>
 
-        {{-- Winner: pay + refund flow ===================================== --}}
+        {{-- Winner: order + refund flow ===================================== --}}
         @auth
             @if($auction->status === 'ended' && $auction->isWinner(auth()->id()))
+                @php($winnerOrder = $auction->winnerOrder())
                 <div class="relative mt-8 rounded-2xl border border-prism-mint/40 bg-prism-mint/10 p-5 text-ink-50">
                     <p class="text-xs font-black uppercase tracking-widest text-prism-mint">🏆 You won this auction</p>
 
-                    @if(! $auction->isPaid())
-                        <div class="mt-3 flex flex-wrap items-center gap-3">
-                            <p class="text-sm">
-                                Winning bid <span class="font-mono font-bold">@idr($auction->winning_amount ?? $auction->current_bid)</span>.
-                                Pay to claim the card.
-                            </p>
-                            <form method="POST" action="{{ route('auctions.pay', $auction) }}">
-                                @csrf
-                                <button type="submit"
-                                        class="rounded-full bg-gradient-to-r from-prism-mint to-prism-sky px-6 py-2 font-display font-black text-ink-900 shadow transition hover:-translate-y-0.5">
-                                    Pay now
-                                </button>
-                            </form>
-                        </div>
-                    @endif
+                    <div class="mt-3 flex flex-wrap items-center gap-3">
+                        <p class="text-sm">
+                            Winning bid <span class="font-mono font-bold">@idr($auction->winning_amount ?? $auction->current_bid)</span>
+                            — already paid via your bid.
+                            @if($winnerOrder)
+                                Order
+                                <span class="font-mono font-bold">{{ $winnerOrder->code }}</span>
+                                is now in your orders.
+                            @endif
+                        </p>
+                        @if($winnerOrder)
+                            <a href="{{ route('orders.show', $winnerOrder->code) }}"
+                               class="rounded-full bg-gradient-to-r from-prism-mint to-prism-sky px-6 py-2 font-display font-black text-ink-900 shadow transition hover:-translate-y-0.5">
+                                View order
+                            </a>
+                        @endif
+                    </div>
                 </div>
             @endif
         @endauth
