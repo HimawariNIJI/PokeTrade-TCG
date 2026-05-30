@@ -1,14 +1,44 @@
 <x-admin-layout heading="Cards" eyebrow="Catalog management">
     <x-slot:actions>
-        <form method="POST" action="{{ route('admin.cards.refresh') }}" class="inline-block"
-              onsubmit="this.querySelector('button').disabled = true; this.querySelector('button').textContent = 'Refreshing…';">
-            @csrf
-            <button type="submit"
-                    class="rounded-full border border-ink-200 bg-white px-4 py-2 text-sm font-bold text-ink-900 hover:border-prism-violet hover:text-prism-violet">
-                ↻ Refresh from API
-            </button>
-        </form>
+        <div class="group relative inline-block">
+            <form method="POST" action="{{ route('admin.cards.refresh') }}" class="inline-block"
+                  onsubmit="
+                      const o = document.getElementById('refresh-api-overlay');
+                      o.classList.remove('hidden');
+                      o.classList.add('flex');
+                      this.querySelector('button').disabled = true;
+                      this.querySelector('button').textContent = '↻ Refreshing…';
+                  ">
+                @csrf
+                <button type="submit"
+                        class="rounded-full border border-ink-200 bg-white px-4 py-2 text-sm font-bold text-ink-900 hover:border-prism-violet hover:text-prism-violet disabled:cursor-not-allowed disabled:opacity-60">
+                    ↻ Refresh from API
+                </button>
+            </form>
+            {{-- Hover tooltip explaining what the button does + the expected wait --}}
+            <div role="tooltip"
+                 class="pointer-events-none absolute right-0 top-full z-30 mt-2 w-64 origin-top-right scale-95 rounded-2xl border border-ink-200 bg-white p-3 text-left text-xs leading-relaxed text-ink-700 opacity-0 shadow-xl transition duration-150 group-hover:scale-100 group-hover:opacity-100">
+                Re-pulls the Standard catalogue from <span class="font-mono text-ink-900">pokemontcg.io</span> and refreshes every card's market price.
+                <span class="mt-1 block text-ink-500">Takes up to ~60 seconds.</span>
+            </div>
+        </div>
     </x-slot:actions>
+
+    {{-- Full-screen overlay shown while the refresh request is in flight.
+         The page navigates back here when the controller responds, so the overlay
+         disappears automatically and the flash banner above confirms completion. --}}
+    <div id="refresh-api-overlay"
+         class="fixed inset-0 z-50 hidden items-center justify-center bg-ink-900/60 px-4 backdrop-blur-sm"
+         aria-live="polite" aria-busy="true">
+        <div class="w-full max-w-sm rounded-3xl border border-ink-200 bg-white p-8 text-center shadow-2xl">
+            <div class="mx-auto mb-5 h-12 w-12 animate-spin rounded-full border-4 border-ink-100 border-t-prism-violet"></div>
+            <h2 class="font-display text-xl font-bold text-ink-900">Refreshing from pokemontcg.io…</h2>
+            <p class="mt-2 text-sm text-ink-600">
+                Re-pulling the Standard catalogue and updating every card's market price.
+                This can take up to a minute — please don't close this tab.
+            </p>
+        </div>
+    </div>
 
     @if (session('status'))
         <div class="mb-4 rounded-2xl border border-ink-200 bg-white p-4 text-sm text-ink-900">
