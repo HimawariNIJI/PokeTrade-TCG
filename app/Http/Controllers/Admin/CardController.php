@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Card;
 use Database\Seeders\CardSeeder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 
 class CardController extends Controller
 {
@@ -22,11 +21,12 @@ class CardController extends Controller
 
     /**
      * Re-pull the Standard-legal card catalogue from pokemontcg.io and
-     * refresh market prices. New cards are inserted; existing cards have
-     * their market_price (and price-history snapshot) updated.
+     * refresh market prices + today's price-history snapshot. New cards
+     * are inserted; existing cards have their API-sourced fields updated
+     * while admin-managed columns (stock, featured) are preserved.
      *
-     * Long-running (~60s on a cold cache) — runs synchronously since this
-     * is an admin-only action and there is no queue worker.
+     * Runs synchronously: ~5–10s with batched upserts. Must finish before
+     * nginx's fastcgi_read_timeout (default 60s) or the request 504s.
      */
     public function refresh(Request $request)
     {
@@ -37,7 +37,6 @@ class CardController extends Controller
 
         try {
             (new CardSeeder())->run();
-            Artisan::call('cards:refresh-prices');
         } catch (\Throwable $e) {
             return back()->with('status', 'Card refresh failed: ' . $e->getMessage());
         }
