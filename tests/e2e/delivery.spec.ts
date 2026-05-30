@@ -41,30 +41,30 @@ function setupDeliveryFixtures(): SetupFixtures {
   // One single tinker invocation so we pay the artisan boot cost once.
   // Outputs a single marker line we can parse: <<FIXTURES>>...<<END>>.
   const php = `
-    $u = App\\\\Models\\\\User::where('email','e2e@poketrade.test')->first();
-    if(!$u){ throw new \\\\Exception('e2e user missing — run migrate --seed'); }
+    $u = App\\Models\\User::where('email','e2e@poketrade.test')->first();
+    if(!$u){ throw new \\Exception('e2e user missing — run migrate --seed'); }
 
     // Make sure the trainer has a phone so the shipping-form prefill is meaningful.
     $u->forceFill(['phone' => '+62 812 0000 0001'])->save();
 
     // --- Wipe prior fixture state so the test is deterministic across runs ---
     $priorOrderIds = $u->orders()->pluck('id');
-    \\\\DB::table('order_items')->whereIn('order_id', $priorOrderIds)->delete();
+    \\DB::table('order_items')->whereIn('order_id', $priorOrderIds)->delete();
     $u->orders()->delete();
 
-    \\\\App\\\\Models\\\\Auction::where('winner_id', $u->id)->update([
+    \\App\\Models\\Auction::where('winner_id', $u->id)->update([
         'winner_id' => null,
         'winning_amount' => null,
         'winner_paid_at' => null,
     ]);
-    \\\\App\\\\Models\\\\Bid::where('user_id', $u->id)->delete();
+    \\App\\Models\\Bid::where('user_id', $u->id)->delete();
 
     // --- 1. Seed a paid merch order with a full shipping address ---
-    $shopItem = \\\\App\\\\Models\\\\ShopItem::orderBy('id')->first();
-    if(!$shopItem){ throw new \\\\Exception('shop items missing — run migrate --seed'); }
+    $shopItem = \\App\\Models\\ShopItem::orderBy('id')->first();
+    if(!$shopItem){ throw new \\Exception('shop items missing — run migrate --seed'); }
 
-    $merchCode = 'PT-MERCH-E2E-' . strtoupper(\\\\Illuminate\\\\Support\\\\Str::random(6));
-    $merchOrder = \\\\App\\\\Models\\\\Order::create([
+    $merchCode = 'PT-MERCH-E2E-' . strtoupper(\\Illuminate\\Support\\Str::random(6));
+    $merchOrder = \\App\\Models\\Order::create([
         'code' => $merchCode,
         'user_id' => $u->id,
         'status' => 'paid',
@@ -82,10 +82,10 @@ function setupDeliveryFixtures(): SetupFixtures {
         'shipping_postal_code' => '12345',
         'paid_at' => now(),
     ]);
-    \\\\App\\\\Models\\\\OrderItem::create([
+    \\App\\Models\\OrderItem::create([
         'order_id' => $merchOrder->id,
         'itemable_id' => $shopItem->id,
-        'itemable_type' => \\\\App\\\\Models\\\\ShopItem::class,
+        'itemable_type' => \\App\\Models\\ShopItem::class,
         'name_snapshot' => $shopItem->name,
         'image_snapshot' => $shopItem->image,
         'price_snapshot' => $shopItem->price,
@@ -94,11 +94,11 @@ function setupDeliveryFixtures(): SetupFixtures {
     ]);
 
     // --- 2. Hand the trainer the winning bid on a live auction and settle it ---
-    $auction = \\\\App\\\\Models\\\\Auction::where('status','live')->orderBy('id')->first();
-    if(!$auction){ throw new \\\\Exception('no live auction to win — run migrate --seed'); }
+    $auction = \\App\\Models\\Auction::where('status','live')->orderBy('id')->first();
+    if(!$auction){ throw new \\Exception('no live auction to win — run migrate --seed'); }
 
     $winningAmount = (float)$auction->current_bid + (float)$auction->bid_increment + 25000;
-    \\\\App\\\\Models\\\\Bid::create([
+    \\App\\Models\\Bid::create([
         'auction_id' => $auction->id,
         'user_id' => $u->id,
         'amount' => $winningAmount,
@@ -115,7 +115,7 @@ function setupDeliveryFixtures(): SetupFixtures {
     $auction->update(['status' => 'ended']);
 
     $winnerOrder = $auction->winnerOrder();
-    if(!$winnerOrder){ throw new \\\\Exception('auction winner order was not created'); }
+    if(!$winnerOrder){ throw new \\Exception('auction winner order was not created'); }
 
     echo "<<FIXTURES>>" . json_encode([
         'auctionId' => $auction->id,
