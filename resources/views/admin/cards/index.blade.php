@@ -31,7 +31,18 @@
          class="fixed inset-0 z-50 hidden items-center justify-center bg-ink-900/60 px-4 backdrop-blur-sm"
          aria-live="polite" aria-busy="true">
         <div class="w-full max-w-sm rounded-3xl border border-ink-200 bg-white p-8 text-center shadow-2xl">
-            <div class="mx-auto mb-5 h-12 w-12 animate-spin rounded-full border-4 border-ink-100 border-t-prism-violet"></div>
+            {{-- Spinning Pokéball with a pulsing prism halo behind it --}}
+            <div class="relative mx-auto mb-6 h-20 w-20">
+                <div class="absolute -inset-3 animate-pulse rounded-full opacity-70 blur-xl"
+                     style="background: radial-gradient(circle, var(--color-prism-violet) 0%, var(--color-prism-sky) 45%, transparent 70%);"></div>
+                <div class="relative h-full w-full animate-spin overflow-hidden rounded-full border-[3px] border-ink-900 bg-white">
+                    <div class="absolute inset-x-0 top-0 h-1/2 bg-poke-red"></div>
+                    <div class="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 bg-ink-900"></div>
+                    <div class="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-ink-900 bg-white"></div>
+                </div>
+            </div>
+            <img src="{{ asset('images/arceus-loading.gif') }}" alt=""
+                 class="mx-auto mb-4 h-28 w-28 animate-bounce" style="image-rendering: pixelated;">
             <h2 class="font-display text-xl font-bold text-ink-900">Refreshing from pokemontcg.io…</h2>
             <p class="mt-2 text-sm text-ink-600">
                 Re-pulling the Standard catalogue and updating every card's market price.
