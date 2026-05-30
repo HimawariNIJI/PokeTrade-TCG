@@ -8,18 +8,20 @@
      ===================================================== --}}
 <section class="relative isolate overflow-hidden">
     <div class="absolute inset-0 -z-10 halftone opacity-50"></div>
-    <div class="pointer-events-none absolute -left-32 top-1/3 -z-10 h-96 w-96 rounded-full bg-prism-pink/20 blur-3xl"></div>
-    <div class="pointer-events-none absolute right-1/4 top-10 -z-10 h-96 w-96 rounded-full bg-prism-sky/20 blur-3xl"></div>
+    <div class="pointer-events-none absolute -left-32 top-1/3 -z-10 h-96 w-96 rounded-full bg-prism-pink/20 blur-3xl" data-parallax="0.2"></div>
+    <div class="pointer-events-none absolute right-1/4 top-10 -z-10 h-96 w-96 rounded-full bg-prism-sky/20 blur-3xl" data-parallax="-0.16"></div>
 
-    <div class="mx-auto max-w-3xl px-4 pb-16 pt-24 text-center md:px-8">
-        <span class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink-700 backdrop-blur">
+    <div class="mx-auto max-w-5xl px-4 pb-16 pt-24 text-center md:px-8">
+        <span class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink-700 backdrop-blur"
+              data-reveal="pop">
             <span class="inline-block h-2 w-2 rounded-full bg-prism-pink"></span>
             About the project
         </span>
-        <h1 class="mt-5 font-display text-5xl font-black leading-[0.95] tracking-tight md:text-7xl">
+        <h1 class="mt-5 font-display text-4xl font-black leading-[1.05] tracking-tight md:text-6xl lg:text-7xl"
+            data-reveal="letters">
             <span class="prism-text">PokeTrade</span><br/>is a love letter to <em>Eevee.</em>
         </h1>
-        <p class="mt-6 text-base text-ink-700 md:text-lg">
+        <p class="mt-6 text-base text-ink-700 md:text-lg" data-reveal="fade-up" data-reveal-delay="300">
             We built PokeTrade to celebrate <strong>Scarlet &amp; Violet — Prismatic Evolutions</strong>, the set that put Eevee and every one of its evolutions in their own dazzling Special Illustration Rare. A price tracker, a merch shop, an auction house, a digital gacha, and a community — all wrapped in the iridescent foil that gave the set its name.
         </p>
     </div>
@@ -32,15 +34,18 @@
 <section class="mx-auto max-w-[1400px] px-4 pb-24 md:px-8">
     <div class="mb-10 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
         <div class="max-w-xl">
-            <p class="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-500">The rainbow line</p>
-            <h2 class="mt-2 font-display text-4xl font-black tracking-tight md:text-5xl">
+            <p class="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-500"
+               data-reveal="fade-down">The rainbow line</p>
+            <h2 class="mt-2 font-display text-4xl font-black tracking-tight md:text-5xl"
+                data-reveal="letters">
                 Nine evolutions.<br/><span class="prism-text">One prism.</span>
             </h2>
-            <p class="mt-4 text-sm text-ink-700 md:text-base">
+            <p class="mt-4 text-sm text-ink-700 md:text-base" data-reveal="fade-up" data-reveal-delay="300">
                 Every Eeveelution drawn in their Special Illustration Rare frame — the moment that gave this entire site its reason to exist. Tap any to track its market value.
             </p>
         </div>
-        <a href="{{ route('cards.index') }}?rarity=Special%20Illustration%20Rare" class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white px-4 py-2 text-sm font-bold text-ink-900 transition hover:border-prism-violet hover:text-prism-violet">
+        <a href="{{ route('cards.index') }}?rarity=Special%20Illustration%20Rare" class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white px-4 py-2 text-sm font-bold text-ink-900 transition hover:border-prism-violet hover:text-prism-violet"
+           data-reveal="pop" data-reveal-delay="450">
             See every SIR
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
         </a>
@@ -51,8 +56,13 @@
             @php
                 $type = $card->types[0] ?? 'Normal';
             @endphp
+            {{-- wave: alternating --tilt-dir gives each Eeveelution an up-or-down
+                 launch position, so the row arrives like a ripple — fits the
+                 "nine evolutions, one prism" rainbow line. --}}
             <a href="{{ route('cards.show', $card) }}"
-               class="group relative block">
+               class="group relative block"
+               data-reveal="wave"
+               style="--reveal-i: {{ $i }}; --tilt-dir: {{ $i % 2 === 0 ? '-1' : '1' }};">
                 <div class="absolute -inset-1 -z-10 rounded-md prism-bg opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-40"></div>
                 <div class="overflow-hidden rounded-md bg-white shadow-sm ring-1 ring-ink-200/60 transition duration-300 group-hover:-translate-y-1 group-hover:shadow-lg">
                     <img src="{{ $card->image_large ?? $card->image_small }}" alt="{{ $card->name }}" class="block w-full" loading="lazy" />
@@ -71,24 +81,26 @@
      THE STORY — single editorial column, no marketing boxes
      ===================================================== --}}
 <section class="relative bg-ink-900 text-white">
-    <div class="absolute inset-x-0 top-0 h-px prism-bg"></div>
-    <div class="absolute inset-x-0 bottom-0 h-px prism-bg"></div>
-    <div class="pointer-events-none absolute -right-20 top-1/4 h-72 w-72 rounded-full bg-prism-violet/40 blur-3xl"></div>
-    <div class="pointer-events-none absolute -left-20 bottom-0 h-72 w-72 rounded-full bg-prism-mint/30 blur-3xl"></div>
+    <div class="absolute inset-x-0 top-0 h-px prism-bg" data-reveal="clip-right"></div>
+    <div class="absolute inset-x-0 bottom-0 h-px prism-bg" data-reveal="clip-right"></div>
+    <div class="pointer-events-none absolute -right-20 top-1/4 h-72 w-72 rounded-full bg-prism-violet/40 blur-3xl" data-parallax="0.22"></div>
+    <div class="pointer-events-none absolute -left-20 bottom-0 h-72 w-72 rounded-full bg-prism-mint/30 blur-3xl" data-parallax="-0.18"></div>
 
     <div class="relative mx-auto max-w-3xl px-4 py-24 md:px-8 md:py-32">
-        <p class="font-mono text-[11px] font-bold uppercase tracking-widest text-white/60">Why we built it</p>
-        <h2 class="mt-3 font-display text-4xl font-black leading-tight md:text-5xl">
+        <p class="font-mono text-[11px] font-bold uppercase tracking-widest text-white/60"
+           data-reveal="fade-down">Why we built it</p>
+        <h2 class="mt-3 font-display text-4xl font-black leading-tight md:text-5xl"
+            data-reveal="letters">
             We wanted a card site that <span class="prism-text">felt like the foil</span>.
         </h2>
         <div class="mt-8 space-y-5 text-base leading-relaxed text-white/80 md:text-lg">
-            <p>
+            <p data-reveal="fade-up" style="--reveal-i: 0;" data-reveal-delay="200">
                 Most TCG price trackers look like spreadsheets. Prismatic Evolutions doesn't. Its whole pitch is light bending across a card — so we built the site that way too: rainbow gradients, halftone grit, tilt-on-hover holos, an auction floor that ticks in real time.
             </p>
-            <p>
+            <p data-reveal="fade-up" style="--reveal-i: 1;" data-reveal-delay="200">
                 Under the hood it's <strong class="text-white">Laravel 12 + Tailwind v4</strong>, with cards pulled live from the public pokemontcg.io API and tracked against real market values. Auctions ride websockets. The community talks shop in the forums. The digital gacha shuffles the full set into your collection.
             </p>
-            <p>
+            <p data-reveal="fade-up" style="--reveal-i: 2;" data-reveal-delay="200">
                 It started as a four-person student project for an Indonesian higher-ed assignment — backend business logic, infrastructure, the catalog plumbing, and every pixel you see, split four ways. The brief said "TCG site." We answered with a love letter.
             </p>
         </div>
@@ -133,19 +145,24 @@
 
 <section class="relative mx-auto max-w-[1200px] px-4 py-16 md:px-8 md:py-20">
     <div class="mb-10 text-center">
-        <p class="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-500">The team</p>
-        <h2 class="mt-2 font-display text-3xl font-black tracking-tight md:text-4xl">
+        <p class="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-500"
+           data-reveal="fade-down">The team</p>
+        <h2 class="mt-2 font-display text-3xl font-black tracking-tight md:text-4xl"
+            data-reveal="letters">
             The developer team <span class="prism-text">behind this project</span>
         </h2>
-        <p class="mx-auto mt-3 max-w-xl text-sm text-ink-700">
+        <p class="mx-auto mt-3 max-w-xl text-sm text-ink-700" data-reveal="fade-up" data-reveal-delay="300">
             Four trainers — flip a card to read the dossier.
         </p>
     </div>
 
     <div class="grid grid-cols-4 gap-4 sm:gap-5">
-        @foreach($team as $member)
+        @foreach($team as $i => $member)
+            {{-- flip-y on team cards mirrors their actual click-to-flip behavior. --}}
             <div x-data="{ flipped: false }"
                  class="card-flip card-flip--smooth cursor-pointer"
+                 data-reveal="flip-y"
+                 style="--reveal-i: {{ $i }};"
                  @click="flipped = !flipped"
                  role="button"
                  tabindex="0"
@@ -205,22 +222,22 @@
      ===================================================== --}}
 <section class="mx-auto max-w-[1400px] px-4 py-24 md:px-8">
     <div class="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4">
-        <div>
+        <div data-reveal="fade-up" style="--reveal-i: 0;">
             <dt class="font-display text-5xl font-black prism-text md:text-6xl">{{ $totalCards }}</dt>
             <dd class="mt-2 text-xs uppercase tracking-widest text-ink-500">cards live</dd>
             <p class="mt-3 text-sm text-ink-700">Full Prismatic Evolutions set seeded from pokemontcg.io.</p>
         </div>
-        <div>
+        <div data-reveal="fade-up" style="--reveal-i: 1;">
             <dt class="font-display text-5xl font-black prism-text md:text-6xl">{{ $sirCount }}</dt>
             <dd class="mt-2 text-xs uppercase tracking-widest text-ink-500">special illustration rares</dd>
             <p class="mt-3 text-sm text-ink-700">The chase cards — Eevee &amp; all eight evolutions included.</p>
         </div>
-        <div>
+        <div data-reveal="fade-up" style="--reveal-i: 2;">
             <dt class="font-display text-5xl font-black prism-text md:text-6xl">{{ $hyperRareCount }}</dt>
             <dd class="mt-2 text-xs uppercase tracking-widest text-ink-500">hyper rares</dd>
             <p class="mt-3 text-sm text-ink-700">Gold-foil, max-rarity print runs from the set.</p>
         </div>
-        <div>
+        <div data-reveal="fade-up" style="--reveal-i: 3;">
             <dt class="font-display text-5xl font-black prism-text md:text-6xl">{{ $artistCount }}</dt>
             <dd class="mt-2 text-xs uppercase tracking-widest text-ink-500">credited artists</dd>
             <p class="mt-3 text-sm text-ink-700">The illustrators behind every frame in the catalog.</p>
@@ -232,23 +249,28 @@
      CTA
      ===================================================== --}}
 <section class="mx-auto max-w-[1400px] px-4 pb-28 md:px-8">
-    <div class="relative overflow-hidden rounded-3xl border border-ink-200 bg-white p-10 text-center md:p-16">
-        <div class="absolute -right-32 -top-32 h-80 w-80 rounded-full prism-bg opacity-20 blur-3xl"></div>
-        <div class="absolute -bottom-32 -left-16 h-80 w-80 rounded-full bg-prism-mint/30 blur-3xl"></div>
+    <div class="relative overflow-hidden rounded-3xl border border-ink-200 bg-white p-10 text-center md:p-16" data-reveal="fade-up">
+        <div class="absolute -right-32 -top-32 h-80 w-80 rounded-full prism-bg opacity-20 blur-3xl" data-parallax="0.2"></div>
+        <div class="absolute -bottom-32 -left-16 h-80 w-80 rounded-full bg-prism-mint/30 blur-3xl" data-parallax="-0.15"></div>
 
         <div class="relative mx-auto max-w-2xl">
-            <h2 class="font-display text-3xl font-black tracking-tight md:text-5xl">
+            <h2 class="font-display text-3xl font-black tracking-tight md:text-5xl"
+                data-reveal="letters" data-reveal-delay="150">
                 Enough about us.<br/>
                 <span class="prism-text">Open the binder.</span>
             </h2>
-            <p class="mt-4 text-ink-700 md:text-lg">
+            <p class="mt-4 text-ink-700 md:text-lg" data-reveal="fade-up" data-reveal-delay="350">
                 The price tracker is live, the auctions are running, and Umbreon ex is somewhere in there waiting to ruin your wallet.
             </p>
             <div class="mt-8 flex flex-wrap justify-center gap-3">
-                <x-prism-button :href="route('cards.index')" size="lg">
-                    Track the prices
-                </x-prism-button>
-                <x-prism-button :href="route('gacha.index')" variant="ghost" size="lg">Pull a pack</x-prism-button>
+                <span data-reveal="pop" style="--reveal-i: 0;" data-reveal-delay="450">
+                    <x-prism-button :href="route('cards.index')" size="lg">
+                        Track the prices
+                    </x-prism-button>
+                </span>
+                <span data-reveal="pop" style="--reveal-i: 1;" data-reveal-delay="450">
+                    <x-prism-button :href="route('gacha.index')" variant="ghost" size="lg">Pull a pack</x-prism-button>
+                </span>
             </div>
         </div>
     </div>

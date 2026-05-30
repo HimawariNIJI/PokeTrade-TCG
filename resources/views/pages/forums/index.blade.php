@@ -39,14 +39,16 @@
     <div class="pointer-events-none absolute inset-x-0 top-0 z-10 h-px prism-bg"></div>
 
     <div class="mx-auto max-w-[1400px] px-4 pb-14 pt-16 md:min-h-[420px] md:px-8 md:pt-20">
-        <span class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur">
+        <span class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur"
+              data-reveal="pop">
             <span class="h-2 w-2 rounded-full bg-prism-mint"></span>
             Community
         </span>
-        <h1 class="mt-4 font-display text-5xl font-black tracking-tight text-white md:text-6xl">
+        <h1 class="mt-4 font-display text-5xl font-black tracking-tight text-white md:text-6xl"
+            data-reveal="letters">
             The <span class="prism-text">Forums</span>.
         </h1>
-        <p class="mt-3 max-w-2xl text-white/70">
+        <p class="mt-3 max-w-2xl text-white/70" data-reveal="fade-up" data-reveal-delay="250">
             Trade talk, pull brags, deck tech, and grading questions. This is where the collector community gathers.
         </p>
 
@@ -114,16 +116,20 @@
             @endif
 
             {{-- Category board --}}
-            <x-section-heading
-                eyebrow="Boards"
-                title="Browse by <span class='prism-text'>topic</span>" />
+            <div data-reveal="fade-up">
+                <x-section-heading
+                    eyebrow="Boards"
+                    title="Browse by <span class='prism-text'>topic</span>" />
+            </div>
 
             @if($categories->isNotEmpty())
                 <div class="mt-8 grid gap-4 sm:grid-cols-2">
-                    @foreach($categories as $category)
+                    @foreach($categories as $i => $category)
                         @php $accent = $accentMap[$category->accent] ?? $accentMap['violet']; @endphp
                         <a href="{{ route('forums.category', $category) }}"
-                           class="group relative block overflow-hidden rounded-3xl border border-ink-200 bg-white p-5 transition hover:-translate-y-1 {{ $accent['border'] }} hover:shadow-xl duration-300">
+                           class="group relative block overflow-hidden rounded-3xl border border-ink-200 bg-white p-5 transition hover:-translate-y-1 {{ $accent['border'] }} hover:shadow-xl duration-300"
+                           data-reveal="{{ $i % 2 === 0 ? 'slide-left' : 'slide-right' }}"
+                           style="--reveal-i: {{ intdiv($i, 2) }};">
                             <span class="absolute inset-x-0 top-0 h-1 {{ $accent['bg'] }} opacity-70"></span>
                             <div class="flex items-start justify-between gap-3">
                                 <h3 class="font-display text-lg font-black text-ink-900">{{ $category->name }}</h3>
@@ -159,15 +165,18 @@
 
             {{-- Recent discussions --}}
             <div class="mt-14">
-                <x-section-heading
-                    eyebrow="Activity"
-                    title="Recent <span class='prism-text'>discussions</span>" />
+                <div data-reveal="fade-up">
+                    <x-section-heading
+                        eyebrow="Activity"
+                        title="Recent <span class='prism-text'>discussions</span>" />
+                </div>
 
                 @if($recentThreads->isNotEmpty())
                     <div class="mt-6 divide-y divide-ink-100 overflow-hidden rounded-3xl border border-ink-200 bg-white">
-                        @foreach($recentThreads as $thread)
+                        @foreach($recentThreads as $i => $thread)
                             <a href="{{ route('forums.thread', $thread) }}"
-                               class="group flex items-center gap-4 px-5 py-4 transition hover:bg-ink-50">
+                               class="group flex items-center gap-4 px-5 py-4 transition hover:bg-ink-50"
+                               data-reveal="fade-up" style="--reveal-i: {{ $i % 5 }};">
                                 @if($thread->author?->avatar)
                                     <img src="{{ $thread->author->avatar }}" alt="{{ $thread->author->name }}"
                                          class="h-10 w-10 shrink-0 rounded-full object-cover">
@@ -206,7 +215,7 @@
         </div>
 
         {{-- ── Community shoutbox (persisted, polled) ──────────── --}}
-        <aside class="lg:col-span-4">
+        <aside class="lg:col-span-4" data-reveal="slide-right">
             <div x-data="shoutbox(@js($initialShouts), @js(auth()->check()), @js(route('shoutbox.index')), @js(route('shoutbox.store')))"
                  class="sticky top-24 overflow-hidden rounded-3xl border border-ink-200 bg-white shadow-sm">
 

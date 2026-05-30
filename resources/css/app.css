@@ -933,6 +933,165 @@
     animation-delay: -3s;
 }
 
+/* ============================================================
+   Scroll-triggered reveal system
+   Drive via:  data-reveal="<variant>"  on any element.
+   Stagger via inline style="--reveal-i: N" or data-reveal-i.
+   Variants chosen on the home page intentionally rotate so no
+   two adjacent sections animate the same way.
+   ============================================================ */
+html.js [data-reveal] {
+    opacity: 0;
+    will-change: transform, opacity, clip-path, filter;
+    transition:
+        opacity 800ms var(--ease-out-quint),
+        transform 900ms var(--ease-out-quint),
+        clip-path 900ms var(--ease-out-quint),
+        filter 900ms var(--ease-out-quint);
+    transition-delay: calc(var(--reveal-i, 0) * 80ms + var(--reveal-delay, 0ms));
+}
+html.js [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+    filter: none;
+}
+
+/* fade-up — gentle slide up (used for paragraphs, stats, CTA rows). */
+html.js [data-reveal="fade-up"] { transform: translateY(32px); }
+
+/* fade-down — header strips dropping in from above. */
+html.js [data-reveal="fade-down"] { transform: translateY(-24px); }
+
+/* slide-left — content arriving from off-canvas left. */
+html.js [data-reveal="slide-left"] { transform: translateX(-72px); }
+
+/* slide-right — content arriving from off-canvas right. */
+html.js [data-reveal="slide-right"] { transform: translateX(72px); }
+
+/* pop — small spring scale-in, perfect for chips/badges. */
+html.js [data-reveal="pop"] {
+    transform: scale(.78) rotate(-3deg);
+    transition-timing-function: var(--ease-spring);
+    transition-duration: 700ms;
+}
+
+/* tilt-in — for card tiles in grids. Alternate sign via --tilt-dir. */
+html.js [data-reveal="tilt-in"] {
+    transform: translateY(42px) rotate(calc(var(--tilt-dir, 1) * 5deg)) scale(.92);
+    transition-timing-function: var(--ease-spring);
+    transition-duration: 900ms;
+}
+
+/* flip-y — 3D Y-axis card flip. Reads as a Pokemon-pack reveal. */
+html.js [data-reveal="flip-y"] {
+    transform: perspective(900px) rotateY(-78deg) scale(.95);
+    transform-origin: 30% center;
+    transition-timing-function: var(--ease-out-quint);
+    transition-duration: 950ms;
+}
+
+/* drop — falls from above with a tactile overshoot. */
+html.js [data-reveal="drop"] {
+    transform: translateY(-70px) scale(.94);
+    transition-timing-function: var(--ease-spring);
+    transition-duration: 900ms;
+}
+
+/* roll-in — rotates as it slides in from the side defined by --tilt-dir.
+   Pair with alternating --tilt-dir for a rolling-conveyor cascade. */
+html.js [data-reveal="roll-in"] {
+    transform:
+        translateX(calc(var(--tilt-dir, 1) * 110px))
+        rotate(calc(var(--tilt-dir, 1) * -22deg))
+        scale(.86);
+    transition-timing-function: var(--ease-spring);
+    transition-duration: 1000ms;
+}
+
+/* wave — alternates up/down per --tilt-dir making a rolling wave through
+   horizontal rows. Use across short grids where the whole row enters at once. */
+html.js [data-reveal="wave"] {
+    transform: translateY(calc(var(--tilt-dir, 1) * 38px)) scale(.93);
+    transition-timing-function: var(--ease-spring);
+    transition-duration: 850ms;
+}
+
+/* zoom-in — pop straight at the viewer from small. Great for merch tiles. */
+html.js [data-reveal="zoom-in"] {
+    transform: scale(.55) rotate(3deg);
+    transition-timing-function: var(--ease-spring);
+    transition-duration: 800ms;
+}
+
+/* clip-right — left-to-right curtain wipe (good for prism ribbons + h2s). */
+html.js [data-reveal="clip-right"] {
+    opacity: 1;
+    clip-path: inset(0 100% 0 0);
+}
+
+/* blur-in — focus pull, paired sparingly with hero imagery. */
+html.js [data-reveal="blur-in"] {
+    filter: blur(12px);
+    transform: translateY(14px) scale(1.02);
+}
+
+/* letters — per-character drop driven by JS-emitted .rl spans with --i. */
+html.js [data-reveal="letters"] {
+    opacity: 1;
+    transform: none;
+}
+/* Word wrapper keeps each word un-breakable so a long line wraps at
+   spaces only, never inside the per-letter spans below. */
+html.js [data-reveal="letters"] .rw {
+    display: inline-block;
+    white-space: nowrap;
+}
+html.js [data-reveal="letters"] .rl {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(0.6em) rotate(-6deg);
+    transition:
+        opacity 600ms var(--ease-out-quint),
+        transform 800ms var(--ease-spring);
+    transition-delay: calc(var(--i, 0) * 32ms);
+    will-change: transform, opacity;
+}
+html.js [data-reveal="letters"].is-visible .rl {
+    opacity: 1;
+    transform: none;
+}
+
+/* spread — parent that fans its children into their final fan position.
+   Each child must carry class="reveal-card" + style="--fx; --fy; --frot; --reveal-i".
+   --fx/--fy may be px or %, --frot is a deg. */
+html.js [data-reveal="spread"] {
+    opacity: 1;
+}
+.reveal-card {
+    transform:
+        translate(calc(-50% + var(--fx, 0px)), calc(-50% + var(--fy, 0px)))
+        rotate(var(--frot, 0deg));
+    transition:
+        opacity 900ms var(--ease-out-quint),
+        transform 1100ms var(--ease-spring);
+    transition-delay: calc(var(--reveal-i, 0) * 180ms + var(--reveal-delay, 0ms));
+    will-change: transform, opacity;
+}
+html.js [data-reveal="spread"]:not(.is-visible) .reveal-card {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(0deg) scale(.7);
+}
+
+/* Parallax — set by rAF as CSS vars; composed with the element's other
+   transforms only when the element is not also using a Tailwind rotate /
+   inline transform. For elements that need both, apply parallax to a
+   dedicated wrapper. */
+[data-parallax] {
+    transform: translate3d(var(--parallax-x, 0px), var(--parallax-y, 0px), 0);
+    will-change: transform;
+}
+
 /* Honor reduced-motion across all the new idle/loop animations. */
 @media (prefers-reduced-motion: reduce) {
     .btn-tactile,
@@ -949,4 +1108,23 @@
     .prism-aurora-orb-violet,
     .prism-aurora-orb-sky,
     .prism-aurora-orb-mint { animation: none !important; }
+
+    [data-reveal] {
+        opacity: 1 !important;
+        clip-path: none !important;
+        filter: none !important;
+        transition: none !important;
+    }
+    [data-reveal]:not([data-reveal="spread"]) { transform: none !important; }
+    [data-reveal="letters"] .rl {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+    .reveal-card {
+        opacity: 1 !important;
+        transition: none !important;
+        /* land at final fan position */
+    }
+    [data-parallax] { transform: none !important; }
 }

@@ -7,24 +7,27 @@
      ===================================================== --}}
 <section class="relative overflow-hidden">
     <div class="absolute inset-0 -z-10 halftone opacity-50"></div>
-    <div class="absolute -top-32 right-0 -z-10 h-96 w-96 rounded-full bg-prism-pink/15 blur-3xl"></div>
-    <div class="absolute -top-32 left-0 -z-10 h-96 w-96 rounded-full bg-prism-mint/15 blur-3xl"></div>
+    <div class="absolute -top-32 right-0 -z-10 h-96 w-96 rounded-full bg-prism-pink/15 blur-3xl" data-parallax="0.2"></div>
+    <div class="absolute -top-32 left-0 -z-10 h-96 w-96 rounded-full bg-prism-mint/15 blur-3xl" data-parallax="-0.18"></div>
 
     <div class="mx-auto max-w-[1400px] px-4 pb-10 pt-16 md:px-8 md:pb-12 md:pt-20">
         <div class="flex flex-wrap items-end justify-between gap-6">
             <div>
-                <span class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink-700 backdrop-blur">
+                <span class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink-700 backdrop-blur"
+                      data-reveal="pop">
                     Price tracker · Scarlet &amp; Violet
                 </span>
-                <h1 class="mt-4 font-display text-5xl font-black tracking-tight md:text-6xl">
+                <h1 class="mt-4 font-display text-5xl font-black tracking-tight md:text-6xl"
+                    data-reveal="letters">
                     <span class="prism-text">Price</span> tracker.
                 </h1>
-                <p class="mt-3 max-w-2xl text-ink-700">
+                <p class="mt-3 max-w-2xl text-ink-700" data-reveal="fade-up" data-reveal-delay="250">
                     Track every Prismatic Evolutions card's market value. Filter by set, type, rarity, and regulation, sort by price — and add the cards you want to your chase list to keep an eye on what they're worth.
                 </p>
             </div>
 
-            <div class="rounded-2xl border border-ink-200 bg-white px-4 py-3 text-right">
+            <div class="rounded-2xl border border-ink-200 bg-white px-4 py-3 text-right"
+                 data-reveal="pop" data-reveal-delay="350">
                 <p class="text-[11px] uppercase tracking-widest text-ink-500">Tracking</p>
                 <p class="font-display text-2xl font-black text-ink-900">{{ number_format($cards->total()) }}<span class="text-ink-500"> cards</span></p>
             </div>
@@ -128,12 +131,21 @@
 <section class="mx-auto max-w-[1400px] px-4 py-10 md:px-8 md:py-14">
     @if($cards->isNotEmpty())
         <div class="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-            @foreach($cards as $card)
-                <x-card-tile :card="$card" />
+            @foreach($cards as $i => $card)
+                @php
+                    // Stagger wraps every 6 (max grid columns) so later rows feel snappy.
+                    // flip-y reads as a card-pack flip — fits the price-tracker catalog
+                    // identity without recycling the home page's tilt-in.
+                    $staggerIdx = $i % 6;
+                @endphp
+                <div data-reveal="flip-y"
+                     style="--reveal-i: {{ $staggerIdx }};">
+                    <x-card-tile :card="$card" />
+                </div>
             @endforeach
         </div>
 
-        <div class="mt-12">
+        <div class="mt-12" data-reveal="fade-up">
             {{ $cards->links() }}
         </div>
     @else
