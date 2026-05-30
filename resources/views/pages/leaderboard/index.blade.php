@@ -3,19 +3,26 @@
     description="See the top PokeTrade trainers ranked by collection, points, and activity. Climb the ranks and earn your spot.">
 
 
-<section class="relative overflow-hidden">
-    <div class="absolute inset-0 -z-10 bg-gradient-to-b from-ink-900 via-prism-violet/20 to-ink-900"></div>
-    <div class="absolute inset-0 -z-10 halftone opacity-10"></div>
+<section class="relative isolate overflow-hidden bg-ink-900">
+    <img src="{{ asset('images/leaderboard-banner.png') }}" alt=""
+         class="pointer-events-none absolute inset-0 -z-30 h-full w-full object-cover object-center select-none"
+         loading="eager" fetchpriority="high">
+    {{-- Center-darkening wash so the centered headline reads over any part of the image --}}
+    <div class="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-b from-ink-900/75 via-ink-900/45 to-ink-900/90"></div>
+    <div class="pointer-events-none absolute inset-0 -z-20"
+         style="background: radial-gradient(ellipse at center, rgba(11,12,20,0.55) 0%, rgba(11,12,20,0) 65%);"></div>
+    <div class="pointer-events-none absolute inset-0 -z-10 halftone opacity-10"></div>
+    <div class="pointer-events-none absolute inset-x-0 top-0 z-10 h-px prism-bg"></div>
 
-    <div class="mx-auto max-w-[1200px] px-4 py-20 md:px-8">
+    <div class="relative mx-auto max-w-[1200px] px-4 py-20 md:min-h-[420px] md:px-8">
         <div class="text-center">
             <span class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur">
                 Trainer rankings
             </span>
-            <h1 class="mt-4 font-display text-5xl font-black leading-[0.95] text-white md:text-7xl">
+            <h1 class="mt-4 font-display text-5xl font-black leading-[0.95] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)] md:text-7xl">
                 The <span class="prism-text">leaderboard</span>.
             </h1>
-            <p class="mt-4 mx-auto max-w-2xl text-white/70">
+            <p class="mt-4 mx-auto max-w-2xl text-white/80 drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)]">
                 Top collectors by deck depth, fiercest bidders, and the trainers with the deepest point banks.
             </p>
         </div>

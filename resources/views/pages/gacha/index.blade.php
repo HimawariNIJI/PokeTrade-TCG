@@ -8,8 +8,13 @@
      collection. These are DIGITAL collectibles, not the
      real cards tracked / auctioned elsewhere on the site.
      ===================================================== --}}
-    <section class="relative overflow-hidden">
-        <div class="absolute inset-0 -z-10 bg-gradient-to-b from-ink-900 via-prism-violet/20 to-ink-900"></div>
+    <section class="relative overflow-hidden bg-ink-900">
+        {{-- Holo banner backdrop (shared with auctions hero), muted so the pull CTA + preview cards stay primary --}}
+        <img src="/images/auctions-banner.png" alt="" aria-hidden="true"
+             class="absolute inset-0 -z-30 h-full w-full object-cover object-center opacity-25 blur-[2px] saturate-150">
+        {{-- Violet color wash + edge vignette to fade the banner into the page --}}
+        <div class="absolute inset-0 -z-20"
+             style="background: radial-gradient(ellipse at center, rgba(180,107,255,0.28) 0%, rgba(11,12,20,0.85) 70%);"></div>
         <div class="absolute inset-0 -z-10 halftone opacity-10"></div>
 
         <div

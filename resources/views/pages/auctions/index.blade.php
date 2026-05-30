@@ -3,20 +3,24 @@
     description="Bid in real time on graded and rare physical Pokemon TCG Prismatic Evolutions cards. Watch live bids and snipe at the final second.">
 
 
-<section class="relative overflow-hidden">
-    <div class="absolute inset-0 -z-10 bg-gradient-to-b from-ink-900 to-ink-700"></div>
-    <div class="absolute inset-0 -z-10 opacity-20" style="background: radial-gradient(closest-side, rgba(180, 107, 255, 0.6), transparent 70%);"></div>
+<section class="relative overflow-hidden bg-ink-900">
+    <img src="/images/forums-banner.png"
+         alt=""
+         aria-hidden="true"
+         class="absolute inset-0 -z-10 h-full w-full object-cover object-[70%_center] md:object-[60%_center]">
+    <div class="absolute inset-0 -z-10 bg-gradient-to-r from-ink-900 via-ink-900/80 to-ink-900/10 md:via-ink-900/60 md:to-transparent"></div>
+    <div class="absolute inset-0 -z-10 bg-gradient-to-t from-ink-900/70 via-transparent to-ink-900/30"></div>
     <div class="absolute inset-x-0 top-0 -z-10 h-px prism-bg"></div>
 
-    <div class="mx-auto max-w-[1400px] px-4 pb-14 pt-16 md:px-8 md:pt-20">
+    <div class="relative mx-auto max-w-[1400px] px-4 pb-20 pt-16 md:min-h-[420px] md:px-8 md:pb-28 md:pt-24">
         <span class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur">
             <span class="h-2 w-2 animate-pulse rounded-full bg-prism-mint"></span>
             Live now
         </span>
-        <h1 class="mt-4 font-display text-5xl font-black tracking-tight text-white md:text-6xl">
+        <h1 class="mt-4 font-display text-5xl font-black tracking-tight text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.5)] md:text-6xl">
             Auction <span class="prism-text">house</span>.
         </h1>
-        <p class="mt-3 max-w-2xl text-white/70">Bid in real time on illustration rares and chase cards. Bidding requires login. Highest bid at the timer wins.</p>
+        <p class="mt-3 max-w-xl text-white/80 drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)]">Bid in real time on illustration rares and chase cards. Bidding requires login. Highest bid at the timer wins.</p>
     </div>
 </section>
 

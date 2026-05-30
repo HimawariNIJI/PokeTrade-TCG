@@ -24,12 +24,20 @@
 @endphp
 
 {{-- ── Hero ─────────────────────────────────────────────────────── --}}
-<section class="relative overflow-hidden">
-    <div class="absolute inset-0 -z-10 bg-gradient-to-b from-ink-900 via-prism-violet/20 to-ink-900"></div>
-    <div class="absolute inset-0 -z-10 halftone opacity-10"></div>
-    <div class="absolute inset-x-0 top-0 -z-10 h-px prism-bg"></div>
+<section class="relative isolate overflow-hidden bg-ink-900">
+    <img src="{{ asset('images/gacha-banner.png') }}" alt=""
+         class="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover object-right select-none"
+         loading="eager" fetchpriority="high">
+    {{-- Left-fade overlay so headline + search keep AA contrast over the bright burst on the right --}}
+    <div class="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-ink-900/90 via-ink-900/55 to-transparent"></div>
+    {{-- On mobile the image stacks under the copy, so add a vertical wash for text contrast --}}
+    <div class="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-ink-900/70 via-transparent to-ink-900/40 md:hidden"></div>
+    {{-- Bottom fade keeps the seam against the next section soft --}}
+    <div class="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-ink-900 to-transparent"></div>
+    <div class="pointer-events-none absolute inset-0 -z-10 halftone opacity-10"></div>
+    <div class="pointer-events-none absolute inset-x-0 top-0 z-10 h-px prism-bg"></div>
 
-    <div class="mx-auto max-w-[1400px] px-4 pb-14 pt-16 md:px-8 md:pt-20">
+    <div class="mx-auto max-w-[1400px] px-4 pb-14 pt-16 md:min-h-[420px] md:px-8 md:pt-20">
         <span class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur">
             <span class="h-2 w-2 rounded-full bg-prism-mint"></span>
             Community
