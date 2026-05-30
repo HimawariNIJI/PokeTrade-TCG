@@ -22,20 +22,37 @@
 @endphp
 
 {{-- ============================================================
-     Header banner — avatar, name, location, member-since.
+     Header banner — the trainer's chosen banner image (or a prism
+     gradient fallback), overlaid with the avatar, name, location
+     and member-since.
      ============================================================ --}}
 <section class="relative overflow-hidden">
-    <div class="absolute inset-0 -z-10 bg-gradient-to-b from-ink-900 via-prism-violet/20 to-ink-900"></div>
-    <div class="absolute inset-0 -z-10 halftone opacity-10"></div>
+    {{-- Banner image (uploaded) OR prism gradient fallback. --}}
+    @if($user->banner_url)
+        <div class="absolute inset-0 -z-10">
+            <img src="{{ $user->banner_url }}" alt=""
+                 class="h-full w-full object-cover" />
+            {{-- Darken the image so light overlay text still reads. --}}
+            <div class="absolute inset-0 bg-gradient-to-b from-ink-900/70 via-ink-900/40 to-ink-900/80"></div>
+        </div>
+    @else
+        <div class="absolute inset-0 -z-10 bg-gradient-to-b from-ink-900 via-prism-violet/20 to-ink-900"></div>
+        <div class="absolute inset-0 -z-10 halftone opacity-10"></div>
+    @endif
 
     <div class="mx-auto max-w-[1400px] px-4 py-20 md:px-8">
         <div class="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
             <div class="flex items-center gap-5">
-                {{-- Avatar fallback — first initial in a prism circle
-                     (same pattern as the nav user-menu). --}}
-                <span class="inline-flex h-20 w-20 items-center justify-center rounded-full prism-bg text-2xl font-black text-white shadow-2xl ring-4 ring-white/20">
-                    {{ Str::upper(Str::substr($user->name, 0, 1)) }}
-                </span>
+                {{-- Avatar — uploaded image if set, otherwise a prism
+                     initial circle (same pattern as the nav menu). --}}
+                @if($user->avatar_url)
+                    <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}"
+                         class="h-20 w-20 shrink-0 rounded-full object-cover shadow-2xl ring-4 ring-white/30" />
+                @else
+                    <span class="inline-flex h-20 w-20 items-center justify-center rounded-full prism-bg text-2xl font-black text-white shadow-2xl ring-4 ring-white/20">
+                        {{ Str::upper(Str::substr($user->name, 0, 1)) }}
+                    </span>
+                @endif
 
                 <div>
                     <span class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur">
@@ -107,6 +124,29 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/>
                         </svg>
                     </a>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+    {{-- ========================================================
+         Pinned showcase — the cards this trainer wants front and
+         centre. Gated on show_collection (same privacy switch as
+         the full vault) and only rendered when there's something
+         pinned.
+         ======================================================== --}}
+    @if($user->shows('show_collection') && $pinnedCards->isNotEmpty())
+        <section>
+            <div class="flex items-end justify-between gap-4">
+                <x-section-heading eyebrow="Showcase" title="Pinned cards" />
+                <span class="shrink-0 rounded-full border border-prism-gold/40 bg-prism-gold/10 px-4 py-1.5 font-mono text-sm font-bold text-ink-900">
+                    {{ $pinnedCards->count() }} pinned
+                </span>
+            </div>
+
+            <div class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+                @foreach($pinnedCards as $card)
+                    <x-collection-card :card="$card" />
                 @endforeach
             </div>
         </section>

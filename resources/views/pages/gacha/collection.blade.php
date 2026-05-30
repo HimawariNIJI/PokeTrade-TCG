@@ -27,6 +27,15 @@
         @endif
     </div>
 
+    {{-- Flash from a pin/unpin action. --}}
+    @if(session('status'))
+        <div x-data="{ show: true }" x-show="show" x-transition
+             x-init="setTimeout(() => show = false, 4000)"
+             class="mb-8 rounded-2xl border border-prism-mint/40 bg-prism-mint/10 px-4 py-3 text-sm font-semibold text-ink-900">
+            {{ session('status') }}
+        </div>
+    @endif
+
     @if($uniqueCards > 0)
         {{-- ============ STATS STRIP ============ --}}
         <div class="mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -69,9 +78,42 @@
             </label>
         </div>
 
+        {{-- Pinned summary + a hint to the settings picker when at cap. --}}
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-prism-gold/40 bg-prism-gold/10 px-4 py-3">
+            <div class="flex items-center gap-2 text-sm text-ink-700">
+                <svg class="h-4 w-4 text-prism-violet" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2z"/>
+                </svg>
+                <span><strong>{{ $pinnedIds->count() }}</strong> of {{ $maxPinned }} cards pinned to your profile.</span>
+            </div>
+            <a href="{{ route('settings.edit') }}" class="text-xs font-bold uppercase tracking-widest text-prism-violet hover:underline">
+                Manage in settings
+            </a>
+        </div>
+
         <div class="grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-4 lg:grid-cols-6">
             @foreach($cards as $card)
-                <x-collection-card :card="$card" />
+                @php $isPinned = $pinnedIds->contains($card->id); @endphp
+                <div class="relative">
+                    {{-- Pin toggle — sits over the top-right of the tile.
+                         Submits a tiny POST form so it works without JS. --}}
+                    <form method="POST" action="{{ route('settings.pin', $card->id) }}"
+                          class="absolute right-1 top-1 z-20">
+                        @csrf
+                        <button type="submit"
+                                title="{{ $isPinned ? 'Unpin from profile' : 'Pin to profile' }}"
+                                aria-label="{{ $isPinned ? 'Unpin from profile' : 'Pin to profile' }}"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-full shadow-md transition
+                                       {{ $isPinned
+                                            ? 'bg-prism-violet text-white hover:bg-prism-violet/90'
+                                            : 'bg-white/95 text-ink-500 hover:bg-white hover:text-prism-violet' }}">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2z"/>
+                            </svg>
+                        </button>
+                    </form>
+                    <x-collection-card :card="$card" />
+                </div>
             @endforeach
         </div>
 

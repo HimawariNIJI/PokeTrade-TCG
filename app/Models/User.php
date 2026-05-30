@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -33,8 +35,8 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name', 'email', 'password',
-        'role', 'google_id', 'avatar', 'phone', 'points', 'last_free_gacha_at',
-        'bio', 'location', 'social_links', 'profile_settings',
+        'role', 'google_id', 'avatar', 'banner', 'phone', 'points', 'last_free_gacha_at',
+        'bio', 'location', 'social_links', 'profile_settings', 'pinned_cards',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -46,9 +48,78 @@ class User extends Authenticatable
             'password' => 'hashed',
             'social_links' => 'array',
             'profile_settings' => 'array',
+            'pinned_cards' => 'array',
             'points' => 'integer',
             'last_free_gacha_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Public URL for the trainer's avatar. Three possible sources:
+     *  - a Google OAuth URL (stored verbatim — starts with http)
+     *  - a path on the public disk (uploaded via settings)
+     *  - null (the view renders a prism initial fallback)
+     */
+    protected function avatarUrl(): Attribute
+    {
+        return Attribute::get(fn () => $this->resolveImageUrl($this->avatar));
+    }
+
+    /** Public URL for the trainer's profile banner, or null. */
+    protected function bannerUrl(): Attribute
+    {
+        return Attribute::get(fn () => $this->resolveImageUrl($this->banner));
+    }
+
+    private function resolveImageUrl(?string $value): ?string
+    {
+        if (! $value) {
+            return null;
+        }
+
+        if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
+            return $value;
+        }
+
+        return Storage::disk('public')->url($value);
+    }
+
+    /**
+     * Cards the trainer has chosen to show off on their profile,
+     * filtered to ones they actually own in their digital collection
+     * (so unpulled cards can't get displayed even if the array goes
+     * stale).
+     */
+    public function pinnedShowcase(int $limit = 6)
+    {
+        $ids = collect($this->pinned_cards ?? [])
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($ids->isEmpty()) {
+            return collect();
+        }
+
+        $ownedIds = $this->collectionCards()
+            ->whereIn('card_id', $ids)
+            ->pluck('card_id')
+            ->unique();
+
+        $orderedOwnedIds = $ids->filter(fn ($id) => $ownedIds->contains($id))
+            ->take($limit)
+            ->values();
+
+        if ($orderedOwnedIds->isEmpty()) {
+            return collect();
+        }
+
+        return Card::query()
+            ->whereIn('id', $orderedOwnedIds)
+            ->get()
+            ->sortBy(fn (Card $card) => $orderedOwnedIds->search($card->id))
+            ->values();
     }
 
     public function isAdmin(): bool

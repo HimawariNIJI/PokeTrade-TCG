@@ -64,9 +64,128 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('settings.update') }}" class="space-y-12">
+    <form method="POST" action="{{ route('settings.update') }}" class="space-y-12" enctype="multipart/form-data">
         @csrf
         @method('PATCH')
+
+        {{-- ====================================================
+             Profile images — avatar + banner upload, each with a
+             live preview, an upload control, and a "remove" toggle.
+             Alpine drives the preview swap; the actual upload is
+             validated and stored by SettingsController.
+             ==================================================== --}}
+        <section class="rounded-3xl border border-ink-200 bg-white p-6 md:p-8">
+            <x-section-heading eyebrow="Images" title="Avatar & banner"
+                subtitle="Drop in a profile picture and a banner strip. JPG / PNG / WebP, up to 4 MB each." />
+
+            {{-- ---------------- AVATAR ---------------- --}}
+            <div class="mt-6"
+                 x-data="{
+                     preview: @js($user->avatar_url),
+                     remove: false,
+                     pick(e) {
+                         const f = e.target.files?.[0];
+                         if (!f) return;
+                         this.remove = false;
+                         this.preview = URL.createObjectURL(f);
+                     },
+                     clear() {
+                         this.preview = null;
+                         this.remove = true;
+                         this.$refs.input.value = '';
+                     },
+                 }">
+                <x-input-label value="Profile picture" />
+
+                <div class="mt-3 flex flex-col items-start gap-5 sm:flex-row sm:items-center">
+                    <div class="relative h-24 w-24 shrink-0">
+                        <template x-if="preview">
+                            <img :src="preview" alt="" class="h-24 w-24 rounded-full object-cover ring-4 ring-white shadow-md" />
+                        </template>
+                        <template x-if="!preview">
+                            <span class="inline-flex h-24 w-24 items-center justify-center rounded-full prism-bg text-3xl font-black text-white shadow-md ring-4 ring-white">
+                                {{ Str::upper(Str::substr($user->name, 0, 1)) }}
+                            </span>
+                        </template>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <label class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-ink-200 bg-white px-4 py-2 text-sm font-semibold text-ink-700 hover:border-prism-violet hover:text-prism-violet">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z"/>
+                                </svg>
+                                <span x-text="preview ? 'Change picture' : 'Upload picture'"></span>
+                                <input x-ref="input" type="file" name="avatar" accept="image/*" class="sr-only" x-on:change="pick">
+                            </label>
+                            <button type="button" x-show="preview" x-on:click="clear"
+                                    class="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-500 hover:text-rose-600">
+                                Remove
+                            </button>
+                        </div>
+                        <p class="text-xs text-ink-500">Square images look best. We'll crop to a circle.</p>
+                    </div>
+                </div>
+
+                <input type="hidden" name="remove_avatar" x-bind:value="remove ? 1 : 0">
+                @error('avatar')
+                    <p class="mt-2 text-sm font-medium text-rose-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- ---------------- BANNER ---------------- --}}
+            <div class="mt-10 border-t border-ink-100 pt-8"
+                 x-data="{
+                     preview: @js($user->banner_url),
+                     remove: false,
+                     pick(e) {
+                         const f = e.target.files?.[0];
+                         if (!f) return;
+                         this.remove = false;
+                         this.preview = URL.createObjectURL(f);
+                     },
+                     clear() {
+                         this.preview = null;
+                         this.remove = true;
+                         this.$refs.input.value = '';
+                     },
+                 }">
+                <x-input-label value="Profile banner" />
+
+                <div class="mt-3">
+                    <div class="relative h-44 w-full overflow-hidden rounded-2xl border border-ink-200 bg-gradient-to-br from-prism-violet/20 via-prism-rose/10 to-prism-sky/20 md:h-56">
+                        <template x-if="preview">
+                            <img :src="preview" alt="" class="h-full w-full object-cover" />
+                        </template>
+                        <template x-if="!preview">
+                            <div class="flex h-full w-full items-center justify-center text-sm font-semibold text-ink-500">
+                                Banner preview
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="mt-4 flex flex-wrap items-center gap-3">
+                        <label class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-ink-200 bg-white px-4 py-2 text-sm font-semibold text-ink-700 hover:border-prism-violet hover:text-prism-violet">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z"/>
+                            </svg>
+                            <span x-text="preview ? 'Change banner' : 'Upload banner'"></span>
+                            <input x-ref="input" type="file" name="banner" accept="image/*" class="sr-only" x-on:change="pick">
+                        </label>
+                        <button type="button" x-show="preview" x-on:click="clear"
+                                class="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-500 hover:text-rose-600">
+                            Remove
+                        </button>
+                        <p class="text-xs text-ink-500">Wide images work best — roughly 1500 × 500.</p>
+                    </div>
+                </div>
+
+                <input type="hidden" name="remove_banner" x-bind:value="remove ? 1 : 0">
+                @error('banner')
+                    <p class="mt-2 text-sm font-medium text-rose-600">{{ $message }}</p>
+                @enderror
+            </div>
+        </section>
 
         {{-- ====================================================
              Public profile — bio + location.
@@ -151,6 +270,93 @@
                     @enderror
                 @endforeach
             </div>
+        </section>
+
+        {{-- ====================================================
+             Pinned showcase — pick up to N cards from the trainer's
+             digital collection to highlight on their public profile.
+             Alpine tracks the selected IDs and enforces the cap; the
+             server re-validates ownership and the cap on submit.
+             ==================================================== --}}
+        <section class="rounded-3xl border border-ink-200 bg-white p-6 md:p-8"
+                 x-data="{
+                     pinned: @js(collect($user->pinned_cards ?? [])->map(fn($id) => (int) $id)->values()),
+                     max: {{ (int) $maxPinned }},
+                     toggle(id) {
+                         id = parseInt(id, 10);
+                         const idx = this.pinned.indexOf(id);
+                         if (idx > -1) {
+                             this.pinned.splice(idx, 1);
+                         } else if (this.pinned.length < this.max) {
+                             this.pinned.push(id);
+                         }
+                     },
+                     has(id) { return this.pinned.includes(parseInt(id, 10)); },
+                     clear() { this.pinned = []; },
+                 }">
+            <x-section-heading eyebrow="Showcase" title="Pinned cards"
+                subtitle="Highlight up to {{ $maxPinned }} cards from your digital collection at the top of your profile." />
+
+            <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+                <p class="text-sm font-semibold text-ink-700">
+                    <span x-text="pinned.length"></span> / {{ $maxPinned }} pinned
+                </p>
+                <button type="button" x-on:click="clear" x-show="pinned.length"
+                        class="text-xs font-semibold uppercase tracking-widest text-ink-500 hover:text-rose-600">
+                    Clear all
+                </button>
+            </div>
+
+            @if($ownedCards->isEmpty())
+                <div class="mt-6">
+                    <x-empty-state
+                        icon="✦"
+                        title="No cards to pin yet"
+                        message="Pull a digital pack from the gacha to start your collection. Once you've got cards, you can pin a few here to show off.">
+                        <x-prism-button :href="route('gacha.index')" size="sm">Pull your first pack</x-prism-button>
+                    </x-empty-state>
+                </div>
+            @else
+                <div class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                    @foreach($ownedCards as $card)
+                        @php $cardImg = $card->image_small ?: $card->image_large; @endphp
+                        <label
+                            x-bind:class="has({{ $card->id }})
+                                ? 'border-prism-violet ring-2 ring-prism-violet shadow-md'
+                                : (pinned.length >= max ? 'border-ink-100 opacity-50' : 'border-ink-200 hover:border-prism-violet')"
+                            class="group relative flex cursor-pointer flex-col gap-2 rounded-2xl border bg-white p-2 transition">
+                            <input type="checkbox" name="pinned_cards[]" value="{{ $card->id }}"
+                                   x-bind:checked="has({{ $card->id }})"
+                                   x-on:change="toggle({{ $card->id }})"
+                                   x-bind:disabled="!has({{ $card->id }}) && pinned.length >= max"
+                                   class="sr-only">
+
+                            {{-- Pinned indicator. --}}
+                            <span class="absolute right-2 top-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full text-white shadow"
+                                  x-bind:class="has({{ $card->id }}) ? 'bg-prism-violet' : 'bg-white/0'">
+                                <svg x-show="has({{ $card->id }})" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                </svg>
+                            </span>
+
+                            <div class="aspect-[3/4] overflow-hidden rounded-xl bg-ink-100">
+                                @if($cardImg)
+                                    <img src="{{ $cardImg }}" alt="{{ $card->name }}"
+                                         class="h-full w-full object-cover" />
+                                @endif
+                            </div>
+                            <span class="line-clamp-1 px-1 text-xs font-bold text-ink-900">{{ $card->name }}</span>
+                        </label>
+                    @endforeach
+                </div>
+
+                @error('pinned_cards')
+                    <p class="mt-3 text-sm font-medium text-rose-600">{{ $message }}</p>
+                @enderror
+                @error('pinned_cards.*')
+                    <p class="mt-3 text-sm font-medium text-rose-600">{{ $message }}</p>
+                @enderror
+            @endif
         </section>
 
         {{-- Save + account link. --}}

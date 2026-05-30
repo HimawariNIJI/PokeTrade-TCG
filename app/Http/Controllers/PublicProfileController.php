@@ -35,6 +35,10 @@ class PublicProfileController extends Controller
         $digitalCount = $user->digitalCards()->count();
         $chaseCount   = $user->wishlistedCards()->count();
 
+        // Pinned showcase — the cards the trainer chose to highlight.
+        // Falls back to the empty collection if they haven't pinned any.
+        $pinnedCards = $user->pinnedShowcase();
+
         return view('pages.profiles.show', [
             'user'         => $user,
             'digitalCards' => $user->digitalCards,
@@ -42,6 +46,7 @@ class PublicProfileController extends Controller
             'comments'     => $user->profileComments,
             'digitalCount' => $digitalCount,
             'chaseCount'   => $chaseCount,
+            'pinnedCards'  => $pinnedCards,
         ]);
     }
 

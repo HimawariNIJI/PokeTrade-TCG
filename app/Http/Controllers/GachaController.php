@@ -153,6 +153,13 @@ class GachaController extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
+        // Which of the trainer's cards are pinned to their profile —
+        // drives the star toggle on each tile.
+        $pinnedIds = collect($user->pinned_cards ?? [])
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
         return view('pages.gacha.collection', [
             'cards'           => $cards,
             'totalCards'      => $totalCards,
@@ -160,6 +167,8 @@ class GachaController extends Controller
             'rarityBreakdown' => $rarityBreakdown,
             'perPage'         => $perPage,
             'allowedPerPage'  => $allowedPerPage,
+            'pinnedIds'       => $pinnedIds,
+            'maxPinned'       => \App\Http\Controllers\SettingsController::MAX_PINNED,
         ]);
     }
 }

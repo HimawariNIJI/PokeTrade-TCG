@@ -132,9 +132,13 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Trainer settings — public profile: bio, socials, visibility toggles.
+    // Trainer settings — public profile: avatar, banner, bio, socials,
+    // visibility toggles, pinned showcase cards.
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::patch('/settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::post('/settings/pin/{card}', [SettingsController::class, 'togglePin'])
+        ->whereNumber('card')
+        ->name('settings.pin');
 
     // Cart (merch only)
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
