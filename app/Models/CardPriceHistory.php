@@ -13,11 +13,12 @@ class CardPriceHistory extends Model
     protected $table = 'card_price_history';
 
     protected $fillable = [
-        'card_id', 'market_price', 'recorded_at',
+        'card_id', 'market_price', 'is_synthetic', 'recorded_at',
     ];
 
     protected $casts = [
         'market_price' => 'decimal:2',
+        'is_synthetic' => 'boolean',
         'recorded_at' => 'date',
     ];
 

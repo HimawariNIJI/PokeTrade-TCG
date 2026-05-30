@@ -91,9 +91,11 @@ class RefreshCardPrices extends Command
 
                 // Append today's snapshot to the price-tracker history —
                 // one row per card per day, so a rerun just overwrites it.
+                // is_synthetic=false marks this as a real API-sourced point,
+                // so the UI can show where the demo backfill ends.
                 $card->priceHistory()->updateOrCreate(
                     ['recorded_at' => today()],
-                    ['market_price' => $marketIdr],
+                    ['market_price' => $marketIdr, 'is_synthetic' => false],
                 );
             }
 
