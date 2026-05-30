@@ -33,6 +33,21 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        // E2E trainer for the Playwright suite (auth.setup.ts). Guarded
+        // so the Playwright user never appears in production.
+        if (app()->environment(['local', 'testing'])) {
+            User::firstOrCreate(
+                ['email' => 'e2e@poketrade.test'],
+                [
+                    'name' => 'E2E Trainer',
+                    'password' => Hash::make('password123'),
+                    'role' => User::ROLE_CUSTOMER,
+                    'email_verified_at' => now(),
+                    'points' => 500,
+                ]
+            );
+        }
+
         $this->call([
             CardSeeder::class,
             CardPriceHistorySeeder::class,

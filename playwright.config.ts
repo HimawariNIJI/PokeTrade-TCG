@@ -39,6 +39,19 @@ export default defineConfig({
       dependencies: ['setup'],
       testMatch: /authed\.spec\.ts/,
     },
+    // Cross-browser smoke + a11y. Skips SEO (HTML-only, already covered
+    // on chromium), authed (storageState is chrome-specific), and the
+    // mobile-only responsive suite.
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'], viewport: { width: 1366, height: 900 } },
+      testMatch: [/public\.spec\.ts/, /a11y\.spec\.ts/],
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'], viewport: { width: 1366, height: 900 } },
+      testMatch: [/public\.spec\.ts/, /a11y\.spec\.ts/],
+    },
   ],
 
   webServer: {
