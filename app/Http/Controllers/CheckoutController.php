@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Notifications\OrderPaidNotification;
 
 class CheckoutController extends Controller
 {
@@ -228,6 +229,8 @@ class CheckoutController extends Controller
             $transactionStatus = $transaction->transaction_status;
 
             if ($transactionStatus === 'capture' || $transactionStatus === 'settlement') {
+                $wasUnpaid = $order->payment_status !== 'paid';
+
                 // Payment successful - stock remains decremented
                 $order->update([
                     'payment_status' => 'paid',
@@ -236,6 +239,12 @@ class CheckoutController extends Controller
                 ]);
                 // Award points to user
                 $order->user->increment('points', $pointsearned);
+
+                // Fire the confirmation email + bell notification only on the
+                // first unpaid→paid transition, so repeated callbacks don't spam.
+                if ($wasUnpaid) {
+                    $order->user->notify(new OrderPaidNotification($order));
+                }
             } elseif ($transactionStatus === 'pending') {
                 // Payment pending - stock remains reserved
                 $order->update([

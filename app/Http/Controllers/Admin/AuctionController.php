@@ -5,13 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Auction;
 use App\Models\Card;
+use App\Models\User;
 use App\Notifications\WishlistAuctionNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Notification;
-use App\Jobs\SendWishlistAuctionNotification;
-use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 
 class AuctionController extends Controller
@@ -108,18 +107,16 @@ class AuctionController extends Controller
             'status'           => $status,
         ]);
 
-        // Notify everyone who wishlisted this card that an auction is live.
+        // Notify everyone who wishlisted this card — sends both the in-app
+        // database notification (for the bell) and an email, via WishlistAuctionNotification.
         $auction->load('card');
-        $userIds = DB::table('wishlists')
-            ->where('card_id', $auction->card_id)
-            ->pluck('user_id');
+        $wishers = User::whereIn(
+            'id',
+            DB::table('wishlists')->where('card_id', $auction->card_id)->pluck('user_id')
+        )->get();
 
-        // Query the User model using those gathered IDs
-        $usersWithWishlist = User::whereIn('id', $userIds)->get();
-        
-        // Dispatch the worker background tasks
-        foreach ($usersWithWishlist as $user) {
-            SendWishlistAuctionNotification::dispatch($user, $auction->card->name);
+        if ($wishers->isNotEmpty()) {
+            Notification::send($wishers, new WishlistAuctionNotification($auction));
         }
 
         return redirect()->route('admin.auctions.index')

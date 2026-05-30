@@ -18,7 +18,7 @@
                     {{ $cardName }}
                 </p>
                 <p style="margin:0;font-size:12px;color:#92400e;font-family:'Fredoka','Helvetica Neue',Arial,sans-serif;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;">
-                    Added to your collection
+                    📦 Heading your way
                 </p>
             </td>
         </tr>
