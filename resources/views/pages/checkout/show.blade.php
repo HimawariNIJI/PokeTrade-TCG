@@ -110,7 +110,7 @@
                                             <img src="{{ $it->image }}" alt=""
                                                 class="h-full w-full object-cover">
                                         @elseif($it instanceof \App\Models\ShopItem && $it->image)
-                                            <img src="{{ $it->image }}" alt=""
+                                            <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($it->image) }}" alt=""
                                                 class="h-full w-full object-cover">
                                         @endif
                                     </span>

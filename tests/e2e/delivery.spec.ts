@@ -38,92 +38,44 @@ type SetupFixtures = {
  *   - returns the IDs/slugs the test needs to navigate the UI
  */
 function setupDeliveryFixtures(): SetupFixtures {
-  // One single tinker invocation so we pay the artisan boot cost once.
-  // Outputs a single marker line we can parse: <<FIXTURES>>...<<END>>.
-  const php = `
-    $u = App\\Models\\User::where('email','e2e@poketrade.test')->first();
-    if(!$u){ throw new \\Exception('e2e user missing — run migrate --seed'); }
-
-    // Make sure the trainer has a phone so the shipping-form prefill is meaningful.
-    $u->forceFill(['phone' => '+62 812 0000 0001'])->save();
-
-    // --- Wipe prior fixture state so the test is deterministic across runs ---
-    $priorOrderIds = $u->orders()->pluck('id');
-    \\DB::table('order_items')->whereIn('order_id', $priorOrderIds)->delete();
-    $u->orders()->delete();
-
-    \\App\\Models\\Auction::where('winner_id', $u->id)->update([
-        'winner_id' => null,
-        'winning_amount' => null,
-        'winner_paid_at' => null,
-    ]);
-    \\App\\Models\\Bid::where('user_id', $u->id)->delete();
-
-    // --- 1. Seed a paid merch order with a full shipping address ---
-    $shopItem = \\App\\Models\\ShopItem::orderBy('id')->first();
-    if(!$shopItem){ throw new \\Exception('shop items missing — run migrate --seed'); }
-
-    $merchCode = 'PT-MERCH-E2E-' . strtoupper(\\Illuminate\\Support\\Str::random(6));
-    $merchOrder = \\App\\Models\\Order::create([
-        'code' => $merchCode,
-        'user_id' => $u->id,
-        'status' => 'paid',
-        'payment_status' => 'paid',
-        'payment_method' => 'midtrans',
-        'payment_reference' => 'e2e-merch-'.uniqid(),
-        'subtotal' => $shopItem->price,
-        'shipping_fee' => 25000,
-        'tax' => $shopItem->price * 0.1,
-        'total' => $shopItem->price + 25000 + ($shopItem->price * 0.1),
-        'shipping_name' => $u->name,
-        'shipping_phone' => $u->phone,
-        'shipping_address' => 'Jl. Trainer Road No. 42',
-        'shipping_city' => 'Pallet Town',
-        'shipping_postal_code' => '12345',
-        'paid_at' => now(),
-    ]);
-    \\App\\Models\\OrderItem::create([
-        'order_id' => $merchOrder->id,
-        'itemable_id' => $shopItem->id,
-        'itemable_type' => \\App\\Models\\ShopItem::class,
-        'name_snapshot' => $shopItem->name,
-        'image_snapshot' => $shopItem->image,
-        'price_snapshot' => $shopItem->price,
-        'quantity' => 1,
-        'subtotal' => $shopItem->price,
-    ]);
-
-    // --- 2. Hand the trainer the winning bid on a live auction and settle it ---
-    $auction = \\App\\Models\\Auction::where('status','live')->orderBy('id')->first();
-    if(!$auction){ throw new \\Exception('no live auction to win — run migrate --seed'); }
-
-    $winningAmount = (float)$auction->current_bid + (float)$auction->bid_increment + 25000;
-    \\App\\Models\\Bid::create([
-        'auction_id' => $auction->id,
-        'user_id' => $u->id,
-        'amount' => $winningAmount,
-        'status' => 'paid',
-        'order_id' => 'e2e-bid-'.uniqid(),
-        'paid_at' => now(),
-    ]);
-    $auction->forceFill([
-        'current_bid' => $winningAmount,
-        'current_leader_id' => $u->id,
-        'ends_at' => now()->subMinute(),
-    ])->save();
-    $auction->snapshotWinner();
-    $auction->update(['status' => 'ended']);
-
-    $winnerOrder = $auction->winnerOrder();
-    if(!$winnerOrder){ throw new \\Exception('auction winner order was not created'); }
-
-    echo "<<FIXTURES>>" . json_encode([
-        'auctionId' => $auction->id,
-        'auctionOrderCode' => $winnerOrder->code,
-        'merchOrderCode' => $merchCode,
-        'shopItemSlug' => $shopItem->slug,
-    ]) . "<<END>>";
-  `.replace(/\n\s*/g, ' ');
+  // Single tinker invocation so we pay the artisan boot cost once. PHP code
+  // is intentionally one statement per `;` with NO inline `//` comments —
+  // tinker's --execute mode accepts multi-line PHP but `//` would swallow
+  // the rest of the script after any newline-collapsing. The PHP below:
+  //   (1) clears the e2e trainer's prior orders, bids, auction wins
+  //   (2) seeds a paid merch order with a full home shipping address
+  //   (3) makes the trainer the winning bidder on a live auction and calls
+  //       snapshotWinner() — same path bid settlement would take in prod —
+  //       which generates the auction-win Order
+  //   (4) prints a parseable <<FIXTURES>>{json}<<END>> marker so the test
+  //       knows which IDs/codes to navigate to.
+  const php = [
+    `$u = App\\Models\\User::where('email','e2e@poketrade.test')->first();`,
+    `if(!$u){ throw new \\Exception('e2e user missing - run migrate --seed'); }`,
+    `$u->forceFill(['phone' => '+62 812 0000 0001'])->save();`,
+    `$priorOrderIds = $u->orders()->pluck('id');`,
+    `\\DB::table('order_items')->whereIn('order_id', $priorOrderIds)->delete();`,
+    `$u->orders()->delete();`,
+    `\\App\\Models\\Auction::where('winner_id', $u->id)->update(['winner_id' => null, 'winning_amount' => null, 'winner_paid_at' => null]);`,
+    `\\App\\Models\\Bid::where('user_id', $u->id)->delete();`,
+    `$shopItem = \\App\\Models\\ShopItem::orderBy('id')->first();`,
+    `if(!$shopItem){ throw new \\Exception('shop items missing - run migrate --seed'); }`,
+    `$merchCode = 'PT-MERCH-E2E-' . strtoupper(\\Illuminate\\Support\\Str::random(6));`,
+    `$merchOrder = \\App\\Models\\Order::create(['code' => $merchCode, 'user_id' => $u->id, 'status' => 'paid', 'payment_status' => 'paid', 'payment_method' => 'midtrans', 'payment_reference' => 'e2e-merch-'.uniqid(), 'subtotal' => $shopItem->price, 'shipping_fee' => 25000, 'tax' => $shopItem->price * 0.1, 'total' => $shopItem->price + 25000 + ($shopItem->price * 0.1), 'shipping_name' => $u->name, 'shipping_phone' => $u->phone, 'shipping_address' => 'Jl. Trainer Road No. 42', 'shipping_city' => 'Pallet Town', 'shipping_postal_code' => '12345', 'paid_at' => now()]);`,
+    `\\App\\Models\\OrderItem::create(['order_id' => $merchOrder->id, 'itemable_id' => $shopItem->id, 'itemable_type' => \\App\\Models\\ShopItem::class, 'name_snapshot' => $shopItem->name, 'image_snapshot' => $shopItem->image, 'price_snapshot' => $shopItem->price, 'quantity' => 1, 'subtotal' => $shopItem->price]);`,
+    `$auction = \\App\\Models\\Auction::orderBy('id')->first();`,
+    `if(!$auction){ throw new \\Exception('no auction to win - run migrate --seed'); }`,
+    `$auction->forceFill(['status' => 'live', 'current_bid' => $auction->starting_bid, 'current_leader_id' => null, 'winner_id' => null, 'winning_amount' => null, 'winner_paid_at' => null, 'starts_at' => now()->subHour(), 'ends_at' => now()->addDays(1)])->save();`,
+    `\\App\\Models\\Bid::where('auction_id', $auction->id)->delete();`,
+    `$winningAmount = (float)$auction->starting_bid + (float)$auction->bid_increment + 25000;`,
+    `\\App\\Models\\Bid::create(['auction_id' => $auction->id, 'user_id' => $u->id, 'amount' => $winningAmount, 'status' => 'paid', 'order_id' => 'e2e-bid-'.uniqid(), 'paid_at' => now()]);`,
+    `$auction->forceFill(['current_bid' => $winningAmount, 'current_leader_id' => $u->id, 'ends_at' => now()->subMinute()])->save();`,
+    `$auction->snapshotWinner();`,
+    `$auction->update(['status' => 'ended']);`,
+    `$winnerOrder = $auction->winnerOrder();`,
+    `if(!$winnerOrder){ throw new \\Exception('auction winner order was not created'); }`,
+    `echo '<<FIXTURES>>' . json_encode(['auctionId' => $auction->id, 'auctionOrderCode' => $winnerOrder->code, 'merchOrderCode' => $merchCode, 'shopItemSlug' => $shopItem->slug]) . '<<END>>';`,
+  ].join(' ');
 
   const r = spawnSync('php', ['artisan', 'tinker', '--execute=' + php], {
     cwd: process.cwd(),
@@ -141,6 +93,13 @@ function setupDeliveryFixtures(): SetupFixtures {
 }
 
 test.describe('physical-card delivery flow', () => {
+  // Both tests in this describe mutate the e2e trainer's orders + a seeded
+  // auction. Running them in parallel workers makes test #2's setup delete
+  // test #1's freshly-created auction order (both setups call $u->orders()->
+  // delete() to start from a known state), which 404s test #1's navigation.
+  // Pin them to a single worker so the shared beforeAll fixture is honored.
+  test.describe.configure({ mode: 'serial' });
+
   let fx: SetupFixtures;
 
   test.beforeAll(() => {
