@@ -208,7 +208,9 @@ Two scheduled commands live in [`routes/console.php`](routes/console.php):
 | `cards:refresh-prices` | daily (midnight) | Captures a real TCGplayer market-value snapshot per card. Without this, the price-history chart only ever shows synthetic backfill. |
 | `auctions:keep-live` | every 15 min | Keeps the demo auction floor populated. |
 
-These run automatically only if **some OS-level process calls `php artisan schedule:run` every minute**. Set this up per environment:
+These run automatically only if **some OS-level process calls `php artisan schedule:run` every minute**. Set this up per environment.
+
+> **First deploy / fresh install:** the scheduler waits until midnight to capture the first real price snapshot. Run `php artisan cards:refresh-prices` once manually right after deploy so today's row is authentic immediately — otherwise the price-history chart is 100% synthetic backfill until tomorrow.
 
 ### Local — macOS (LaunchAgent)
 
