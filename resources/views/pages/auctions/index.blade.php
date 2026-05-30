@@ -11,6 +11,7 @@
     <div class="absolute inset-0 -z-10 bg-gradient-to-r from-ink-900 via-ink-900/80 to-ink-900/10 md:via-ink-900/60 md:to-transparent"></div>
     <div class="absolute inset-0 -z-10 bg-gradient-to-t from-ink-900/70 via-transparent to-ink-900/30"></div>
     <div class="absolute inset-x-0 top-0 -z-10 h-px prism-bg"></div>
+    <x-prism-aurora />
 
     <div class="relative mx-auto max-w-[1400px] px-4 pb-20 pt-16 md:min-h-[420px] md:px-8 md:pb-28 md:pt-24">
         <span class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur">

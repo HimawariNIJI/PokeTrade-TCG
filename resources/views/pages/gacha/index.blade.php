@@ -16,6 +16,7 @@
         <div class="absolute inset-0 -z-20"
              style="background: radial-gradient(ellipse at center, rgba(180,107,255,0.28) 0%, rgba(11,12,20,0.85) 70%);"></div>
         <div class="absolute inset-0 -z-10 halftone opacity-10"></div>
+        <x-prism-aurora />
 
         <div
             class="mx-auto grid max-w-[1300px] grid-cols-1 items-center gap-12 px-4 py-20 md:px-8 md:py-28 lg:grid-cols-12">

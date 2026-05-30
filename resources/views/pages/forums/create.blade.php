@@ -9,6 +9,7 @@
     <div class="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-ink-900/70 via-transparent to-ink-900/40 md:hidden"></div>
     <div class="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-ink-900 to-transparent"></div>
     <div class="pointer-events-none absolute inset-0 -z-10 halftone opacity-10"></div>
+    <x-prism-aurora />
     <div class="pointer-events-none absolute inset-x-0 top-0 z-10 h-px prism-bg"></div>
 
     <div class="mx-auto max-w-[760px] px-4 pb-12 pt-16 md:px-8 md:pt-20">

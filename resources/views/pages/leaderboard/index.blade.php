@@ -12,6 +12,7 @@
     <div class="pointer-events-none absolute inset-0 -z-20"
          style="background: radial-gradient(ellipse at center, rgba(11,12,20,0.55) 0%, rgba(11,12,20,0) 65%);"></div>
     <div class="pointer-events-none absolute inset-0 -z-10 halftone opacity-10"></div>
+    <x-prism-aurora />
     <div class="pointer-events-none absolute inset-x-0 top-0 z-10 h-px prism-bg"></div>
 
     <div class="relative mx-auto max-w-[1200px] px-4 py-20 md:min-h-[420px] md:px-8">

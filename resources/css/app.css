@@ -844,6 +844,95 @@
     p { text-wrap: pretty; }
 }
 
+/* ============================================================
+   Prism Aurora — slow drifting prismatic glow orbs for dark
+   hero banners. Sits above the banner image but below the
+   halftone overlay and content. Uses mix-blend-mode: screen
+   so the orbs read as additive light on bg-ink-900 without
+   muddying the underlying banner.
+
+   Tuning: amplitudes are small (±6-9%), durations long
+   (22-30s), hue rotation slower still (44s). Result: ambient
+   shimmer the eye registers but can't time.
+   ============================================================ */
+@keyframes prism-drift-a {
+    0%, 100% { transform: translate3d(0, 0, 0)     scale(1); }
+    50%      { transform: translate3d(6%, -4%, 0)  scale(1.08); }
+}
+@keyframes prism-drift-b {
+    0%, 100% { transform: translate3d(0, 0, 0)     scale(1.05); }
+    50%      { transform: translate3d(-5%, 5%, 0)  scale(0.95); }
+}
+@keyframes prism-drift-c {
+    0%, 100% { transform: translate3d(0, 0, 0)     scale(0.98); }
+    50%      { transform: translate3d(4%, 6%, 0)   scale(1.06); }
+}
+@keyframes prism-aurora-hue {
+    0%   { filter: blur(64px) hue-rotate(0deg); }
+    100% { filter: blur(64px) hue-rotate(360deg); }
+}
+
+@utility prism-aurora {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    mix-blend-mode: screen;
+    opacity: .75;
+    animation: prism-aurora-hue 44s linear infinite;
+    will-change: filter;
+}
+@utility prism-aurora-orb {
+    position: absolute;
+    border-radius: 9999px;
+    opacity: .45;
+    will-change: transform;
+}
+@utility prism-aurora-orb-pink {
+    background: radial-gradient(circle at 50% 50%,
+        var(--color-prism-pink) 0%,
+        rgba(255,106,213,0) 70%);
+    width: 46%;
+    height: 70%;
+    top: -10%;
+    left: -8%;
+    animation: prism-drift-a 26s ease-in-out infinite;
+}
+@utility prism-aurora-orb-violet {
+    background: radial-gradient(circle at 50% 50%,
+        var(--color-prism-violet) 0%,
+        rgba(180,107,255,0) 70%);
+    width: 50%;
+    height: 80%;
+    top: -5%;
+    right: -10%;
+    animation: prism-drift-b 30s ease-in-out infinite;
+    animation-delay: -7s;
+}
+@utility prism-aurora-orb-sky {
+    background: radial-gradient(circle at 50% 50%,
+        var(--color-prism-sky) 0%,
+        rgba(106,215,255,0) 70%);
+    width: 42%;
+    height: 65%;
+    bottom: -20%;
+    left: 28%;
+    animation: prism-drift-c 22s ease-in-out infinite;
+    animation-delay: -12s;
+}
+@utility prism-aurora-orb-mint {
+    background: radial-gradient(circle at 50% 50%,
+        var(--color-prism-mint) 0%,
+        rgba(106,255,193,0) 70%);
+    width: 36%;
+    height: 55%;
+    bottom: -10%;
+    right: 20%;
+    opacity: .3;
+    animation: prism-drift-a 28s ease-in-out infinite;
+    animation-delay: -3s;
+}
+
 /* Honor reduced-motion across all the new idle/loop animations. */
 @media (prefers-reduced-motion: reduce) {
     .btn-tactile,
@@ -854,5 +943,10 @@
     .animate-float-slow,
     .animate-float-fast,
     .animate-pulse-glow,
-    .prism-text { animation: none !important; }
+    .prism-text,
+    .prism-aurora,
+    .prism-aurora-orb-pink,
+    .prism-aurora-orb-violet,
+    .prism-aurora-orb-sky,
+    .prism-aurora-orb-mint { animation: none !important; }
 }
