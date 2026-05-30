@@ -3,7 +3,7 @@
     description="Bid in real time on graded and rare physical Pokemon TCG Prismatic Evolutions cards. Watch live bids and snipe at the final second.">
 
 
-<section class="relative overflow-hidden bg-ink-900">
+<section class="relative isolate overflow-hidden bg-ink-900">
     <img src="/images/forums-banner.png"
          alt=""
          aria-hidden="true"

@@ -8,7 +8,7 @@
      collection. These are DIGITAL collectibles, not the
      real cards tracked / auctioned elsewhere on the site.
      ===================================================== --}}
-    <section class="relative overflow-hidden bg-ink-900">
+    <section class="relative isolate overflow-hidden bg-ink-900">
         {{-- Holo banner backdrop (shared with auctions hero), muted so the pull CTA + preview cards stay primary --}}
         <img src="/images/auctions-banner.png" alt="" aria-hidden="true"
              class="absolute inset-0 -z-30 h-full w-full object-cover object-center opacity-25 blur-[2px] saturate-150">
