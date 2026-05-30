@@ -13,11 +13,7 @@
 
         <div class="mx-auto max-w-[1200px] px-4 py-16 md:px-8 md:py-24" x-data="gachaDeck({{ $pulls->count() }})" x-cloak>
             <div class="text-center">
-                <span
-                    class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest backdrop-blur">
-                    Pack pulled
-                </span>
-                <h1 class="mt-4 font-display text-5xl font-black md:text-7xl">
+                <h1 class="font-display text-5xl font-black md:text-7xl">
                     <span x-show="phase !== 'spread'">Tap to <span class="prism-text">reveal</span>.</span>
                     <span x-show="phase === 'spread'">Your <span class="prism-text">5 cards</span>.</span>
                 </h1>
