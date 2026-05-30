@@ -52,6 +52,17 @@
                 <h1 class="mt-3 font-display text-4xl font-black tracking-tight md:text-5xl">{{ $auction->card?->name }}</h1>
                 <p class="mt-1 text-sm text-white/50">Listed by {{ $auction->seller?->name ?? 'PokeTrade' }}</p>
 
+                {{-- Physical delivery callout: winners get a real card mailed to their door. --}}
+                <div data-test="auction-physical-callout"
+                     class="mt-4 flex items-start gap-3 rounded-2xl border border-prism-mint/40 bg-prism-mint/10 px-4 py-3 text-sm text-ink-50">
+                    <span class="text-lg leading-none">📦</span>
+                    <p>
+                        <span class="font-display font-black text-prism-mint">Real physical card.</span>
+                        Win this auction and we'll ship the actual graded card to your home address —
+                        no digital codes, no in-app collectibles. Just the real card, delivered to your door.
+                    </p>
+                </div>
+
                 {{-- Current bid + timer + buy now --}}
                 <div class="mt-6 flex flex-wrap items-end gap-x-10 gap-y-4">
                     <div>
@@ -138,7 +149,8 @@
         @auth
             @if($auction->status === 'ended' && $auction->isWinner(auth()->id()))
                 @php($winnerOrder = $auction->winnerOrder())
-                <div class="relative mt-8 rounded-2xl border border-prism-mint/40 bg-prism-mint/10 p-5 text-ink-50">
+                <div data-test="auction-winner-banner"
+                     class="relative mt-8 rounded-2xl border border-prism-mint/40 bg-prism-mint/10 p-5 text-ink-50">
                     <p class="text-xs font-black uppercase tracking-widest text-prism-mint">🏆 You won this auction</p>
 
                     <div class="mt-3 flex flex-wrap items-center gap-3">
@@ -158,6 +170,15 @@
                             </a>
                         @endif
                     </div>
+
+                    {{-- Hardcoded reassurance: this is a physical card being mailed, not a digital reward. --}}
+                    <p data-test="auction-winner-physical-note"
+                       class="mt-4 rounded-xl border border-prism-mint/30 bg-ink-900/30 px-4 py-3 text-xs leading-relaxed text-white/80">
+                        🚚 <span class="font-bold text-prism-mint">Heading to your house.</span>
+                        This is a real, physical Pokémon TCG card. We'll pack it up and deliver it to the shipping address
+                        on your order — track every step from <span class="font-bold">paid → shipped → delivered</span>
+                        on your order page.
+                    </p>
                 </div>
             @endif
         @endauth

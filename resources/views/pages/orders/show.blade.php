@@ -51,6 +51,21 @@
                         @endforeach
                     </ol>
 
+                    {{-- Hardcoded physical-delivery callout. Auction wins and merch
+                         orders both flow through this page, and both are real items being
+                         mailed — make sure the trainer can never confuse this with a
+                         digital gacha pull. --}}
+                    <div data-test="order-physical-callout"
+                         class="mt-8 flex items-start gap-3 rounded-2xl border border-prism-mint/40 bg-prism-mint/10 px-4 py-3 text-sm text-ink-900">
+                        <span class="text-lg leading-none">📦</span>
+                        <p>
+                            <span class="font-display font-black text-prism-violet">Physical delivery.</span>
+                            The items below are real, physical products. We'll ship them to the
+                            shipping address shown on this order — no digital codes,
+                            no in-app collectibles, just the actual cards and merch arriving at your door.
+                        </p>
+                    </div>
+
                     {{-- Items --}}
                     <h2 class="mt-10 font-display text-lg font-black">Items</h2>
                     <ul class="mt-3 divide-y divide-ink-100">

@@ -26,7 +26,7 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'], viewport: { width: 1366, height: 900 } },
-      testIgnore: [/auth\.setup\.ts/, /authed\.spec\.ts/, /responsive\.spec\.ts/],
+      testIgnore: [/auth\.setup\.ts/, /(authed|delivery)\.spec\.ts/, /responsive\.spec\.ts/],
     },
     {
       name: 'mobile',
@@ -37,7 +37,7 @@ export default defineConfig({
       name: 'authed',
       use: { ...devices['Desktop Chrome'], viewport: { width: 1366, height: 900 }, storageState: '.auth/user.json' },
       dependencies: ['setup'],
-      testMatch: /authed\.spec\.ts/,
+      testMatch: /(authed|delivery)\.spec\.ts/,
     },
     // Cross-browser smoke + a11y. Skips SEO (HTML-only, already covered
     // on chromium), authed (storageState is chrome-specific), and the

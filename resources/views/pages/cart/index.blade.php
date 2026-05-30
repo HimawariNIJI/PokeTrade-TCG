@@ -9,6 +9,11 @@
             <h1 class="mt-3 font-display text-4xl font-black tracking-tight md:text-5xl">
                 Shopping <span class="prism-text">cart</span>.
             </h1>
+            {{-- Hardcoded line so the trainer knows every cart line is a real, shipped product. --}}
+            <p data-test="cart-physical-note" class="mt-2 text-sm text-ink-700">
+                📦 Every item here is a <span class="font-bold text-prism-violet">real, physical product</span>
+                — we'll ship it to your home address when you check out.
+            </p>
         </div>
     </div>
 

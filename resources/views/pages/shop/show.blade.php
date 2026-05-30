@@ -45,6 +45,12 @@
                     <p class="mt-1 font-display text-4xl font-black">@idr($item->price)</p>
                     <span
                         class="prism-text block font-bold">{{ $item->stock > 0 ? "$item->stock in stock" : 'Sold out' }}</span>
+
+                    {{-- Hardcoded physical-product reassurance: PokeTrade only ships real merch. --}}
+                    <p data-test="shop-physical-note"
+                       class="mt-3 inline-flex items-center gap-2 rounded-full border border-prism-mint/40 bg-prism-mint/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-ink-700">
+                        📦 Physical item · shipped to your home
+                    </p>
                     @if ($stockinCart != 0)
                         <p class="mt-1 text-xs text-ink-500">
                             {{ $stockinCart }} in your cart

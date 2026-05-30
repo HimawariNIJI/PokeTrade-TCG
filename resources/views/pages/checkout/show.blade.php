@@ -10,6 +10,18 @@
                 <span class="prism-text">Checkout</span>.
             </h1>
             <p class="mt-2 text-sm text-ink-700">Complete your shipping details to place the order.</p>
+
+            {{-- Hardcoded physical-delivery banner. Reinforces what the shipping form
+                 is actually for: a real package coming to the trainer's house. --}}
+            <div data-test="checkout-physical-banner"
+                 class="mt-5 flex items-start gap-3 rounded-2xl border border-prism-mint/40 bg-prism-mint/10 px-4 py-3 text-sm text-ink-900">
+                <span class="text-lg leading-none">📦</span>
+                <p>
+                    <span class="font-display font-black text-prism-violet">Real items, real address.</span>
+                    Every product in your cart is physical — sealed merch and actual Pokémon TCG cards.
+                    We'll pack and ship them to the address you enter below, straight to your home.
+                </p>
+            </div>
         </div>
 
         <form method="POST" action="{{ route('checkout.place') }}" class="grid gap-8 lg:grid-cols-12">
