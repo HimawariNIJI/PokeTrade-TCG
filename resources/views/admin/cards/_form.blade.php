@@ -1,8 +1,6 @@
-@php $card = $card ?? null; @endphp
-
-<form method="POST" action="{{ $card ? route('admin.cards.update', $card) : route('admin.cards.store') }}" enctype="multipart/form-data" class="space-y-6">
+<form method="POST" action="{{ route('admin.cards.update', $card) }}" enctype="multipart/form-data" class="space-y-6">
     @csrf
-    @if($card) @method('PATCH') @endif
+    @method('PATCH')
 
     <div class="grid gap-6 lg:grid-cols-12">
         <div class="lg:col-span-7 space-y-4 rounded-3xl border border-ink-200 bg-white p-6">

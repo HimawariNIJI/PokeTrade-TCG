@@ -8,7 +8,6 @@
                 ↻ Refresh from API
             </button>
         </form>
-        <x-prism-button :href="route('admin.cards.create')" size="sm">+ New card</x-prism-button>
     </x-slot:actions>
 
     @if (session('status'))

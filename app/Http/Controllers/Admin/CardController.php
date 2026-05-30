@@ -50,20 +50,6 @@ class CardController extends Controller
         );
     }
 
-    public function create()
-    {
-        return view('admin.cards.create');
-    }
-
-    /**
-     * TODO(team-backend): validate via Form Request, persist, attach uploaded image.
-     * Card is sourced from API but admin can override price/stock/featured/description.
-     */
-    public function store(Request $request)
-    {
-        return redirect()->route('admin.cards.index')->with('status', 'Card saved (stub).');
-    }
-
     public function edit(Card $card)
     {
         return view('admin.cards.edit', compact('card'));
