@@ -53,17 +53,22 @@
                 <template x-if="board.entries.length > 0">
                     <ol class="space-y-2">
                         <template x-for="entry in board.entries" :key="entry.rank">
-                            <li class="flex items-center gap-3 rounded-2xl border border-ink-200 px-3 py-2 transition hover:border-prism-violet">
-                                <span
-                                    class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black"
-                                    :class="rankClass(entry.rank)"
-                                    x-text="entry.rank"></span>
-                                <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full prism-bg text-xs font-bold text-white" x-text="entry.initial"></span>
-                                <a :href="entry.profileUrl" class="flex-1 truncate text-sm font-semibold text-ink-900 hover:text-prism-violet" x-text="entry.name"></a>
-                                <span class="font-mono text-sm font-bold text-ink-900">
-                                    <span x-text="fmt(entry.metric)"></span>
-                                    <span class="text-[10px] font-normal text-ink-500" x-text="board.metricLabel"></span>
-                                </span>
+                            <li>
+                                <a
+                                    :href="entry.profileUrl"
+                                    :aria-label="`View ${entry.name}'s profile`"
+                                    class="group flex items-center gap-3 rounded-2xl border border-ink-200 px-3 py-2 transition hover:border-prism-violet hover:bg-prism-violet/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-prism-violet">
+                                    <span
+                                        class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black"
+                                        :class="rankClass(entry.rank)"
+                                        x-text="entry.rank"></span>
+                                    <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full prism-bg text-xs font-bold text-white" x-text="entry.initial"></span>
+                                    <span class="flex-1 truncate text-sm font-semibold text-ink-900 group-hover:text-prism-violet" x-text="entry.name"></span>
+                                    <span class="font-mono text-sm font-bold text-ink-900">
+                                        <span x-text="fmt(entry.metric)"></span>
+                                        <span class="text-[10px] font-normal text-ink-500" x-text="board.metricLabel"></span>
+                                    </span>
+                                </a>
                             </li>
                         </template>
                     </ol>
