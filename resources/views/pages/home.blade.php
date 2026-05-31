@@ -62,9 +62,11 @@
             </dl>
         </div>
 
-        {{-- Hero card stack — fans into place on first scroll-in, then bobs idly. --}}
+        {{-- Hero card stack — fans into place on first scroll-in, then bobs idly.
+             Mobile: only the center card renders. The fanned outer pair adds
+             visual flair on tablet/desktop but feels cramped on phones. --}}
         <div class="relative lg:col-span-6 xl:col-span-5">
-            <div class="relative mx-auto h-[460px] w-full max-w-[520px] md:h-[560px]"
+            <div class="relative mx-auto h-[360px] w-full max-w-[520px] md:h-[560px]"
                  data-reveal="spread">
                 @foreach($heroCards as $i => $card)
                     @php
@@ -74,10 +76,11 @@
                         $z     = [10, 30, 20][$i] ?? 10;
                         $delay = $i * 0.6;
                         $fanOrder = [1, 0, 2][$i] ?? $i; // center card lands first, then outer fan
+                        $isCenter = $i === 1;
                     @endphp
                     {{-- .reveal-card animates from collapsed-center to the fan position
                          defined by --fx/--fy/--frot. Inner <a> still gets the idle float. --}}
-                    <div class="reveal-card absolute left-1/2 top-1/2 w-[230px] md:w-[280px]"
+                    <div class="reveal-card absolute left-1/2 top-1/2 w-[230px] md:w-[280px] {{ $isCenter ? '' : 'hidden md:block' }}"
                          style="--fx: {{ $tx }}px; --fy: {{ $ty }}px; --frot: {{ $rot }}deg; --reveal-i: {{ $fanOrder }}; z-index: {{ $z }};">
                         <a href="{{ route('cards.show', $card) }}"
                            class="group relative block animate-float"
@@ -94,8 +97,8 @@
                     </div>
                 @endforeach
 
-                <div class="pointer-events-none absolute right-0 top-0 h-12 w-12 rounded-tr-2xl border-r-2 border-t-2 border-prism-violet/40"></div>
-                <div class="pointer-events-none absolute bottom-0 left-0 h-12 w-12 rounded-bl-2xl border-b-2 border-l-2 border-prism-pink/40"></div>
+                <div class="pointer-events-none absolute right-0 top-0 hidden h-12 w-12 rounded-tr-2xl border-r-2 border-t-2 border-prism-violet/40 md:block"></div>
+                <div class="pointer-events-none absolute bottom-0 left-0 hidden h-12 w-12 rounded-bl-2xl border-b-2 border-l-2 border-prism-pink/40 md:block"></div>
             </div>
         </div>
     </div>
@@ -283,7 +286,7 @@
             <div class="relative mx-auto h-[380px] w-full max-w-[400px]"
                  data-reveal="spread">
                 <div class="reveal-card absolute left-1/2 top-1/2 w-[220px]"
-                     style="--fx: -21%; --fy: -38%; --frot: -9deg; --reveal-i: 0;">
+                     style="--fx: -21%; --fy: -28%; --frot: -9deg; --reveal-i: 0;">
                     <x-tilted-card
                         :src="$row3CardOffer?->image_large"
                         alt="Gacha card"
@@ -292,7 +295,7 @@
                     />
                 </div>
                 <div class="reveal-card absolute left-1/2 top-1/2 w-[240px]"
-                     style="--fx: 40%; --fy: -38%; --frot: 8deg; --reveal-i: 1;">
+                     style="--fx: 40%; --fy: -28%; --frot: 8deg; --reveal-i: 1;">
                     <x-tilted-card
                         :src="$row3CardWant?->image_large"
                         alt="Gacha card"

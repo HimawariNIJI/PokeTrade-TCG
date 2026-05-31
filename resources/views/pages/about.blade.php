@@ -156,7 +156,7 @@
         </p>
     </div>
 
-    <div class="grid grid-cols-4 gap-4 sm:gap-5">
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-5">
         @foreach($team as $i => $member)
             {{-- flip-y on team cards mirrors their actual click-to-flip behavior. --}}
             <div x-data="{ flipped: false }"

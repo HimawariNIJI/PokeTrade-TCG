@@ -1128,3 +1128,29 @@ html.js [data-reveal="spread"]:not(.is-visible) .reveal-card {
     }
     [data-parallax] { transform: none !important; }
 }
+
+/* ============================================================
+   MOBILE SIMPLIFICATION (< 768px)
+   Drop pure-decoration overlays so phones get clean, functional
+   pages without the prism orbs / halftone / aurora / watermark
+   noise that's hard to read against and costs paint time.
+   Functional elements stay untouched.
+   ============================================================ */
+@media (max-width: 767px) {
+    .halftone { display: none !important; }
+    .prism-aurora { display: none !important; }
+    .pokeball-watermark { display: none !important; }
+
+    /* Decorative blur orbs across heroes — either tagged
+       pointer-events-none, or empty void elements (no children)
+       sitting behind content. Both are pure visual fluff; blur
+       is expensive on low-power GPUs and they crowd hero copy
+       at narrow widths. */
+    .pointer-events-none[class*="blur-"],
+    [class*="blur-3xl"]:empty,
+    [class*="blur-2xl"]:empty { display: none !important; }
+
+    /* Cancel any leftover parallax translate (JS also skips
+       updating on mobile, this is the belt-and-braces fallback). */
+    [data-parallax] { transform: none !important; }
+}
