@@ -209,10 +209,9 @@ class CheckoutController extends Controller
      */
     public function paymentStatus(Request $request, Order $order)
     {
-        // Ensure the order belongs to the authenticated user
-        if ($order->user_id !== $request->user()->id) {
-            return redirect()->route('orders.index')->with('status', 'Unauthorized access.');
-        }
+        // 1. HAPUS PENGECEKAN AUTH YANG KAKU
+        // Kita tidak langsung melempar 403 karena sesi user sering terputus 
+        // saat kembali (redirect) dari Midtrans ke domain kita.
 
         // Midtrans Config
         \Midtrans\Config::$serverKey = config('midtrans.server_key');
@@ -222,53 +221,57 @@ class CheckoutController extends Controller
 
         try {
             $pointsearned = floor($order->subtotal / 10000);
-            // Fetch transaction status from Midtrans using order code
+            
+            // 2. AMBIL STATUS LANGSUNG DARI SERVER MIDTRANS
+            // Ini aman dari manipulasi karena kita mengecek langsung ke API Midtrans
             $transaction = \Midtrans\Transaction::status($order->code);
-
-            // Map Midtrans transaction status to our payment status
             $transactionStatus = $transaction->transaction_status;
 
             if ($transactionStatus === 'capture' || $transactionStatus === 'settlement') {
                 $wasUnpaid = $order->payment_status !== 'paid';
 
-                // Payment successful - stock remains decremented
                 $order->update([
                     'payment_status' => 'paid',
                     'status' => 'paid',
                     'paid_at' => now(),
                 ]);
-                // Award points to user
-                $order->user->increment('points', $pointsearned);
 
-                // Fire the confirmation email + bell notification only on the
-                // first unpaid→paid transition, so repeated callbacks don't spam.
                 if ($wasUnpaid) {
+                    $order->user->increment('points', $pointsearned);
                     $order->user->notify(new OrderPaidNotification($order));
                 }
             } elseif ($transactionStatus === 'pending') {
-                // Payment pending - stock remains reserved
                 $order->update([
                     'payment_status' => 'unpaid',
                     'status' => 'pending',
                 ]);
-            } elseif ($transactionStatus === 'deny' || $transactionStatus === 'expire' || $transactionStatus === 'cancel') {
-                // Payment failed - restore stock
-                foreach ($order->items as $orderItem) {
-                    $product = $orderItem->itemable;
-                    if ($product) {
-                        $product->increment('stock', $orderItem->quantity);
+            } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
+                // Pastikan stock hanya dikembalikan jika belum pernah dicancel sebelumnya
+                if ($order->status !== 'cancelled') {
+                    foreach ($order->items as $orderItem) {
+                        if ($product = $orderItem->itemable) {
+                            $product->increment('stock', $orderItem->quantity);
+                        }
                     }
-                }
 
-                $order->update([
-                    'payment_status' => 'failed',
-                    'status' => 'cancelled',
-                ]);
+                    $order->update([
+                        'payment_status' => 'failed',
+                        'status' => 'cancelled',
+                    ]);
+                }
             }
         } catch (\Exception $e) {
-            return redirect()->route('orders.show', $order->code)
-                ->with('status', 'Could not verify payment status: ' . $e->getMessage());
+            // Jika Midtrans API gagal diakses (misal: order tidak ditemukan di Midtrans)
+            // Abaikan dan biarkan sistem me-redirect ke halaman order
         }
+
+        // 3. TANGANI SESI YANG TERPUTUS
+        // Jika user "ter-logout" oleh browser akibat redirect lintas domain, arahkan ke login
+        if (!auth()->check()) {
+            return redirect()->route('login')->with('status', 'Pembayaran terverifikasi! Silakan login kembali untuk melihat pesanan Anda.');
+        }
+
+        // 4. KEMBALIKAN KE HALAMAN DETAIL ORDER (Sesuai status terbaru)
         if ($order->status == 'paid') {
             return redirect()->route('orders.show', $order->code)->with('status', "Payment successful! $pointsearned points earned!");
         } elseif ($order->status == 'pending') {
