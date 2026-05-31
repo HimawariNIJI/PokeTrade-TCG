@@ -127,7 +127,10 @@
                                         action="{{ route('admin.auctions.refund', $auction) }}"
                                         class="inline">
                                         @csrf
+                                        @method('PATCH')
+
                                         <button type="submit"
+                                                onclick="return confirm('Refund all users for this auction?')"
                                                 class="text-xs font-semibold text-emerald-600 hover:text-emerald-800">
                                             Refund
                                         </button>
