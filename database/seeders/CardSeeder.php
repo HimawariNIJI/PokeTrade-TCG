@@ -31,6 +31,8 @@ class CardSeeder extends Seeder
     private const API_URL = 'https://api.pokemontcg.io/v2/cards';
     private const SET_QUERY = '(regulationMark:H OR regulationMark:I OR regulationMark:J) OR set.id:sve';
     private const PAGE_SIZE = 250;
+    private const REQUEST_TIMEOUT = 45;
+    private const FIXTURE_PATH = __DIR__ . '/fixtures/cards.json';
 
     /** Columns rewritten from the API on every refresh. Excludes stock/featured. */
     private const REFRESH_COLUMNS = [
@@ -50,50 +52,61 @@ class CardSeeder extends Seeder
         // Seed "featured" allocation from what already exists so reruns don't pile on extras.
         $featuredCount = Card::where('featured', true)->count();
         $now = now();
-        $today = today();
+        // Y-m-d string so it matches what CardPriceHistorySeeder writes — the
+        // column is a DATE, and storing a Carbon (datetime) makes updateOrCreate
+        // miss the existing row and then collide on the unique index.
+        $today = today()->toDateString();
         $apiKey = config('services.pokemontcg.key');
 
         // Page 1 sequentially so we can read totalCount and size the parallel batch.
+        // If the live API is unreachable, fall back to the bundled fixture so
+        // dependent seeders (auctions, community collections, the Playwright
+        // e2e suite) still have a usable Card table to work against.
         $first = $this->fetchPage(1, $apiKey);
         if (! $first) {
-            return;
-        }
+            $allCards = $this->loadFixture();
+            if (empty($allCards)) {
+                return;
+            }
+            $totalCount = count($allCards);
+            $totalPages = 1;
+        } else {
+            $firstPayload = $first->json();
+            $allCards = $firstPayload['data'] ?? [];
+            $totalCount = $firstPayload['totalCount'] ?? count($allCards);
 
-        $firstPayload = $first->json();
-        $allCards = $firstPayload['data'] ?? [];
-        $totalCount = $firstPayload['totalCount'] ?? count($allCards);
+            if (empty($allCards)) {
+                $this->command?->info('No cards returned from API.');
+                return;
+            }
 
-        if (empty($allCards)) {
-            $this->command?->info('No cards returned from API.');
-            return;
-        }
+            // Remaining pages fetched concurrently — this is the big win vs. the
+            // previous sequential loop, which was taking ~8 × API latency and
+            // tripping nginx's 60s fastcgi_read_timeout from the admin refresh button.
+            $totalPages = (int) ceil($totalCount / self::PAGE_SIZE);
+            if ($totalPages > 1) {
+                $this->command?->info("Fetching pages 2–{$totalPages} in parallel…");
+                $responses = Http::pool(function (\Illuminate\Http\Client\Pool $pool) use ($totalPages, $apiKey) {
+                    return array_map(function ($page) use ($pool, $apiKey) {
+                        $req = $pool->as("page_{$page}")->timeout(self::REQUEST_TIMEOUT)->retry(2, 750);
+                        if ($apiKey) {
+                            $req = $req->withHeaders(['X-Api-Key' => $apiKey]);
+                        }
+                        return $req->get(self::API_URL, [
+                            'q' => self::SET_QUERY,
+                            'page' => $page,
+                            'pageSize' => self::PAGE_SIZE,
+                        ]);
+                    }, range(2, $totalPages));
+                });
 
-        // Remaining pages fetched concurrently — this is the big win vs. the
-        // previous sequential loop, which was taking ~8 × API latency and
-        // tripping nginx's 60s fastcgi_read_timeout from the admin refresh button.
-        $totalPages = (int) ceil($totalCount / self::PAGE_SIZE);
-        if ($totalPages > 1) {
-            $this->command?->info("Fetching pages 2–{$totalPages} in parallel…");
-            $responses = Http::pool(function (\Illuminate\Http\Client\Pool $pool) use ($totalPages, $apiKey) {
-                return array_map(function ($page) use ($pool, $apiKey) {
-                    $req = $pool->as("page_{$page}")->timeout(15)->retry(1, 500);
-                    if ($apiKey) {
-                        $req = $req->withHeaders(['X-Api-Key' => $apiKey]);
+                foreach ($responses as $key => $res) {
+                    if (! $res instanceof \Illuminate\Http\Client\Response || ! $res->successful()) {
+                        $this->command?->warn("Skipping {$key} (no usable response).");
+                        continue;
                     }
-                    return $req->get(self::API_URL, [
-                        'q' => self::SET_QUERY,
-                        'page' => $page,
-                        'pageSize' => self::PAGE_SIZE,
-                    ]);
-                }, range(2, $totalPages));
-            });
-
-            foreach ($responses as $key => $res) {
-                if (! $res instanceof \Illuminate\Http\Client\Response || ! $res->successful()) {
-                    $this->command?->warn("Skipping {$key} (no usable response).");
-                    continue;
+                    $allCards = array_merge($allCards, $res->json('data') ?? []);
                 }
-                $allCards = array_merge($allCards, $res->json('data') ?? []);
             }
         }
 
@@ -113,7 +126,7 @@ class CardSeeder extends Seeder
     private function fetchPage(int $page, ?string $apiKey): ?\Illuminate\Http\Client\Response
     {
         try {
-            $req = Http::timeout(15)->retry(1, 500);
+            $req = Http::timeout(self::REQUEST_TIMEOUT)->retry(2, 750);
             if ($apiKey) {
                 $req = $req->withHeaders(['X-Api-Key' => $apiKey]);
             }
@@ -133,6 +146,31 @@ class CardSeeder extends Seeder
         }
 
         return $response;
+    }
+
+    /**
+     * Bundled snapshot used when the live API is unreachable.
+     * Why: CI runners frequently see slow / failing requests to pokemontcg.io,
+     * and silent-bailing leaves the Card table empty, which crashes downstream
+     * seeders (AuctionSeeder) and the Playwright suite.
+     */
+    private function loadFixture(): array
+    {
+        if (! is_file(self::FIXTURE_PATH)) {
+            $this->command?->warn('Live API unavailable and no bundled fixture found.');
+            return [];
+        }
+
+        $contents = file_get_contents(self::FIXTURE_PATH);
+        $decoded = $contents === false ? null : json_decode($contents, true);
+
+        if (! is_array($decoded) || empty($decoded)) {
+            $this->command?->warn('Bundled card fixture is empty or malformed.');
+            return [];
+        }
+
+        $this->command?->info('Live API unreachable — seeding from bundled fixture ('.count($decoded).' cards).');
+        return $decoded;
     }
 
     private function buildRows(array $cards, int &$featuredCount, $now): array

@@ -16,6 +16,10 @@ jobs:
       DB_CONNECTION: sqlite
       DB_DATABASE: database/database.sqlite
       BASE_URL: http://127.0.0.1:8123
+      # Optional — when set in repo secrets, CardSeeder uses it for higher
+      # rate limits and faster responses from pokemontcg.io. When absent the
+      # seeder still works (anonymous + bundled fixture fallback).
+      POKEMONTCG_API_KEY: ${{ secrets.POKEMONTCG_API_KEY }}
 
     steps:
       - uses: actions/checkout@v4

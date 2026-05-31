@@ -19,6 +19,14 @@ class AuctionSeeder extends Seeder
 {
     public function run(): void
     {
+        // Need at least one Card to attach auctions to — without this guard a
+        // failed CardSeeder (e.g. pokemontcg.io unreachable from CI) cascades
+        // into a null-id crash here and takes down `migrate --seed`.
+        if (! Card::query()->exists()) {
+            $this->command?->warn('No cards in database — skipping AuctionSeeder.');
+            return;
+        }
+
         // Start clean so the seeder is idempotent.
         Bid::query()->delete();
         Auction::query()->delete();
