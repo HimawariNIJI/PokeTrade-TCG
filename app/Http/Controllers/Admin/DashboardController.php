@@ -36,17 +36,20 @@ class DashboardController extends Controller
             ->get();
 
         // Get last 6 months revenue aggregation by orders.paid_at
-        $monthlyRevenue = collect(range(5, 0))->map(function ($i) {
-            $startDate = now()->subMonths($i)->startOfMonth();
-            $endDate = now()->subMonths($i)->endOfMonth();
-            $month = $startDate->format('M');
-            
+        $baseDate = now()->startOfMonth();
+
+        $monthlyRevenue = collect(range(5, 0))->map(function ($i) use ($baseDate) {
+            $date = $baseDate->copy()->subMonthsNoOverflow($i);
+        
             $amount = Order::where('payment_status', 'paid')
-                ->whereBetween('paid_at', [$startDate, $endDate])
+                ->whereBetween('paid_at', [
+                    $date->copy()->startOfMonth(),
+                    $date->copy()->endOfMonth(),
+                ])
                 ->sum('total');
-            
+        
             return [
-                'month'  => $month,
+                'month' => $date->format('M'),
                 'amount' => (float) $amount,
             ];
         });
