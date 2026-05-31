@@ -40,14 +40,14 @@ class DashboardController extends Controller
 
         $monthlyRevenue = collect(range(5, 0))->map(function ($i) use ($baseDate) {
             $date = $baseDate->copy()->subMonthsNoOverflow($i);
-        
+
             $amount = Order::where('payment_status', 'paid')
                 ->whereBetween('paid_at', [
                     $date->copy()->startOfMonth(),
                     $date->copy()->endOfMonth(),
                 ])
                 ->sum('total');
-        
+
             return [
                 'month' => $date->format('M'),
                 'amount' => (float) $amount,
