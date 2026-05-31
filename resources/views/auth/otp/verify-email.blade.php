@@ -14,9 +14,8 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('otp.email.verify') }}" class="mt-8 space-y-5" x-data="otpTimer()">
+    <form method="POST" action="{{ route('otp.email.verify') }}" class="mt-8 space-y-5" x-data="otpTimer({{ $expiresAt ? $expiresAt->timestamp * 1000 : 0 }})">
         @csrf
-        <input type="hidden" name="email" value="{{ $email }}">
 
         <label class="block">
             <span class="text-xs font-bold uppercase tracking-widest text-ink-700">Verification Code</span>
@@ -39,30 +38,60 @@
             <span x-show="timeLeft > 0">Verify code</span>
             <span x-show="timeLeft <= 0">Code expired - request a new one</span>
         </x-prism-button>
-
-        <div class="text-center">
-            <p class="text-sm text-ink-600">
-                Didn't receive the code?
-                <a href="{{ route('verification.send') }}" class="font-semibold text-prism-violet hover:underline">Resend verification email</a>
-            </p>
-        </div>
     </form>
+
+    {{-- Resend OTP Form (separate) --}}
+    <div class="mt-6 text-center">
+        <p class="text-sm text-ink-600 mb-3">
+            Didn't receive the code?
+        </p>
+        <form method="POST" action="{{ route('otp.email.resend') }}" class="inline">
+            @csrf
+            <button type="submit" class="font-semibold text-prism-violet hover:underline">Resend verification email</button>
+        </form>
+    </div>
+
+    {{-- Delete Account and Start Over (separate) --}}
+    <div class="mt-6 border-t border-ink-200 pt-6">
+        <details class="text-center">
+            <summary class="cursor-pointer text-sm text-ink-600 hover:text-ink-700 font-medium">Can't verify your email?</summary>
+            <div class="mt-4 space-y-3">
+                <p class="text-xs text-ink-500">If your code is expired or you've made too many attempts, you can start over with a new registration.</p>
+                <form method="POST" action="{{ route('otp.email.delete-account') }}">
+                    @csrf
+                    <button type="submit" class="rounded-lg bg-rose-100 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-200">
+                        Delete account and register again
+                    </button>
+                </form>
+            </div>
+        </details>
+    </div>
 
     @once
         <script>
-            function otpTimer() {
+            function otpTimer(expiresAtMs) {
                 return {
-                    timeLeft: 300, // 5 minutes in seconds (registration OTP)
+                    expiresAtMs: expiresAtMs,
+                    timeLeft: 0,
                     
                     init() {
+                        this.calculateTimeLeft();
                         this.startTimer();
+                    },
+                    
+                    calculateTimeLeft() {
+                        if (!this.expiresAtMs) {
+                            this.timeLeft = 0;
+                            return;
+                        }
+                        const now = new Date().getTime();
+                        const remaining = Math.max(0, Math.floor((this.expiresAtMs - now) / 1000));
+                        this.timeLeft = remaining;
                     },
                     
                     startTimer() {
                         setInterval(() => {
-                            if (this.timeLeft > 0) {
-                                this.timeLeft--;
-                            }
+                            this.calculateTimeLeft();
                         }, 1000);
                     },
                     
@@ -76,3 +105,4 @@
         </script>
     @endonce
 </x-guest-layout>
+

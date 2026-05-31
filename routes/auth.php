@@ -63,6 +63,12 @@ Route::middleware('auth')->group(function () {
     Route::post('verify-email/otp', [OtpEmailVerificationController::class, 'verify'])
         ->name('otp.email.verify');
 
+    Route::post('verify-email/otp/resend', [OtpEmailVerificationController::class, 'resendOtp'])
+        ->name('otp.email.resend');
+
+    Route::post('verify-email/otp/delete-account', [OtpEmailVerificationController::class, 'deleteAccountAndRegister'])
+        ->name('otp.email.delete-account');
+
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
         ->name('password.confirm');
 
