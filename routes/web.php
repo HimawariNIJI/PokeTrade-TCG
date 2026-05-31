@@ -21,6 +21,7 @@ use App\Http\Controllers\PublicProfileController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\Auth\OtpEmailVerificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -125,6 +126,9 @@ Route::post('/midtrans/notification', [MidtransController::class, 'notification'
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
+    Route::get('/verify-email', [OtpEmailVerificationController::class, 'showForm'])->name('verification.notice');
+    Route::post('/verify-email/verify', [OtpEmailVerificationController::class, 'verify'])->name('otp.email.verify');
+
     Route::get('/dashboard', fn () => redirect()->route('home'))->name('dashboard');
 
     // Account profile (name / email / password / delete)
@@ -223,7 +227,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('users',          [Admin\UserController::class, 'index'])->name('users.index');
     Route::get('users/{user}',   [Admin\UserController::class, 'show'])->name('users.show');
     Route::patch('users/{user}/role', [Admin\UserController::class, 'updateRole'])->name('users.updateRole');
-
+    Route::patch('users/{user}/verify', [Admin\UserController::class, 'verifyEmail'])->name('users.verify');
+    
     // Community reports — review + resolve flagged content.
     Route::get('reports', [Admin\ReportController::class, 'index'])->name('reports.index');
     Route::patch('reports/{report}', [Admin\ReportController::class, 'update'])->name('reports.update');

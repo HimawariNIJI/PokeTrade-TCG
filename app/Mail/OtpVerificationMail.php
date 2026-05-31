@@ -13,18 +13,26 @@ class OtpVerificationMail extends Mailable
     use Queueable, SerializesModels;
 
     public string $otp;
+    public string $type; // 'password_reset' atau 'email_verification'
     public int $expiresIn; // minutes
 
-    public function __construct(string $otp, int $expiresIn = 10)
+    // Menambahkan parameter $type (default-nya 'password_reset')
+    public function __construct(string $otp, string $type = 'password_reset', int $expiresIn = 10)
     {
         $this->otp = $otp;
+        $this->type = $type;
         $this->expiresIn = $expiresIn;
     }
 
     public function envelope(): Envelope
     {
+        // Menentukan subject secara dinamis berdasarkan type
+        $subject = $this->type === 'email_verification' 
+            ? 'Verify Your Email Address' 
+            : 'Your Password Reset OTP';
+
         return new Envelope(
-            subject: 'Your Password Reset OTP',
+            subject: $subject,
         );
     }
 
@@ -34,6 +42,7 @@ class OtpVerificationMail extends Mailable
             view: 'emails.otp-verification',
             with: [
                 'otp' => $this->otp,
+                'type' => $this->type,
                 'expiresIn' => $this->expiresIn,
             ],
         );

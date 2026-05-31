@@ -12,10 +12,12 @@ class OtpToken extends Model
         'expires_at',
         'attempts',
         'verified',
+        'type',
     ];
 
     protected $casts = [
         'expires_at' => 'datetime',
+        'type' => 'string',
     ];
 
     public function isExpired(): bool

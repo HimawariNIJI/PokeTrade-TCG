@@ -51,10 +51,11 @@ class OtpPasswordResetController extends Controller
             'expires_at' => now()->addMinutes($expiresIn),
             'attempts' => 0,
             'verified' => false,
+            'type' => 'password_reset',
         ]);
 
         // Send OTP via email
-        Mail::to($email)->send(new OtpVerificationMail((string) $otp, $expiresIn));
+        Mail::to($email)->send(new OtpVerificationMail((string) $otp, 'password_reset', $expiresIn));
 
         return redirect()->route('otp.verify-form', ['email' => $email])
             ->with('status', 'OTP sent to your email. Check your inbox.');

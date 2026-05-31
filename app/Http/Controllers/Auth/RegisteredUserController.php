@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Mail\OtpVerificationMail;
+use App\Models\OtpToken;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,7 +35,7 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -41,11 +44,27 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+        $otp = random_int(100000, 999999);
+        $expiresIn = 5; // minutes
+
+        OtpToken::create([
+            'email' => $user->email,
+            'otp' => (string) $otp,
+            'expires_at' => now()->addMinutes($expiresIn),
+            'attempts' => 0,
+            'verified' => false,
+            'type' => 'email_verification',
+        ]);
+
+        Mail::to($user->email)
+            ->send(new OtpVerificationMail((string) $otp, 'email_verification', $expiresIn));
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('otp.email.verify-form')
+            ->with('status', 'OTP sent to your email. Please enter it to verify your address.');
     }
 }
+

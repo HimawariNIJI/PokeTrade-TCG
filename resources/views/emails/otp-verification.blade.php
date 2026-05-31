@@ -1,11 +1,23 @@
+@php
+    $isVerification = $type === 'email_verification';
+    $eyebrow = $isVerification ? 'Email verification' : 'Password reset';
+    $heading = $isVerification ? 'Verify your email address' : 'Your verification code';
+    $intro = $isVerification
+        ? 'Welcome to ' . config('app.name') . '! Use the code below to verify your email address.'
+        : 'We received a request to reset your ' . config('app.name') . ' password. Use the code below to continue.';
+    $footer = $isVerification
+        ? 'Enter this code on the email verification page to complete registration.'
+        : 'Enter this code on the verification page to finish resetting your password.';
+@endphp
+
 @component('emails._layout', [
-    'eyebrow' => 'Password reset',
-    'heading' => 'Your verification code',
+    'eyebrow' => $eyebrow,
+    'heading' => $heading,
 ])
     <p style="margin:0 0 16px;font-size:16px;line-height:1.6;">Hey trainer,</p>
 
     <p style="margin:0 0 24px;font-size:16px;line-height:1.6;">
-        We received a request to reset your {{ config('app.name') }} password. Use the code below to continue.
+        {{ $intro }}
     </p>
 
     <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 24px;background:linear-gradient(135deg,#faf5ff 0%,#fdf2f8 50%,#fffbeb 100%);border:1px solid rgba(124,58,237,0.18);border-radius:16px;">
@@ -21,7 +33,7 @@
     </table>
 
     <p style="margin:0 0 24px;font-size:14px;color:#555;line-height:1.6;">
-        Enter this code on the verification page to finish resetting your password.
+        {{ $footer }}
         If you didn't request this, you can safely ignore this email — your account stays locked tight.
     </p>
 @endcomponent

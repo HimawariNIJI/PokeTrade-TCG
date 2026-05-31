@@ -43,6 +43,7 @@ class GoogleController extends Controller
                     'google_id' => $googleUser->getId(),
                     'password' => bcrypt(Str::random(24)),
                 ]);
+                $user->markEmailAsVerified();
             }
 
 

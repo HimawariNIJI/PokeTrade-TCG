@@ -12,6 +12,10 @@ return new class extends Migration
             $table->id();
             $table->string('email')->index();
             $table->string('otp', 6);
+            $table->enum('type', [
+                'email_verification',
+                'password_reset'
+            ]);
             $table->timestamp('expires_at');
             $table->integer('attempts')->default(0);
             $table->boolean('verified')->default(false);

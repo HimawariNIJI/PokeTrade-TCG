@@ -16,6 +16,7 @@
             ?? 'Track Pokemon TCG Scarlet & Violet: Prismatic Evolutions card prices with live market values, plus official merch, real-card auctions, a digital gacha, and a trainer community.';
         $canonicalUrl = $canonical ?? url()->current();
         $ogImageUrl = $ogImage ?? asset('images/og-default.png');
+        $ogType = $ogType ?? 'website';
     @endphp
 
     <title>{{ $pageTitle }}</title>
