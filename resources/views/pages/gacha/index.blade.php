@@ -22,14 +22,16 @@
             class="mx-auto grid max-w-[1300px] grid-cols-1 items-center gap-12 px-4 py-20 md:px-8 md:py-28 lg:grid-cols-12">
             <div class="lg:col-span-6">
                 <span
-                    class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur">
+                    class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur"
+                    data-reveal="pop">
                     <span class="h-2 w-2 rounded-full bg-prism-gold"></span>
                     Digital gacha
                 </span>
-                <h1 class="mt-4 font-display text-5xl font-black leading-[0.95] text-white md:text-7xl">
+                <h1 class="mt-4 font-display text-5xl font-black leading-[0.95] text-white md:text-7xl"
+                    data-reveal="letters">
                     Pull a <span class="prism-text">5-card</span><br />digital pack.
                 </h1>
-                <p class="mt-5 max-w-lg text-white/70">
+                <p class="mt-5 max-w-lg text-white/70" data-reveal="fade-up" data-reveal-delay="250">
                     One <strong class="text-white">free pull every day</strong> — after that, spend
                     points earned from the merch store. Every pull drops 5 random Prismatic Evolutions
                     cards straight into <strong class="text-white">your digital collection</strong>,
@@ -38,9 +40,10 @@
                 </p>
 
                 <ul class="mt-8 grid grid-cols-2 gap-3 text-sm">
-                    @foreach ($tiers as $r)
+                    @foreach ($tiers as $i => $r)
                         <li
-                            class="flex items-center justify-between rounded-2xl border border-white/20 bg-white/5 px-4 py-2 text-white">
+                            class="flex items-center justify-between rounded-2xl border border-white/20 bg-white/5 px-4 py-2 text-white"
+                            data-reveal="fade-up" style="--reveal-i: {{ $i }};" data-reveal-delay="300">
                             <span class="font-semibold">{{ $r['rarity'] }}</span>
                             <span class="font-mono text-xs text-white/70">{{ $r['rate'] }}</span>
                         </li>
@@ -119,9 +122,10 @@
                 @endauth
             </div>
 
-            {{-- Preview cards — fanned out, holographic float --}}
+            {{-- Preview cards — fanned out, fan into place on scroll-in, then holographic float --}}
             <div class="relative lg:col-span-6">
-                <div class="relative mx-auto h-[420px] w-full max-w-md md:h-[500px]">
+                <div class="relative mx-auto h-[420px] w-full max-w-md md:h-[500px]"
+                     data-reveal="spread">
                     @php $previewCards = $preview->take(3); @endphp
                     @foreach ($previewCards as $i => $card)
                         @php
@@ -129,9 +133,10 @@
                             $tx = [-76, 0, 100][$i] ?? 0;
                             $ty = [40, 0, 60][$i] ?? 0;
                             $delay = $i * 0.5;
+                            $fanOrder = [1, 0, 2][$i] ?? $i; // center first, outer fans last
                         @endphp
-                        <div class="absolute left-1/2 top-1/2 w-52 md:w-64"
-                            style="transform: translate(calc(-50% + {{ $tx }}px), calc(-50% + {{ $ty }}px)) rotate({{ $rot }}deg);">
+                        <div class="reveal-card absolute left-1/2 top-1/2 w-52 md:w-64"
+                             style="--fx: {{ $tx }}px; --fy: {{ $ty }}px; --frot: {{ $rot }}deg; --reveal-i: {{ $fanOrder }};">
                             <div class="group relative animate-float" style="animation-delay: {{ $delay }}s;">
                                 <div class="prism-halo-glow always-on opacity-50"></div>
                                 <x-tilted-card :src="$card->image_large" alt="Preview card" :rotate="14" :scaleOnHover="1.05"

@@ -31,9 +31,19 @@ class CardPriceHistorySeeder extends Seeder
 
         foreach ($cards as $card) {
             foreach ($this->walk((float) $card->market_price) as $date => $price) {
+                // Don't clobber rows already accrued by RefreshCardPrices —
+                // those are real snapshots and must survive a reseed.
+                $existing = CardPriceHistory::where('card_id', $card->id)
+                    ->where('recorded_at', $date)
+                    ->first();
+
+                if ($existing && ! $existing->is_synthetic) {
+                    continue;
+                }
+
                 CardPriceHistory::updateOrCreate(
                     ['card_id' => $card->id, 'recorded_at' => $date],
-                    ['market_price' => $price],
+                    ['market_price' => $price, 'is_synthetic' => true],
                 );
             }
         }

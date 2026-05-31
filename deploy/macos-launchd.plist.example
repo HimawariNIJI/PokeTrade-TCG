@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Calls `php artisan schedule:run` once a minute so the Laravel scheduler
+    entries in routes/console.php actually fire on this Mac.
+
+    SETUP:
+      1. Copy this file to ~/Library/LaunchAgents/com.poketrade.schedule.plist
+      2. Edit the two ABSOLUTE paths below to match your machine:
+           - the PHP binary path (find yours with `which php`)
+           - the project working directory
+      3. Load it:
+           launchctl load ~/Library/LaunchAgents/com.poketrade.schedule.plist
+      4. Verify it's running:
+           launchctl list | grep poketrade
+      5. Watch the log:
+           tail -f storage/logs/schedule.log
+
+    REMOVE:
+      launchctl unload ~/Library/LaunchAgents/com.poketrade.schedule.plist
+      rm ~/Library/LaunchAgents/com.poketrade.schedule.plist
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.poketrade.schedule</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/CHANGEME/Library/Application Support/Herd/bin/php</string>
+        <string>artisan</string>
+        <string>schedule:run</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/CHANGEME/path/to/PokeTrade-TCG</string>
+
+    <key>StartInterval</key>
+    <integer>60</integer>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/CHANGEME/path/to/PokeTrade-TCG/storage/logs/schedule.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/CHANGEME/path/to/PokeTrade-TCG/storage/logs/schedule.log</string>
+</dict>
+</plist>

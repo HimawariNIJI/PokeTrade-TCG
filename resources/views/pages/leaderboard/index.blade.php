@@ -17,13 +17,16 @@
 
     <div class="relative mx-auto max-w-[1200px] px-4 py-20 md:min-h-[420px] md:px-8">
         <div class="text-center">
-            <span class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur">
+            <span class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur"
+                  data-reveal="pop">
                 Trainer rankings
             </span>
-            <h1 class="mt-4 font-display text-5xl font-black leading-[0.95] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)] md:text-7xl">
+            <h1 class="mt-4 font-display text-5xl font-black leading-[0.95] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)] md:text-7xl"
+                data-reveal="letters">
                 The <span class="prism-text">leaderboard</span>.
             </h1>
-            <p class="mt-4 mx-auto max-w-2xl text-white/80 drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)]">
+            <p class="mt-4 mx-auto max-w-2xl text-white/80 drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)]"
+               data-reveal="fade-up" data-reveal-delay="250">
                 Top collectors by deck depth, fiercest bidders, and the trainers with the deepest point banks.
             </p>
         </div>
@@ -35,7 +38,8 @@
     x-data="liveLeaderboard({ url: '{{ route('leaderboard.data') }}', boards: {{ Illuminate\Support\Js::from($boards) }} })"
     x-init="start()">
 
-    <div class="mb-6 flex items-center justify-end gap-2 text-[11px] font-bold uppercase tracking-widest text-ink-500">
+    <div class="mb-6 flex items-center justify-end gap-2 text-[11px] font-bold uppercase tracking-widest text-ink-500"
+         data-reveal="fade-down">
         <span class="relative flex h-2 w-2">
             <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-poke-red opacity-75"></span>
             <span class="relative inline-flex h-2 w-2 rounded-full bg-poke-red"></span>
@@ -43,7 +47,7 @@
         Live rankings
     </div>
 
-    <div class="grid gap-8 md:grid-cols-3">
+    <div class="grid gap-8 md:grid-cols-3" data-reveal="fade-up" data-reveal-delay="150">
 
         <template x-for="board in boards" :key="board.key">
             <div class="rounded-3xl border border-ink-200 bg-white p-6">

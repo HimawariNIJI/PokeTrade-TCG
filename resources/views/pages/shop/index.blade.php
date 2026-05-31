@@ -8,13 +8,15 @@
     <div class="mx-auto max-w-[1400px] px-4 pb-10 pt-16 md:px-8 md:pt-20">
         <div class="flex flex-wrap items-end justify-between gap-6">
             <div>
-                <span class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink-700 backdrop-blur">
+                <span class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-ink-700 backdrop-blur"
+                      data-reveal="pop">
                     Custom shop
                 </span>
-                <h1 class="mt-4 font-display text-5xl font-black tracking-tight md:text-6xl">
+                <h1 class="mt-4 font-display text-5xl font-black tracking-tight md:text-6xl"
+                    data-reveal="letters">
                     Boxes, plushies, <span class="prism-text">gear</span>.
                 </h1>
-                <p class="mt-3 max-w-2xl text-ink-700">Sealed product, sleeves, playmats and merch — admin-curated, image-uploaded, ready to ship.</p>
+                <p class="mt-3 max-w-2xl text-ink-700" data-reveal="fade-up" data-reveal-delay="250">Sealed product, sleeves, playmats and merch — admin-curated, image-uploaded, ready to ship.</p>
             </div>
         </div>
     </div>
@@ -38,11 +40,17 @@
 <section class="mx-auto max-w-[1400px] px-4 py-10 md:px-8 md:py-14">
     @if($items->isNotEmpty())
         <div class="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
-            @foreach($items as $item)
-                <x-shop-tile :item="$item" />
+            @foreach($items as $i => $item)
+                @php $staggerIdx = $i % 4; @endphp
+                {{-- zoom-in springs each merch tile straight at the viewer; reads
+                     like products popping off the shelf. --}}
+                <div data-reveal="zoom-in"
+                     style="--reveal-i: {{ $staggerIdx }};">
+                    <x-shop-tile :item="$item" />
+                </div>
             @endforeach
         </div>
-        <div class="mt-10">{{ $items->links() }}</div>
+        <div class="mt-10" data-reveal="fade-up">{{ $items->links() }}</div>
     @else
         <x-empty-state title="No items yet" message="Admins can add merchandise from the admin panel." />
     @endif

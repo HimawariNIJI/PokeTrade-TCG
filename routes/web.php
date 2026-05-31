@@ -210,7 +210,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/', [Admin\DashboardController::class, 'index'])->name('dashboard');
 
     Route::post('cards/refresh', [Admin\CardController::class, 'refresh'])->name('cards.refresh');
-    Route::resource('cards', Admin\CardController::class)->except('show');
+    Route::resource('cards', Admin\CardController::class)->except(['show', 'create', 'store']);
     Route::resource('shop', Admin\ShopItemController::class)
         ->parameters(['shop' => 'shopItem'])
         ->except('show');
