@@ -122,9 +122,10 @@
                 @endauth
             </div>
 
-            {{-- Preview cards — fanned out, fan into place on scroll-in, then holographic float --}}
+            {{-- Preview cards — fanned out, fan into place on scroll-in, then holographic float.
+                 Mobile: only the center preview renders; the fanned outer pair is decoration. --}}
             <div class="relative lg:col-span-6">
-                <div class="relative mx-auto h-[420px] w-full max-w-md md:h-[500px]"
+                <div class="relative mx-auto h-[340px] w-full max-w-md md:h-[500px]"
                      data-reveal="spread">
                     @php $previewCards = $preview->take(3); @endphp
                     @foreach ($previewCards as $i => $card)
@@ -134,8 +135,9 @@
                             $ty = [40, 0, 60][$i] ?? 0;
                             $delay = $i * 0.5;
                             $fanOrder = [1, 0, 2][$i] ?? $i; // center first, outer fans last
+                            $isCenter = $i === 1;
                         @endphp
-                        <div class="reveal-card absolute left-1/2 top-1/2 w-52 md:w-64"
+                        <div class="reveal-card absolute left-1/2 top-1/2 w-52 md:w-64 {{ $isCenter ? '' : 'hidden md:block' }}"
                              style="--fx: {{ $tx }}px; --fy: {{ $ty }}px; --frot: {{ $rot }}deg; --reveal-i: {{ $fanOrder }};">
                             <div class="group relative animate-float" style="animation-delay: {{ $delay }}s;">
                                 <div class="prism-halo-glow always-on opacity-50"></div>

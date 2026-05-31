@@ -107,6 +107,11 @@ function setupReveal() {
 
 function setupParallax() {
     if (REDUCED) return;
+    // Mobile: skip parallax entirely. The decorative orbs that drive most
+    // parallax are display:none under 768px (see app.css), and the few
+    // content-card parallax wrappers don't justify a scroll listener on
+    // phones — saves battery and keeps scroll buttery.
+    if (window.matchMedia('(max-width: 767px)').matches) return;
     const targets = [...document.querySelectorAll('[data-parallax]')].map((el) => ({
         el,
         speed: parseFloat(el.dataset.parallax) || 0.1,
