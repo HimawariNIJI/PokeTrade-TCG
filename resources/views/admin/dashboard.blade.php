@@ -56,6 +56,7 @@
                          style="height: {{ $h }}px"
                          title="Rp {{ number_format($amount, 0, ',', '.') }}"></div>
                     <p class="mt-1 text-[10px] font-mono text-ink-500">{{ $m['month'] }}</p>
+                    <p class="text-[10px] font-bold text-ink-700">@idr($m['amount'])</p>
                 </div>
             @endforeach
         </div>

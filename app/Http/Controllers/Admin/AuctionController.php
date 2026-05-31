@@ -39,19 +39,19 @@ class AuctionController extends Controller
             'cancelled' => Auction::where('status', 'cancelled')->count(),
         ];
         
-        // Get auction revenue from winning bids (ended auctions only)
-        $auctionRevenue = collect(range(5, 0))->map(function ($i) {
-            $startDate = now()->subMonths($i)->startOfMonth();
-            $endDate = now()->subMonths($i)->endOfMonth();
-            $month = $startDate->format('M');
-            
-            $amount = Auction::where('status', 'ended')
-                ->whereBetween('ends_at', [$startDate, $endDate])
-                ->sum('winning_amount');
-            
+        $baseDate = now()->startOfMonth();
+
+        $auctionRevenue = collect(range(5, 0))->map(function ($i) use ($baseDate) {
+            $date = $baseDate->copy()->subMonthsNoOverflow($i);
+
             return [
-                'month'  => $month,
-                'amount' => (float) $amount,
+                'month' => $date->format('M'),
+                'amount' => (float) Auction::where('status', 'ended')
+                    ->whereBetween('ends_at', [
+                        $date->copy()->startOfMonth(),
+                        $date->copy()->endOfMonth(),
+                    ])
+                    ->sum('winning_amount'),
             ];
         });
         
