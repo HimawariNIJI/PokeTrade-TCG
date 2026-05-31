@@ -27,7 +27,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        abort_unless($order->user_id === request()->user()->id, 403);
+        abort_unless(auth()->id() == $order->user_id, 403);
 
         return view('pages.orders.show', [
             'order' => $order->load('items.itemable'),

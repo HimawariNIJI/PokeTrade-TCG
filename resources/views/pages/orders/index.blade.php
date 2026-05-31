@@ -29,7 +29,7 @@
             <x-empty-state icon="◆"
                 title="{{ $selectedStatus ? 'No ' . $selectedStatus . ' orders' : 'No orders yet' }}"
                 message="{{ $selectedStatus ? 'No orders match this status. Try another filter.' : 'When you place an order, it will show up here with tracking and a digital invoice.' }}">
-                <x-prism-button :href="route('cards.index')" size="md">Browse Items</x-prism-button>
+                <x-prism-button :href="route('shop.index')" size="md">Browse Items</x-prism-button>
             </x-empty-state>
         @else
             <div class="space-y-4">
