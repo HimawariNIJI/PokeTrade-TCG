@@ -88,23 +88,77 @@
                 </div>
                 <div>
                     @if ($order->status === 'pending' && $order->payment_status === 'unpaid' && $order->user_id == auth()->id())
-                        <div class="mt-4 flex flex-wrap gap-3">
+                        <div class="mt-4 flex flex-wrap gap-3" x-data="{ cancelModalOpen: false }">
 
                             <a href="{{ route('payment_show', $order->code) }}"
                                 class="inline-flex items-center justify-center rounded-2xl bg-black px-6 py-3 text-sm font-bold text-white transition-all duration-300 hover:bg-gradient-to-r hover:from-prism-violet hover:to-prism-pink hover:shadow-xl">
                                 💳 Pay Now
                             </a>
 
-                            <form action="{{ route('orders_cancel', $order->code) }}" method="POST">
-                                @csrf
-                                @method('PATCH')
+                            <button type="button"
+                                @click="cancelModalOpen = true"
+                                class="inline-flex items-center justify-center rounded-2xl border border-red-200 bg-red-50 px-6 py-3 text-sm font-bold text-red-600 transition-all duration-300 hover:bg-red-600 hover:text-white hover:shadow-xl">
+                                ✕ Cancel Order
+                            </button>
 
-                                <button type="submit"
-                                    onclick="return confirm('Are you sure you want to cancel this order?')"
-                                    class="inline-flex items-center justify-center rounded-2xl border border-red-200 bg-red-50 px-6 py-3 text-sm font-bold text-red-600 transition-all duration-300 hover:bg-red-600 hover:text-white hover:shadow-xl">
-                                    ✕ Cancel Order
-                                </button>
-                            </form>
+                            <!-- Confirmation Modal -->
+                            <div x-show="cancelModalOpen" 
+                                 x-transition:enter="transition ease-out duration-300"
+                                 x-transition:enter-start="opacity-0"
+                                 x-transition:enter-end="opacity-100"
+                                 x-transition:leave="transition ease-in duration-200"
+                                 x-transition:leave-start="opacity-100"
+                                 x-transition:leave-end="opacity-0"
+                                 @click.self="cancelModalOpen = false"
+                                 class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                                 style="display: none;">
+                                
+                                <div x-show="cancelModalOpen"
+                                     x-transition:enter="transition ease-out duration-300"
+                                     x-transition:enter-start="opacity-0 scale-95"
+                                     x-transition:enter-end="opacity-100 scale-100"
+                                     x-transition:leave="transition ease-in duration-200"
+                                     x-transition:leave-start="opacity-100 scale-100"
+                                     x-transition:leave-end="opacity-0 scale-95"
+                                     class="w-full max-w-md rounded-3xl border border-ink-200 bg-white p-6 shadow-2xl">
+                                    
+                                    <div class="text-center mb-6">
+                                        <h3 class="font-display text-xl font-black text-ink-900">Cancel Order?</h3>
+                                        <p class="mt-2 text-sm text-ink-600">
+                                            This action cannot be undone. Your order will be cancelled and stock will be returned.
+                                        </p>
+                                    </div>
+
+                                    <dl class="mb-6 space-y-2 rounded-2xl bg-red-50 p-4 text-sm">
+                                        <div class="flex justify-between">
+                                            <dt class="text-ink-700">Order Code:</dt>
+                                            <dd class="font-mono font-semibold text-ink-900">{{ $order->code }}</dd>
+                                        </div>
+                                        <div class="flex justify-between border-t border-red-200 pt-2">
+                                            <dt class="text-ink-700">Total Amount:</dt>
+                                            <dd class="font-display font-black text-red-600">@idr($order->total)</dd>
+                                        </div>
+                                    </dl>
+
+                                    <div class="flex gap-3">
+                                        <button type="button"
+                                            @click="cancelModalOpen = false"
+                                            class="flex-1 rounded-2xl border border-ink-200 px-4 py-3 text-sm font-bold text-ink-900 transition-all duration-300 hover:bg-ink-50">
+                                            Keep Order
+                                        </button>
+
+                                        <form action="{{ route('orders_cancel', $order->code) }}" method="POST" class="flex-1">
+                                            @csrf
+                                            @method('PATCH')
+                                            
+                                            <button type="submit"
+                                                class="w-full rounded-2xl bg-red-600 px-4 py-3 text-sm font-bold text-white transition-all duration-300 hover:bg-red-700 hover:shadow-lg">
+                                                Cancel Order
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
 
                         </div>
                     @endif

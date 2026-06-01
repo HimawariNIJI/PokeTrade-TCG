@@ -308,7 +308,7 @@ class CheckoutController extends Controller
                 ->route('orders.show', $order->code)
                 ->with('status', 'This order cannot be paid.');
         }
-
+        
         return view('pages.payment.index', [
             'order' => $order,
             'snapToken' => $order->payment_reference,
