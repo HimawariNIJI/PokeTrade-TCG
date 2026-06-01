@@ -299,7 +299,7 @@ class CheckoutController extends Controller
 
     public function showPayment(Order $order)
     {
-        if ($order->user_id !== auth()->id()) {
+        if ($order->user_id != auth()->id()) {
             abort(403);
         }
 
