@@ -159,6 +159,22 @@ class CheckoutController extends Controller
                 ];
             }
 
+            // Add shipping fee as a line item so Midtrans displays it correctly
+            $item_details[] = [
+                'id'       => 'SHIPPING',
+                'price'    => (int) $shippingFee,
+                'quantity' => 1,
+                'name'     => 'Shipping Fee',
+            ];
+
+            // Add tax as a line item so Midtrans displays it correctly
+            $item_details[] = [
+                'id'       => 'TAX',
+                'price'    => (int) $tax,
+                'quantity' => 1,
+                'name'     => 'Tax',
+            ];
+
             // Midtrans Config
             \Midtrans\Config::$serverKey = config('midtrans.server_key');
             \Midtrans\Config::$isProduction = config('midtrans.is_production');
@@ -180,7 +196,7 @@ class CheckoutController extends Controller
                     'phone' => $request->shipping_phone,
                 ],
             ];
-
+            
             // Generate Snap token
             $snapToken = \Midtrans\Snap::getSnapToken($params);
 

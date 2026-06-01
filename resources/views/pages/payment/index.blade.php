@@ -27,7 +27,7 @@
                         <div class="grid grid-cols-3 gap-4">
                             <div>
                                 <dt class="text-xs text-ink-600 uppercase tracking-wider">Subtotal</dt>
-                                <dd class="mt-1 font-display font-bold text-ink-900">@idr($order->subtotal)</dd>
+                                <dd class="mt-1 font-display font-bold text-ink-900"> @idr($order->subtotal)</dd>
                             </div>
                             <div>
                                 <dt class="text-xs text-ink-600 uppercase tracking-wider">Shipping</dt>
