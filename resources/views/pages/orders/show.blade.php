@@ -87,7 +87,7 @@
                     </ul>
                 </div>
                 <div>
-                    @if ($order->status === 'pending' && $order->payment_status === 'unpaid' && $order->user_id === auth()->id())
+                    @if ($order->status === 'pending' && $order->payment_status === 'unpaid' && $order->user_id == auth()->id())
                         <div class="mt-4 flex flex-wrap gap-3">
 
                             <a href="{{ route('payment_show', $order->code) }}"
