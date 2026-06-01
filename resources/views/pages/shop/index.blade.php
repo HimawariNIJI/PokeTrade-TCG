@@ -26,7 +26,7 @@
 <section class="mx-auto max-w-[1400px] px-4 py-3 md:px-8 md:py-5">
     <div class="grid gap-3 md:grid-cols-2">
         <!-- Earn Points Card -->
-        <div class="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-emerald-100 p-6 md:p-8">
+        <div class="rounded-3xl border border-emerald-200 p-6 md:p-8" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);"></div>
             <div class="flex items-center gap-4">
                 <div class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-emerald-200/50">
                     <svg class="h-7 w-7 text-emerald-700" fill="currentColor" viewBox="0 0 20 20">
