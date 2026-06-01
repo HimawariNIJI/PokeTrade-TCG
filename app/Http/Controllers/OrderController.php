@@ -35,7 +35,7 @@ class OrderController extends Controller
     }
     public function cancel(Order $order)
     {
-        if ($order->user_id !== auth()->id()) {
+        if ($order->user_id != auth()->id()) {
             abort(403);
         }
 
