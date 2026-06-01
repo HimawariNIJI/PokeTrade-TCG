@@ -94,7 +94,7 @@ class OtpPasswordResetController extends Controller
             ->where('verified', false)
             ->latest()
             ->first();
-        
+
 
         // Check if OTP token exists
         if (!$otpToken) {
@@ -111,19 +111,27 @@ class OtpPasswordResetController extends Controller
             ]);
         }
 
-        // Check max attempts
+        // Check if max attempts already reached
         if ($otpToken->hasMaxAttempts()) {
             $otpToken->delete();
             throw ValidationException::withMessages([
-                'otp' => 'Too many attempts. Please request a new OTP.',
+                'otp' => 'Too many incorrect attempts. Please request a new OTP.',
             ]);
         }
 
         // Check if OTP matches
         if ($otpToken->otp !== $request->otp) {
             $otpToken->incrementAttempts();
+            $attemptsRemaining = 5 - $otpToken->attempts;
+            
+            if ($attemptsRemaining > 0) {
+                $message = "Invalid OTP code. You have {$attemptsRemaining} attempt" . ($attemptsRemaining === 1 ? '' : 's') . " remaining.";
+            } else {
+                $message = 'No attempts remaining. Please request a new OTP.';
+            }
+            
             throw ValidationException::withMessages([
-                'otp' => 'Invalid OTP. Please try again.',
+                'otp' => $message,
             ]);
         }
 
@@ -141,8 +149,16 @@ class OtpPasswordResetController extends Controller
     {
         $email = $request->email;
 
-        // Verify email has a verified OTP
-        if (!$email || !OtpToken::where('email', $email)->where('verified', true)->exists()) {
+        $otpToken = OtpToken::where('email', $email)
+            ->where('verified', true)
+            ->latest()
+            ->first();
+
+        // JIKA token tidak ada ATAU token ternyata sudah expired, tolak!
+        if (!$email || !$otpToken || $otpToken->isExpired()) {
+            if ($otpToken) {
+                $otpToken->delete(); // Hapus jika terbukti expired
+            }
             return redirect()->route('otp.forgot-password')
                 ->with('error', 'Invalid or expired request. Please try again.');
         }
@@ -168,9 +184,12 @@ class OtpPasswordResetController extends Controller
             ->latest()
             ->first();
 
-        if (!$otpToken) {
+        if (!$otpToken || $otpToken->isExpired()) {
+            if ($otpToken) {
+                $otpToken->delete();
+            }
             throw ValidationException::withMessages([
-                'email' => 'Invalid request. Please start over.',
+                'email' => 'Your session has expired. Please start over.',
             ]);
         }
 

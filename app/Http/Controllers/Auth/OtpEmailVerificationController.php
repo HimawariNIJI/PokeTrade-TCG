@@ -73,10 +73,13 @@ class OtpEmailVerificationController extends Controller
 
         if ($otpToken->otp !== $request->otp) {
             $otpToken->incrementAttempts();
-            $attemptsLeft = 5 - $otpToken->attempts;
-            $message = $attemptsLeft > 0 
-                ? "Invalid OTP. You have {$attemptsLeft} attempts remaining."
-                : 'Invalid OTP. Please try again.';
+            $attemptsRemaining = 5 - $otpToken->attempts;
+            
+            if ($attemptsRemaining > 0) {
+                $message = "Invalid OTP code. You have {$attemptsRemaining} attempt" . ($attemptsRemaining === 1 ? '' : 's') . " remaining.";
+            } else {
+                $message = 'No attempts remaining. Please resend the code or start over.';
+            }
             
             throw ValidationException::withMessages([
                 'otp' => $message
