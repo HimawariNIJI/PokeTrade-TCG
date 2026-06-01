@@ -64,23 +64,19 @@ class OtpEmailVerificationController extends Controller
             ]);
         }
 
-        if ($otpToken->hasMaxAttempts()) {
-            $otpToken->delete();
-            return back()->withErrors([
-                'otp' => 'Too many incorrect attempts. Please resend the code or start over.'
-            ]);
-        }
-
         if ($otpToken->otp !== $request->otp) {
             $otpToken->incrementAttempts();
-            $attemptsRemaining = 5 - $otpToken->attempts;
-            
-            if ($attemptsRemaining > 0) {
-                $message = "Invalid OTP code. You have {$attemptsRemaining} attempt" . ($attemptsRemaining === 1 ? '' : 's') . " remaining.";
-            } else {
-                $message = 'No attempts remaining. Please resend the code or start over.';
+            if ($otpToken->hasMaxAttempts()) {
+                $otpToken->delete();
+                return back()->withErrors([
+                    'otp' => 'Too many incorrect attempts. Please resend the code or start over.'
+                ]);
             }
-            
+            $attemptsLeft = 5 - $otpToken->attempts;
+            $message = $attemptsLeft > 0
+                ? "Invalid OTP. You have {$attemptsLeft} attempts remaining."
+                : 'Invalid OTP. Please try again.';
+
             throw ValidationException::withMessages([
                 'otp' => $message
             ]);
@@ -151,4 +147,3 @@ class OtpEmailVerificationController extends Controller
             ->with('status', 'Account deleted. You can now register again with the same email.');
     }
 }
-

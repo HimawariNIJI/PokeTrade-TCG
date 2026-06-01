@@ -14,7 +14,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('otp.verify') }}" class="mt-8 space-y-5" x-data="otpTimer()">
+    <form method="POST" action="{{ route('otp.verify') }}" class="mt-8 space-y-5" x-data="otpTimer({{ $expiresAt ? $expiresAt->timestamp * 1000 : 0 }})">
         @csrf
         <input type="hidden" name="email" value="{{ $email }}">
 
@@ -27,12 +27,14 @@
         </label>
 
         {{-- Timer --}}
-        <div class="rounded-lg bg-prism-violet/10 p-4 text-center">
+       <div class="rounded-lg bg-prism-violet/10 p-4 text-center">
             <p class="text-xs font-bold uppercase tracking-widest text-ink-700">Time remaining</p>
-            <p class="mt-2 font-mono text-2xl font-bold" :class="timeLeft <= 60 ? 'text-rose-600' : 'text-prism-violet'">
+            <p class="mt-2 font-mono text-2xl font-bold"
+                :class="timeLeft <= 60 ? 'text-rose-600' : 'text-prism-violet'">
                 <span x-text="formatTime"></span>
             </p>
-            <p class="mt-2 text-xs text-ink-600" x-show="timeLeft <= 60">Hurry! Your code expires soon.</p>
+            <p class="mt-2 text-xs text-ink-600" x-show="0 < timeLeft && timeLeft <= 60">Hurry! Your code expires soon.</p>
+            <p class="mt-2 text-xs text-ink-600" x-show="timeLeft <= 0">Your code has expired. Please request a new verification email.</p>
         </div>
 
         <x-prism-button type="submit" size="lg" class="w-full" x-bind:disabled="timeLeft <= 0">
@@ -50,22 +52,32 @@
 
     @once
         <script>
-            function otpTimer() {
+            function otpTimer(expiresAtMs) {
                 return {
-                    timeLeft: 600, // 10 minutes in seconds
-                    
+                    expiresAtMs: expiresAtMs,
+                    timeLeft: 0,
+
                     init() {
+                        this.calculateTimeLeft();
                         this.startTimer();
                     },
-                    
+
+                    calculateTimeLeft() {
+                        if (!this.expiresAtMs) {
+                            this.timeLeft = 0;
+                            return;
+                        }
+                        const now = new Date().getTime();
+                        const remaining = Math.max(0, Math.floor((this.expiresAtMs - now) / 1000));
+                        this.timeLeft = remaining;
+                    },
+
                     startTimer() {
                         setInterval(() => {
-                            if (this.timeLeft > 0) {
-                                this.timeLeft--;
-                            }
+                            this.calculateTimeLeft();
                         }, 1000);
                     },
-                    
+
                     get formatTime() {
                         const minutes = Math.floor(this.timeLeft / 60);
                         const seconds = this.timeLeft % 60;

@@ -66,40 +66,60 @@ class OtpPasswordResetController extends Controller
     /**
      * Show the OTP verification form.
      */
-    public function verifyOtpForm(Request $request): View
+    /**
+     * Show the OTP verification form.
+     */
+    public function verifyOtpForm(Request $request): RedirectResponse|View
     {
         $email = $request->email;
 
+        // Ambil token pending yang paling baru untuk email ini
+        $otpToken = OtpToken::where('email', $email)
+            ->where('type', 'password_reset')
+            ->where('verified', false)
+            ->latest()
+            ->first();
+
         // Verify email was provided and has a pending OTP
-        if (!$email || !OtpToken::where('email', $email)->where('verified', false)->exists()) {
+        if (!$email || !$otpToken) {
             return redirect()->route('otp.forgot-password')
-                ->with('error', 'Invalid or expired request. Please try again.');
+                ->with('error', 'OTP verification failed. Please start the password reset process again.');
         }
 
-        return view('auth.otp.verify-otp', ['email' => $email]);
-    }
+        $expiresAt = $otpToken ? $otpToken->expires_at : null;
 
+        return view('auth.otp.verify-otp', [
+            'email' => $email,
+            'expiresAt' => $expiresAt,
+        ]);
+    }
     /**
      * Verify the OTP.
      */
-    public function verifyOtp(Request $request): RedirectResponse
+    /**
+     * Verify the OTP.
+     */
+    public function verifyOTP(Request $request): RedirectResponse
     {
+        // 1. Pastikan email juga divalidasi karena dikirim dari form hidden/input
         $request->validate([
             'email' => ['required', 'email'],
             'otp' => ['required', 'digits:6'],
         ]);
 
+        // 2. Ambil email dari request payload, bukan dari $request->user()
         $email = $request->email;
+
         $otpToken = OtpToken::where('email', $email)
+            ->where('type', 'password_reset')
             ->where('verified', false)
             ->latest()
             ->first();
 
-
         // Check if OTP token exists
-        if (!$otpToken) {
+        if (! $otpToken) {
             throw ValidationException::withMessages([
-                'otp' => 'No pending OTP request found. Please request a new one.',
+                'otp' => 'No pending OTP request found. Please request a new one.'
             ]);
         }
 
@@ -107,37 +127,40 @@ class OtpPasswordResetController extends Controller
         if ($otpToken->isExpired()) {
             $otpToken->delete();
             throw ValidationException::withMessages([
-                'otp' => 'OTP has expired. Please request a new one.',
+                'otp' => 'OTP has expired. Please request a new one.'
             ]);
         }
 
-        // Check if max attempts already reached
+        // Cek awal jika memang token dari awal sudah max attempts
         if ($otpToken->hasMaxAttempts()) {
             $otpToken->delete();
             throw ValidationException::withMessages([
-                'otp' => 'Too many incorrect attempts. Please request a new OTP.',
+                'otp' => 'Too many incorrect attempts. Please resend the code or start over.'
             ]);
         }
 
-        // Check if OTP matches
+        // Cek kecocokan OTP
         if ($otpToken->otp !== $request->otp) {
             $otpToken->incrementAttempts();
-            $attemptsRemaining = 5 - $otpToken->attempts;
             
-            if ($attemptsRemaining > 0) {
-                $message = "Invalid OTP code. You have {$attemptsRemaining} attempt" . ($attemptsRemaining === 1 ? '' : 's') . " remaining.";
-            } else {
-                $message = 'No attempts remaining. Please request a new OTP.';
+            // Langsung cek di tempat setelah increment
+            if ($otpToken->hasMaxAttempts()) {
+                $otpToken->delete();
+                throw ValidationException::withMessages([
+                    'otp' => 'Too many incorrect attempts. Please resend the code or start over.'
+                ]);
             }
-            
+
+            $attemptsLeft = 5 - $otpToken->attempts;
             throw ValidationException::withMessages([
-                'otp' => $message,
+                'otp' => "Invalid OTP. You have {$attemptsLeft} attempts remaining."
             ]);
         }
 
-        // Mark OTP as verified
+        // Jika OTP benar, tandai terverifikasi
         $otpToken->markAsVerified();
 
+        // Alirkan ke halaman reset password baru (bukan ke dashboard!)
         return redirect()->route('otp.reset-form', ['email' => $email])
             ->with('status', 'OTP verified. Set your new password.');
     }
@@ -160,7 +183,7 @@ class OtpPasswordResetController extends Controller
                 $otpToken->delete(); // Hapus jika terbukti expired
             }
             return redirect()->route('otp.forgot-password')
-                ->with('error', 'Invalid or expired request. Please try again.');
+                ->with('error', 'OTP verification failed or session expired. Please start the password reset process again.');
         }
 
         return view('auth.otp.reset-password', ['email' => $email]);
