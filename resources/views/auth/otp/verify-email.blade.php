@@ -51,9 +51,6 @@
         <x-prism-button type="submit" size="lg" class="w-full" x-bind:hidden="timeLeft > 0">
             <span x-show="timeLeft <= 0">Code expired - request a new email</span>
         </x-prism-button>
-        <p class="text-sm text-center text-ink-600 mb-3" x-bind:disabled="timeLeft <= 0">
-            <span x-show="timeLeft <= 0">Request a new verification email</span>
-        </p>
     </form>
 
     {{-- Resend OTP Form (separate) --}}
