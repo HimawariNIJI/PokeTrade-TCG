@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Mail\OtpVerificationMail;
 use App\Models\OtpToken;
 use App\Models\User;
+use App\Notifications\OtpEmailVerificationNotification;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class OtpEmailVerificationController extends Controller
@@ -121,9 +120,7 @@ class OtpEmailVerificationController extends Controller
             'type' => 'email_verification',
         ]);
 
-        // Send OTP via email
-        Mail::to($user->email)
-            ->send(new OtpVerificationMail((string) $otp, 'email_verification', $expiresIn));
+        $user->notify(new OtpEmailVerificationNotification((string) $otp, $expiresIn));
 
         return back()->with('status', 'New verification code sent to your email.');
     }

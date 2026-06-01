@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Mail\OtpVerificationMail;
 use App\Models\OtpToken;
 use App\Models\User;
+use App\Notifications\OtpPasswordResetNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -54,8 +53,11 @@ class OtpPasswordResetController extends Controller
             'type' => 'password_reset',
         ]);
 
-        // Send OTP via email
-        Mail::to($email)->send(new OtpVerificationMail((string) $otp, 'password_reset', $expiresIn));
+        // Find user and send OTP notification
+        $user = User::where('email', $email)->first();
+        if ($user) {
+            $user->notify(new OtpPasswordResetNotification((string) $otp, $expiresIn));
+        }
 
         return redirect()->route('otp.verify-form', ['email' => $email])
             ->with('status', 'OTP sent to your email. Check your inbox.');

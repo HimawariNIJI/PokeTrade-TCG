@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Mail\OtpVerificationMail;
 use App\Models\OtpToken;
-use Illuminate\Support\Facades\Mail;
+use App\Notifications\OtpEmailVerificationNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -56,8 +55,7 @@ class RegisteredUserController extends Controller
             'type' => 'email_verification',
         ]);
 
-        Mail::to($user->email)
-            ->send(new OtpVerificationMail((string) $otp, 'email_verification', $expiresIn));
+        $user->notify(new OtpEmailVerificationNotification((string) $otp, $expiresIn));
 
         event(new Registered($user));
 
