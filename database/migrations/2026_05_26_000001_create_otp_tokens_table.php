@@ -16,7 +16,7 @@ return new class extends Migration
                 'email_verification',
                 'password_reset'
             ]);
-            $table->timestamp('expires_at');
+            $table->dateTime('expires_at');
             $table->integer('attempts')->default(0);
             $table->boolean('verified')->default(false);
             $table->timestamps();
