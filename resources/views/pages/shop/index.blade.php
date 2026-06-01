@@ -27,7 +27,7 @@
     <div class="grid gap-3 md:grid-cols-2">
         <!-- Earn Points Card -->
         <div class="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-emerald-100/50 p-6 md:p-8">
-            <div class="flex items-start gap-4">
+            <div class="flex items-center gap-4">
                 <div class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-emerald-200/50">
                     <svg class="h-7 w-7 text-emerald-700" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.505 7.964a1 1 0 001.41-.007L12.9 5.573a1 1 0 10-1.414-1.414L9.5 5.146 7.614 3.259A1 1 0 006.2 4.673l2.305 2.291z"/>
