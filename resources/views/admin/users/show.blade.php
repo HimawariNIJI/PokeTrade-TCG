@@ -1,5 +1,15 @@
 <x-admin-layout heading="{{ $user->name }}" eyebrow="User detail">
 
+
+@if ($errors->any())
+    <div class="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 mb-6">
+        <ul class="list-disc space-y-1 pl-5">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 <div class="grid gap-6 lg:grid-cols-12">
     <div class="lg:col-span-4 rounded-3xl border border-ink-200 bg-white p-6">
         <div class="flex items-center gap-3">

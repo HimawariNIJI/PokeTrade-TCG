@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -26,10 +27,25 @@ class UserController extends Controller
     }
 
     /**
-     * TODO(team-backend): allow promoting / demoting role with policy check.
+     * Promote a customer to admin or demote an admin to customer.
      */
     public function updateRole(Request $request, User $user)
     {
-        return back()->with('status', 'Role updated (stub).');
+        if ($user->id === auth()->id()) {
+            return back()->withErrors([
+                'role' => 'You cannot change your own role.'
+            ]);
+        }
+        
+        $validated = $request->validate([
+            'role' => [
+                'required',
+                Rule::in([User::ROLE_CUSTOMER, User::ROLE_ADMIN]),
+            ],
+        ]);
+
+        $user->update(['role' => $validated['role']]);
+
+        return back()->with('status', "Role updated to {$validated['role']}.");
     }
 }
