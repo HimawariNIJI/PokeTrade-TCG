@@ -10,12 +10,12 @@ class ForumThreadPolicy
     /** Author or admin may edit the opening post. */
     public function update(User $user, ForumThread $thread): bool
     {
-        return $user->id === $thread->user_id || $user->isAdmin();
+        return $user->id == $thread->user_id || $user->isAdmin();
     }
 
     public function delete(User $user, ForumThread $thread): bool
     {
-        return $user->id === $thread->user_id || $user->isAdmin();
+        return $user->id == $thread->user_id || $user->isAdmin();
     }
 
     /** Pin / lock are moderator-only. */
