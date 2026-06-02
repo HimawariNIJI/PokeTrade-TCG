@@ -126,7 +126,7 @@
 
         <footer class="mt-5 flex items-center justify-end border-t border-ink-100 pt-3">
             @auth
-                @if(auth()->id() !== $thread->user_id)
+                @if(auth()->id() != $thread->user_id)
                     <x-report-button type="thread" :id="$thread->id" />
                 @endif
             @endauth
