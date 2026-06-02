@@ -3,6 +3,15 @@
         <x-prism-button :href="route('admin.auctions.create')" size="sm">+ New Auction</x-prism-button>
     </x-slot:actions>
 
+    @if ($errors->any())
+        <div class="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 mb-6">
+            <ul class="list-disc space-y-1 pl-5">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     {{-- Auction Revenue Chart --}}
     <div class="mb-8 rounded-3xl border border-ink-200 bg-white p-6">
         <h3 class="font-display text-lg font-black">🎯 Auction Revenue (Last 6 Months)</h3>

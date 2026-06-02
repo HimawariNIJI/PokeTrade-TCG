@@ -223,6 +223,12 @@ class AuctionController extends Controller
 
     public function destroy(Auction $auction)
     {
+        if ($auction->bids()->exists()) {
+            return back()->withErrors([
+                'auction' => 'Auctions with bids cannot be deleted.'
+            ]);
+        }
+
         $auction->delete();
 
         return redirect()->route('admin.auctions.index')->with('status', 'Auction successfully deleted.');
