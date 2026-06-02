@@ -84,7 +84,7 @@ class PublicProfileController extends Controller
      */
     public function destroyComment(Request $request, User $user, ProfileComment $comment): RedirectResponse
     {
-        abort_unless($comment->profile_user_id === $user->id, 404);
+        abort_unless($comment->profile_user_id == $user->id, 404);
 
         $actor = $request->user();
         $canDelete = $actor->id == $comment->author_id
