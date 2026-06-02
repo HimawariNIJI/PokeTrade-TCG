@@ -87,8 +87,8 @@ class PublicProfileController extends Controller
         abort_unless($comment->profile_user_id === $user->id, 404);
 
         $actor = $request->user();
-        $canDelete = $actor->id === $comment->author_id
-            || $actor->id === $user->id
+        $canDelete = $actor->id == $comment->author_id
+            || $actor->id == $user->id
             || $actor->isAdmin();
 
         abort_unless($canDelete, 403);
