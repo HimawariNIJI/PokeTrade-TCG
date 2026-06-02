@@ -188,7 +188,7 @@
                                 </form>
                             @endcan
                             @auth
-                                @if(auth()->id() !== $post->user_id)
+                                @if(auth()->id() != $post->user_id)
                                     <x-report-button type="post" :id="$post->id" />
                                 @endif
                             @endauth
