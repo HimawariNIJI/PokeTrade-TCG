@@ -89,9 +89,9 @@ document.addEventListener('alpine:init', () => {
             return Number(n).toLocaleString('en-US');
         },
         rankClass(rank) {
-            if (rank === 1) return 'bg-gradient-to-br from-prism-gold to-prism-pink text-ink-900';
+            if (rank === 1) return 'bg-amber-200 text-amber-900';
             if (rank === 2) return 'bg-ink-200 text-ink-900';
-            if (rank === 3) return 'bg-amber-200 text-amber-900';
+            if (rank === 3) return 'bg-gradient-to-br from-prism-gold to-prism-pink text-ink-900';
             return 'bg-ink-100 text-ink-700';
         },
     }));
