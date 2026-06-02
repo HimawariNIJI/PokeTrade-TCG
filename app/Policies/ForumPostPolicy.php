@@ -9,11 +9,11 @@ class ForumPostPolicy
 {
     public function update(User $user, ForumPost $post): bool
     {
-        return $user->id === $post->user_id || $user->isAdmin();
+        return $user->id == $post->user_id || $user->isAdmin();
     }
 
     public function delete(User $user, ForumPost $post): bool
     {
-        return $user->id === $post->user_id || $user->isAdmin();
+        return $user->id == $post->user_id || $user->isAdmin();
     }
 }
