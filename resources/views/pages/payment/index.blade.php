@@ -26,16 +26,16 @@
                         </div>
                         <div class="grid grid-cols-3 gap-4">
                             <div>
-                                <dt class="text-xs text-ink-600 uppercase tracking-wider">Subtotal</dt>
-                                <dd class="mt-1 font-display font-bold text-ink-900"> @idr($order->subtotal)</dd>
+                                <dt class="text-[10px] sm:text-xs text-ink-600 uppercase tracking-wider">Subtotal</dt>
+                                <dd class="mt-1 font-display text-sm sm:text-base font-bold text-ink-900"> @idr($order->subtotal)</dd>
                             </div>
                             <div>
-                                <dt class="text-xs text-ink-600 uppercase tracking-wider">Shipping</dt>
-                                <dd class="mt-1 font-display font-bold text-ink-900">@idr($order->shipping_fee)</dd>
+                                <dt class="text-[10px] sm:text-xs text-ink-600 uppercase tracking-wider">Shipping</dt>
+                                <dd class="mt-1 font-display text-sm sm:text-base font-bold text-ink-900">@idr($order->shipping_fee)</dd>
                             </div>
                             <div>
-                                <dt class="text-xs text-ink-600 uppercase tracking-wider">Tax</dt>
-                                <dd class="mt-1 font-display font-bold text-ink-900">@idr($order->tax)</dd>
+                                <dt class="text-[10px] sm:text-xs text-ink-600 uppercase tracking-wider">Tax</dt>
+                                <dd class="mt-1 font-display text-sm sm:text-base font-bold text-ink-900">@idr($order->tax)</dd>
                             </div>
                         </div>
                         <div class="pt-4 border-t-2 border-prism-violet/20">

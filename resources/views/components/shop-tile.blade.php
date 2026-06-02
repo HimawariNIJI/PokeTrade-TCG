@@ -32,9 +32,14 @@
                     </span>
                 @endif
             </div>
-            <h3 class="mt-2 line-clamp-2 font-display text-base font-bold text-ink-900">{{ $item->name }}</h3>
-            <div class="mt-3 flex items-baseline justify-between">
-                <span class="font-display text-xl font-bold text-ink-900">@idr($item->price)</span>
+            <h3 class="mt-2 line-clamp-3 font-display text-sm font-bold leading-tight text-ink-900 sm:line-clamp-2 sm:text-base">
+                {{ $item->name }}
+            </h3>
+            <div class="mt-3 flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+                <span class="font-display text-lg font-bold text-ink-900 sm:text-xl">
+                    @idr($item->price)
+                </span>
+
                 <span class="text-xs text-ink-500">
                     {{ $item->stock > 0 ? "$item->stock in stock" : 'Sold out' }}
                 </span>

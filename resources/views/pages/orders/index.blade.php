@@ -72,12 +72,12 @@
                                     @endif
                                 </p>
                             </div>
-                            <div class="flex items-baseline gap-4">
-                                <div class="text-right">
+                            <div class="flex w-full items-end justify-between md:w-auto md:items-baseline md:justify-normal md:gap-4">
+                                <div class="text-left md:text-right">
                                     <p class="text-[10px] uppercase tracking-widest text-ink-500">Total</p>
                                     <p class="font-display text-2xl font-black prism-text">@idr($order->total)</p>
                                 </div>
-                                <svg class="h-5 w-5 text-ink-300 transition group-hover:translate-x-1 group-hover:text-prism-violet"
+                                <svg class="h-5 w-5 text-ink-300 transition group-hover:translate-x-1 group-hover:text-prism-violet self-end md:self-auto"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6" />
                                 </svg>

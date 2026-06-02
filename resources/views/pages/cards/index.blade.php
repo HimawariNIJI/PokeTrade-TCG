@@ -38,7 +38,7 @@
 {{-- =====================================================
      FILTER BAR (sticky)
      ===================================================== --}}
-<form method="GET" action="{{ route('cards.index') }}" class="sticky top-[68px] z-20 border-y border-ink-200 bg-white/90 backdrop-blur" x-data="{ q: '{{ request('q') }}' }">
+<form method="GET" action="{{ route('cards.index') }}" class="md:sticky md:top-[68px] z-20 border-y border-ink-200 bg-white/90 backdrop-blur" x-data="{ q: '{{ request('q') }}' }">
     <div class="mx-auto flex max-w-[1400px] flex-wrap items-center gap-3 px-4 py-3 md:px-8">
         {{-- Search --}}
         <label class="relative flex-1 min-w-[220px]">

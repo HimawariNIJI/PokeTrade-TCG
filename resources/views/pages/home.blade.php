@@ -285,8 +285,8 @@
             {{-- Two fanned cards — a mini "pull" preview that spreads on scroll-in --}}
             <div class="relative mx-auto h-[380px] w-full max-w-[400px]"
                  data-reveal="spread">
-                <div class="reveal-card absolute left-1/2 top-1/2 w-[220px]"
-                     style="--fx: -21%; --fy: -28%; --frot: -9deg; --reveal-i: 0;">
+                <div class="reveal-card absolute left-1/2 top-[70%] w-[170px] sm:w-[220px]"
+                     style="--fx: -25%; --fy: -28%; --frot: -9deg; --reveal-i: 0;">
                     <x-tilted-card
                         :src="$row3CardOffer?->image_large"
                         alt="Gacha card"
@@ -294,8 +294,8 @@
                         :scaleOnHover="1.05"
                     />
                 </div>
-                <div class="reveal-card absolute left-1/2 top-1/2 w-[240px]"
-                     style="--fx: 40%; --fy: -28%; --frot: 8deg; --reveal-i: 1;">
+                <div class="reveal-card absolute left-1/2 top-[70%] w-[190px] sm:w-[240px]"
+                     style="--fx: 25%; --fy: -28%; --frot: 8deg; --reveal-i: 1;">
                     <x-tilted-card
                         :src="$row3CardWant?->image_large"
                         alt="Gacha card"
