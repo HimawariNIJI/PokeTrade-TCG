@@ -91,7 +91,7 @@ class AuctionController extends Controller
             ], 422);
         }
 
-        if ($auction->seller_id === $request->user()->id) {
+        if ($auction->seller_id == $request->user()->id) {
             return response()->json([
                 'message' => 'You cannot bid on your own auction.'
             ], 422);
