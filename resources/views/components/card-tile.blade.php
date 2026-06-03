@@ -59,7 +59,8 @@
 
         {{-- Live market value — tracking only, not a sale price. --}}
         <div class="mt-2 flex items-baseline justify-between">
-            <span class="font-display text-base font-bold text-ink-900">@idr($card->market_price ?: $card->display_price)</span>
+            {{-- Cast to float so the decimal:2 string "0.00" (which PHP treats as truthy) falls through to display_price. --}}
+            <span class="font-display text-base font-bold text-ink-900">@idr((float) $card->market_price ?: $card->display_price)</span>
             <span class="text-[10px] font-semibold uppercase tracking-wider text-ink-500">Market</span>
         </div>
 
