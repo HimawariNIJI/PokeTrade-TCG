@@ -46,9 +46,8 @@
             <a href="{{ route('admin.auctions.index') }}" class="rounded-full border border-ink-200 px-6 py-3 font-semibold text-ink-700 transition hover:border-ink-300">
                 Cancel
             </a>
-            <form method="POST" action="{{ route('admin.auctions.confirmRefund', $auction) }}" class="flex-1">
+            <form method="POST" action="{{ route('admin.auctions.refund.confirm', $auction) }}" class="flex-1">
                 @csrf
-                @method('PATCH')
                 <button type="submit" class="w-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-3 font-display font-black text-white shadow-lg transition hover:shadow-xl hover:-translate-y-0.5">
                     Refund All
                 </button>

@@ -137,15 +137,10 @@
                                         $auction->status === 'ended' &&
                                         $auction->refund_status !== 'approved'
                                     )
-                                        <form method="POST"
-                                            action="{{ route('admin.auctions.refund', $auction) }}"
-                                            class="inline">
-                                            @csrf
-                                            <button type="submit"
-                                                    class="text-xs font-semibold text-emerald-600 hover:text-emerald-800">
-                                                Refund
-                                            </button>
-                                        </form>
+                                        <a href="{{ route('admin.auctions.refund', $auction) }}"
+                                           class="text-xs font-semibold text-emerald-600 hover:text-emerald-800">
+                                            Refund
+                                        </a>
                                     @elseif($auction->refund_status === 'approved')
                                         <span class="text-xs font-semibold text-emerald-600">
                                             Refunded

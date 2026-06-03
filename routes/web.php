@@ -125,10 +125,11 @@ Route::post('/midtrans/notification', [MidtransController::class, 'notification'
 | Customer (authenticated) routes
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth')->group(function () {
-    Route::get('/verify-email', [OtpEmailVerificationController::class, 'showForm'])->name('verification.notice');
-    Route::post('/verify-email/verify', [OtpEmailVerificationController::class, 'verify'])->name('otp.email.verify');
+// Email verification flow (verification.notice + OTP routes) lives in
+// routes/auth.php under the `auth` middleware so unverified users can reach
+// it without an infinite redirect loop from the `verified` middleware below.
 
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', fn () => redirect()->route('home'))->name('dashboard');
 
     // Account profile (name / email / password / delete)
@@ -210,7 +211,7 @@ Route::middleware('auth')->group(function () {
 | Admin routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [Admin\DashboardController::class, 'index'])->name('dashboard');
 
     Route::post('cards/refresh', [Admin\CardController::class, 'refresh'])->name('cards.refresh');
@@ -243,8 +244,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('auctions/{auction}/edit', [Admin\AuctionController::class, 'edit'])->name('auctions.edit');
     Route::patch('auctions/{auction}', [Admin\AuctionController::class, 'update'])->name('auctions.update');
     Route::delete('auctions/{auction}', [Admin\AuctionController::class, 'destroy'])->name('auctions.destroy');
-    // Route::patch('auctions/{auction}/refund', [Admin\AuctionController::class, 'resolveRefund'])->name('auctions.resolveRefund');
-    Route::patch('auctions/{auction}/refund', [Admin\AuctionController::class, 'refund'])->name('auctions.refund');
+    // Refund flow — GET shows the idempotent confirmation page (safe to
+    // replay via browser back/forward); POST executes the refund.
+    Route::get('auctions/{auction}/refund', [Admin\AuctionController::class, 'refund'])->name('auctions.refund');
+    Route::post('auctions/{auction}/refund', [Admin\AuctionController::class, 'confirmRefund'])->name('auctions.refund.confirm');
 });
 
 require __DIR__.'/auth.php';

@@ -283,12 +283,17 @@ class AuctionController extends Controller
 
     public function refund(Auction $auction)
     {
+        // Redirect to index (not back()) so a browser back/forward into this
+        // page after the auction is already refunded lands somewhere sensible
+        // instead of bouncing off a stale referrer.
         if ($auction->status !== 'ended') {
-            return back()->with('error', 'Auction must be ended first.');
+            return redirect()->route('admin.auctions.index')
+                ->with('error', 'Auction must be ended first.');
         }
 
         if ($auction->refund_status === 'approved') {
-            return back()->with('error', 'Auction already refunded.');
+            return redirect()->route('admin.auctions.index')
+                ->with('status', 'Auction already refunded.');
         }
 
         // Get all non-winning bids (loser bids)
@@ -309,11 +314,13 @@ class AuctionController extends Controller
     public function confirmRefund(Auction $auction)
     {
         if ($auction->status !== 'ended') {
-            return back()->with('error', 'Auction must be ended first.');
+            return redirect()->route('admin.auctions.index')
+                ->with('error', 'Auction must be ended first.');
         }
 
         if ($auction->refund_status === 'approved') {
-            return back()->with('error', 'Auction already refunded.');
+            return redirect()->route('admin.auctions.index')
+                ->with('status', 'Auction already refunded.');
         }
 
         $auction->update([
@@ -322,6 +329,6 @@ class AuctionController extends Controller
         ]);
 
         return redirect()->route('admin.auctions.index')
-            ->with('success', 'Successfully refunded all users for this auction.');
+            ->with('status', 'Successfully refunded all users for this auction.');
     }
 }
