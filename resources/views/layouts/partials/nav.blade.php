@@ -127,11 +127,11 @@
                 </div>
             @else
                 <a href="{{ route('login') }}"
-                   class="hidden rounded-full px-4 py-2 text-sm font-semibold text-ink-900 hover:text-prism-violet sm:inline-flex">
+                class="inline-flex px-2 py-2 text-xs font-semibold text-ink-900 hover:text-prism-violet sm:px-4 sm:text-sm whitespace-nowrap">
                     Log in
                 </a>
                 <x-prism-button :href="route('register')" size="sm">
-                    Sign up
+                    <span class="text-xs sm:text-sm whitespace-nowrap">Sign up</span>
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/>
                     </svg>

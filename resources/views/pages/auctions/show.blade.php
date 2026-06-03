@@ -94,19 +94,23 @@
                         @endphp
                         @forelse($topUniqueBids as $i => $bid)
                             @php $isLeader = $bid->user_id === $auction->current_leader_id; @endphp
-                            <div class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm
+                            <div class="flex min-w-0 items-center gap-2 sm:gap-3 rounded-xl px-2 sm:px-3 py-2 text-xs sm:text-sm
                                 {{ $isLeader
                                     ? 'border border-prism-pink bg-gradient-to-r from-prism-pink/25 to-prism-violet/15 shadow-[0_0_18px_-2px] shadow-prism-pink/50'
                                     : 'bg-white/5' }}">
-                                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-black
+                                <span class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-black
                                     {{ $i === 0 ? 'bg-gradient-to-br from-prism-gold to-prism-pink text-ink-900' : 'bg-white/10' }}">
                                     {{ $isLeader ? '👑' : $i + 1 }}
                                 </span>
-                                <span class="font-bold">{{ $bid->user?->name ?? 'Anonymous' }}</span>
+                                <span class="min-w-0 flex-1 truncate font-bold">
+                                    {{ $bid->user?->name ?? 'Anonymous' }}
+                                </span>
                                 @if($isLeader)
-                                    <span class="rounded-full bg-prism-pink/30 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider">Winning</span>
+                                    <span class="shrink-0 rounded-full bg-prism-pink/30 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider">
+                                        Winning
+                                    </span>
                                 @endif
-                                <span class="ml-auto font-mono font-bold">@idr($bid->amount)</span>
+                                <span class="shrink-0 font-mono font-bold">@idr($bid->amount)</span>
                             </div>
                         @empty
                             <p class="rounded-xl bg-white/5 px-3 py-4 text-center text-sm text-white/50">No bids yet — be the first to strike ⚡</p>
@@ -116,26 +120,23 @@
 
                 {{-- Bid form --}}
                 @auth
-                    <form id="bid-form" method="POST" action="{{ route('auctions.bid', $auction) }}" class="mt-6 flex flex-wrap items-end gap-3">
+                    <form id="bid-form" method="POST" action="{{ route('auctions.bid', $auction) }}" class="mt-6 flex flex-wrap items-end gap-3 max-[639px]:flex-col max-[639px]:items-stretch">
                         @csrf
-                        <label class="flex-1">
+                        <label class="w-full flex-1">
                             <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Your bid</span>
                             <input type="number" step="{{ $auction->bid_increment }}" name="amount" min="{{ $auction->min_next_bid }}"
-                                   placeholder="≥ @idr($auction->min_next_bid)"
-                                   class="mt-1 w-full rounded-full border-white/15 bg-white/10 text-ink-50 placeholder-white/30 focus:border-prism-mint focus:ring-prism-mint">
+                                placeholder="≥ @idr($auction->min_next_bid)" class="mt-1 w-full rounded-full border-white/15 bg-white/10 text-ink-50
+                                placeholder-white/30 focus:border-prism-mint focus:ring-prism-mint">
                         </label>
-                        <button type="submit"
-                                class="rounded-full bg-gradient-to-r from-prism-pink to-prism-mint px-8 py-3 font-display font-black text-ink-900 shadow-[0_0_24px_-4px] shadow-prism-pink/70 transition hover:-translate-y-0.5">
-                            Place Your Bid ⚡
-                        </button>
-                        {{-- Error --}}
-                        <p id="bid-error"
-                            class="text-sm font-semibold text-red-400">
-                        </p>
-                        {{-- Success --}}
-                        <p id="bid-success"
-                            class="text-sm font-semibold text-green-400">
-                        </p>
+                        <div class="max-[639px]:flex max-[639px]:justify-end">
+                            <button type="submit"
+                                    class="rounded-full bg-gradient-to-r from-prism-pink to-prism-mint px-8 py-3 font-display font-black text-ink-900
+                                    shadow-[0_0_24px_-4px] shadow-prism-pink/70 transition hover:-translate-y-0.5">
+                                Place Your Bid ⚡
+                            </button>
+                        </div>
+                        <p id="bid-error" class="text-sm font-semibold text-red-400 sm:basis-full"></p>
+                        <p id="bid-success" class="text-sm font-semibold text-green-400 sm:basis-full"></p>
                     </form>
                 @else
                     <div class="mt-6 rounded-2xl bg-white/5 p-4 text-sm text-white/70">
@@ -189,11 +190,17 @@
             <div id="bid-feed" class="mt-2 max-h-56 space-y-1 overflow-y-auto">
                 @forelse($feedBids as $bid)
                     <div class="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-1.5 text-xs">
-                        <span class="text-prism-mint">⚡</span>
-                        <span class="font-bold">{{ $bid->user?->name ?? 'Anonymous' }}</span>
-                        <span class="text-white/40">bid</span>
-                        <span class="font-mono font-bold text-prism-sky">@idr($bid->amount)</span>
-                        <span class="ml-auto text-white/30">{{ $bid->created_at?->diffForHumans() }}</span>
+                        <span class="shrink-0 text-prism-mint">⚡</span>
+                        <span class="min-w-0 flex-1 truncate font-bold">
+                            {{ $bid->user?->name ?? 'Anonymous' }}
+                        </span>
+                        <span class="shrink-0 text-white/40">bid</span>
+                        <span class="shrink-0 font-mono font-bold text-prism-sky">
+                            @idr($bid->amount)
+                        </span>
+                        <span class="shrink-0 text-white/30">
+                            {{ $bid->created_at?->diffForHumans() }}
+                        </span>
                     </div>
                 @empty
                     <p class="px-3 py-3 text-xs text-white/40">Bids will appear here as they happen.</p>
@@ -255,26 +262,26 @@
                         leaderboardEl.innerHTML = '';
                         data.leaderboard.forEach((bid, index) => {
                             leaderboardEl.innerHTML +=
-                            `<div class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm
+                            `<div class="flex min-w-0 items-center gap-2 sm:gap-3 rounded-xl px-2 sm:px-3 py-2 text-xs sm:text-sm
                                 ${bid.is_leader
-                                    ? 'border border-prism-pink bg-gradient-to-r from-prism-pink/25 to-prism-violet/15'
+                                    ? 'border border-prism-pink bg-gradient-to-r from-prism-pink/25 to-prism-violet/15 shadow-[0_0_18px_-2px] shadow-prism-pink/50'
                                     : 'bg-white/5'}">
 
-                                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-black
+                                <span class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-black
                                     ${index === 0
                                         ? 'bg-gradient-to-br from-prism-gold to-prism-pink text-ink-900'
                                         : 'bg-white/10'}">
                                     ${bid.is_leader ? '👑' : index + 1}
                                 </span>
 
-                                <span class="font-bold">${bid.user}</span>
+                                <span class="min-w-0 flex-1 truncate font-bold">${bid.user}</span>
 
                                 ${bid.is_leader ? `
-                                    <span class="rounded-full bg-prism-pink/30 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider">
+                                    <span class="shrink-0 rounded-full bg-prism-pink/30 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider">
                                         Winning
                                     </span>` : ''}
 
-                                <span class="ml-auto font-mono font-bold">
+                                <span class="shrink-0 font-mono font-bold">
                                     Rp ${Number(bid.amount).toLocaleString('id-ID')}
                                 </span>
                             </div>`;
@@ -288,13 +295,13 @@
                         data.bid_feed.forEach((bid) => {
                             feedEl.innerHTML +=
                             `<div class="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-1.5 text-xs">
-                                <span class="text-prism-mint">⚡</span>
-                                <span class="font-bold">${bid.user}</span>
-                                <span class="text-white/40">bid</span>
-                                <span class="font-mono font-bold text-prism-sky">
+                                <span class="shrink-0 text-prism-mint">⚡</span>
+                                <span class="min-w-0 flex-1 truncate font-bold">${bid.user}</span>
+                                <span class="shrink-0 text-white/40">bid</span>
+                                <span class="shrink-0 font-mono font-bold text-prism-sky">
                                     Rp ${Number(bid.amount).toLocaleString('id-ID')}
                                 </span>
-                                <span class="ml-auto text-white/30">${bid.time}</span>
+                                <span class="shrink-0 text-white/30">${bid.time}</span>
                             </div>`;
                         });
                     }

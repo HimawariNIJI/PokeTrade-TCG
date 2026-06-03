@@ -1057,11 +1057,17 @@ Replace the entire contents of `resources/views/pages/auctions/show.blade.php` w
             <div class="mt-2 max-h-56 space-y-1 overflow-y-auto">
                 @forelse($feedBids as $bid)
                     <div class="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-1.5 text-xs">
-                        <span class="text-prism-mint">⚡</span>
-                        <span class="font-bold">{{ $bid->user?->name ?? 'Anonymous' }}</span>
-                        <span class="text-white/40">bid</span>
-                        <span class="font-mono font-bold text-prism-sky">@idr($bid->amount)</span>
-                        <span class="ml-auto text-white/30">{{ $bid->created_at?->diffForHumans() }}</span>
+                        <span class="shrink-0 text-prism-mint">⚡</span>
+                        <span class="min-w-0 flex-1 truncate font-bold">
+                            {{ $bid->user?->name ?? 'Anonymous' }}
+                        </span>
+                        <span class="shrink-0 text-white/40">bid</span>
+                        <span class="shrink-0 font-mono font-bold text-prism-sky">
+                            @idr($bid->amount)
+                        </span>
+                        <span class="shrink-0 text-white/30">
+                            {{ $bid->created_at?->diffForHumans() }}
+                        </span>
                     </div>
                 @empty
                     <p class="px-3 py-3 text-xs text-white/40">Bids will appear here as they happen.</p>
