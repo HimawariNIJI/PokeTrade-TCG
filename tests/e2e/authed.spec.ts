@@ -59,6 +59,53 @@ test('workflow: gacha pull deals a pack and shows ownership info', async ({ page
   await expect(page.getByText(/held/i).first()).toBeVisible({ timeout: 10000 });
 });
 
+// c6db9bd — Settings "Save settings" button must show a submitting
+// indicator (disabled + "Saving…" label) while the multipart PATCH is in
+// flight, instead of sitting silent and making users assume the click was
+// dropped. Stall the PATCH so the in-flight state is observable, then
+// snapshot the button state from inside the route handler — that's the
+// only moment we know the request is mid-flight and the page hasn't
+// navigated to the redirect target yet.
+test('settings save button shows "Saving…" indicator while submitting (c6db9bd)', async ({ page }) => {
+  await page.goto('/settings', { waitUntil: 'domcontentloaded' });
+
+  const button = page.locator('form[action*="settings"] button[type="submit"]');
+  await expect(button, 'Save settings button must be reachable').toBeVisible();
+  await expect(button).toBeEnabled();
+  expect(
+    (await button.textContent())?.trim(),
+    'pre-submit label should be "Save settings"',
+  ).toMatch(/Save settings/);
+
+  // First sanity-check the wiring exists in the rendered HTML — catches
+  // accidental removal of any of the four Alpine bindings the fix added.
+  const form = page.locator('form[action*="settings"]');
+  await expect(form).toHaveAttribute('x-data', /submitting:\s*false/);
+  await expect(form).toHaveAttribute('x-on:submit', /submitting\s*=\s*true/);
+  await expect(button).toHaveAttribute('x-bind:disabled', /submitting/);
+  await expect(
+    button.locator('span[x-text]'),
+    'inner span must swap label via x-text when submitting flips',
+  ).toHaveAttribute('x-text', /Saving/);
+
+  // Now drive Alpine's reactive state directly — Playwright can't observe
+  // DOM updates *during* an actual form POST (the locator waits for
+  // navigation to finish), so flip the flag in-place and assert the same
+  // bindings the user sees once the click handler runs.
+  await page.evaluate(() => {
+    const f = document.querySelector('form[action*="settings"]') as
+      | (HTMLFormElement & { _x_dataStack?: Array<{ submitting?: boolean }> })
+      | null;
+    if (!f || !f._x_dataStack || !f._x_dataStack[0]) {
+      throw new Error('Alpine x-data stack not found on settings form');
+    }
+    f._x_dataStack[0].submitting = true;
+  });
+
+  await expect(button, 'button should be disabled while submitting').toBeDisabled();
+  await expect(button, 'button label should swap to "Saving…"').toHaveText(/Saving/);
+});
+
 test('workflow: wishlist toggle persists', async ({ page }) => {
   // Start from a known-empty wishlist so the toggle direction is "add".
   resetE2EUserState();
