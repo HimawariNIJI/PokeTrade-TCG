@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,7 +13,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -214,5 +215,15 @@ class User extends Authenticatable
     public function profileComments(): HasMany
     {
         return $this->hasMany(ProfileComment::class, 'profile_user_id')->latest();
+    }
+
+    // RegisteredUserController already sends OtpEmailVerificationNotification
+    // on registration. Implementing MustVerifyEmail (so the `verified`
+    // middleware kicks in) also enables Laravel's auto-discovered
+    // SendEmailVerificationNotification listener, which would send a
+    // second, signed-URL email on every Registered event. Suppress it.
+    public function sendEmailVerificationNotification(): void
+    {
+        // intentionally a no-op — OTP flow owns email verification
     }
 }
