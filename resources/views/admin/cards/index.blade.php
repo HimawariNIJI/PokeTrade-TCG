@@ -7,7 +7,7 @@
             <form id="refresh-api-form" method="POST" action="{{ route('admin.cards.refresh') }}" class="inline-block">
                 @csrf
                 <button type="submit"
-                        class="rounded-full border border-ink-200 bg-white px-4 py-2 text-sm font-bold text-ink-900 hover:border-prism-violet hover:text-prism-violet disabled:cursor-not-allowed disabled:opacity-60">
+                        class="whitespace-nowrap rounded-full border border-ink-200 bg-white px-4 py-3 text-[11px] sm:text-sm font-bold text-ink-900 hover:border-prism-violet hover:text-prism-violet disabled:cursor-not-allowed disabled:opacity-60">
                     ↻ Refresh from API
                 </button>
             </form>
@@ -112,50 +112,44 @@
     </form>
 
     <div class="overflow-hidden rounded-3xl border border-ink-200 bg-white">
-        <table class="min-w-full text-sm">
-            <thead class="bg-ink-50 text-left text-[10px] font-bold uppercase tracking-widest text-ink-500">
-                <tr>
-                    <th class="px-4 py-3">#</th>
-                    <th class="px-4 py-3">Card</th>
-                    <th class="px-4 py-3">Rarity</th>
-                    <th class="px-4 py-3">Type</th>
-                    <th class="px-4 py-3 text-right">Price</th>
-                    <th class="px-4 py-3 text-right">Stock</th>
-                    <th class="px-4 py-3 text-center">Featured</th>
-                    <th class="px-4 py-3"></th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-ink-100">
-                @foreach($cards as $c)
-                    <tr class="hover:bg-ink-50">
-                        <td class="px-4 py-3 font-mono text-xs text-ink-500">{{ $c->number }}</td>
-                        <td class="px-4 py-3">
-                            <div class="flex items-center gap-3">
-                                <span class="inline-flex h-12 w-9 overflow-hidden rounded-md bg-ink-100">
-                                    @if($c->image_small)<img src="{{ $c->image_small }}" class="h-full w-full object-cover">@endif
-                                </span>
-                                <div>
-                                    <p class="font-bold">{{ $c->name }}</p>
-                                    <p class="font-mono text-[10px] text-ink-500">{{ $c->api_id }}</p>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-4 py-3 text-xs">{{ $c->rarity ?? '—' }}</td>
-                        <td class="px-4 py-3">
-                            @foreach(($c->types ?? []) as $t) <x-type-chip :type="$t" size="sm" /> @endforeach
-                        </td>
-                        <td class="px-4 py-3 text-right font-mono">@idr($c->price)</td>
-                        <td class="px-4 py-3 text-right font-mono {{ $c->stock <= 0 ? 'text-rose-600' : '' }}">{{ $c->stock }}</td>
-                        <td class="px-4 py-3 text-center">
-                            @if($c->featured) <span class="inline-flex h-6 w-6 items-center justify-center rounded-full prism-bg text-[10px] text-white">★</span> @endif
-                        </td>
-                        <td class="px-4 py-3 text-right">
-                            <a href="{{ route('admin.cards.edit', $c) }}" class="text-xs font-semibold text-ink-700 hover:text-prism-violet">Edit</a>
-                        </td>
+        <div class="overflow-x-auto [-webkit-overflow-scrolling:touch]">
+            <table class="min-w-full text-sm">
+                <thead class="bg-ink-50 text-left text-[10px] font-bold uppercase tracking-widest text-ink-500">
+                    <tr>
+                        <th class="px-6 py-3">#</th>
+                        <th class="px-4 py-3">Card</th>
+                        <th class="px-4 py-3">Rarity</th>
+                        <th class="px-4 py-3">Type</th>
+                        <th class="px-4 py-3 text-right">Price</th>
+                        <th class="px-6 py-3 text-right">Stock</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-ink-100">
+                    @foreach($cards as $c)
+                        <tr class="hover:bg-ink-50">
+                            <td class="px-6 py-3 font-mono text-xs text-ink-500">{{ $c->number }}</td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex h-12 w-9 overflow-hidden rounded-md bg-ink-100">
+                                        @if($c->image_small)<img src="{{ $c->image_small }}" class="h-full w-full object-cover">@endif
+                                    </span>
+                                    <div>
+                                        <p class="font-bold whitespace-nowrap">{{ $c->name }}</p>
+                                        <p class="font-mono text-[10px] text-ink-500 whitespace-nowrap">{{ $c->api_id }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-xs">{{ $c->rarity ?? '—' }}</td>
+                            <td class="px-4 py-3">
+                                @foreach(($c->types ?? []) as $t) <x-type-chip :type="$t" size="sm" /> @endforeach
+                            </td>
+                            <td class="px-4 py-3 text-right font-mono whitespace-nowrap">@idr($c->price)</td>
+                            <td class="px-6 py-3 text-right font-mono whitespace-nowrap {{ $c->stock <= 0 ? 'text-rose-600' : '' }}">{{ $c->stock }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="mt-6">{{ $cards->links() }}</div>

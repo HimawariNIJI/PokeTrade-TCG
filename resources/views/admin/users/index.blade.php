@@ -6,42 +6,44 @@
 </form>
 
 <div class="overflow-hidden rounded-3xl border border-ink-200 bg-white">
-    <table class="min-w-full text-sm">
-        <thead class="bg-ink-50 text-left text-[10px] font-bold uppercase tracking-widest text-ink-500">
-            <tr>
-                <th class="px-4 py-3">User</th>
-                <th class="px-4 py-3">Role</th>
-                <th class="px-4 py-3">Verified</th>
-                <th class="px-4 py-3">Joined</th>
-                <th class="px-4 py-3"></th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-ink-100">
-            @foreach($users as $u)
-                <tr class="hover:bg-ink-50">
-                    <td class="px-4 py-3">
-                        <div class="flex items-center gap-3">
-                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-full prism-bg text-xs font-bold text-white">
-                                {{ Str::upper(Str::substr($u->name, 0, 1)) }}
-                            </span>
-                            <div>
-                                <p class="font-bold">{{ $u->name }}</p>
-                                <p class="text-[10px] text-ink-500">{{ $u->email }}</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-4 py-3">
-                        <span class="rounded-full {{ $u->isAdmin() ? 'prism-bg text-white' : 'bg-ink-100 text-ink-700' }} px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest">{{ $u->role }}</span>
-                    </td>
-                    <td class="px-4 py-3 text-xs">{{ $u->email_verified_at ? '✓ Yes' : '— No' }}</td>
-                    <td class="px-4 py-3 text-xs text-ink-500">{{ $u->created_at->diffForHumans() }}</td>
-                    <td class="px-4 py-3 text-right">
-                        <a href="{{ route('admin.users.show', $u) }}" class="text-xs font-semibold hover:text-prism-violet">View</a>
-                    </td>
+    <div class="overflow-x-auto [-webkit-overflow-scrolling:touch]">
+        <table class="min-w-full text-sm">
+            <thead class="bg-ink-50 text-left text-[10px] font-bold uppercase tracking-widest text-ink-500">
+                <tr>
+                    <th class="px-4 py-3">User</th>
+                    <th class="px-4 py-3">Role</th>
+                    <th class="px-4 py-3">Verified</th>
+                    <th class="px-4 py-3">Joined</th>
+                    <th class="px-4 py-3"></th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody class="divide-y divide-ink-100">
+                @foreach($users as $u)
+                    <tr class="hover:bg-ink-50">
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-9 w-9 items-center justify-center rounded-full prism-bg text-xs font-bold text-white">
+                                    {{ Str::upper(Str::substr($u->name, 0, 1)) }}
+                                </span>
+                                <div>
+                                    <p class="font-bold">{{ $u->name }}</p>
+                                    <p class="text-[10px] text-ink-500">{{ $u->email }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="rounded-full {{ $u->isAdmin() ? 'prism-bg text-white' : 'bg-ink-100 text-ink-700' }} px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest">{{ $u->role }}</span>
+                        </td>
+                        <td class="px-4 py-3 text-xs">{{ $u->email_verified_at ? '✓ Yes' : '— No' }}</td>
+                        <td class="px-4 py-3 text-xs text-ink-500 whitespace-nowrap">{{ $u->created_at->diffForHumans() }}</td>
+                        <td class="px-4 py-3 text-right">
+                            <a href="{{ route('admin.users.show', $u) }}" class="text-xs font-semibold hover:text-prism-violet">View</a>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <div class="mt-6">{{ $users->links() }}</div>

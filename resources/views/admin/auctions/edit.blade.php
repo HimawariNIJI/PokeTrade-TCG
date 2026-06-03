@@ -160,7 +160,7 @@
                         </p>
                     @elseif($auction->winner_paid_at)
                         <p class="mt-3 rounded-2xl border border-ink-200 bg-ink-50 p-3 text-sm text-ink-700">
-                            {{ $auction->winner?->name }} paid {{ $auction->winner_paid_at->diffForHumans() }}. No refund requested.
+                            Outbid users have not been refunded yet.
                         </p>
                     @endif
                 </div>

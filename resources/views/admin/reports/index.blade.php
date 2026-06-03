@@ -44,15 +44,15 @@
             @endphp
 
             <div class="rounded-3xl border border-ink-200 bg-white p-5">
-                <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                     <div class="min-w-0 flex-1">
-                        <div class="flex flex-wrap items-center gap-2">
+                        <div class="flex flex-wrap items-center gap-2 max-w-full">
                             <span class="rounded-full bg-ink-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-ink-700">{{ $typeLabel }}</span>
                             <span class="rounded-full bg-prism-violet/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-prism-violet">{{ ucfirst(str_replace('_', ' ', $report->reason)) }}</span>
                             <span class="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest {{ $badge }}">{{ $report->status }}</span>
                         </div>
 
-                        <p class="mt-3 line-clamp-2 text-sm font-semibold text-ink-900">{{ $preview }}</p>
+                        <p class="mt-3 text-sm font-semibold text-ink-900 break-words">{{ $preview }}</p>
                         @if($report->details)
                             <p class="mt-1 line-clamp-2 text-xs text-ink-500">“{{ $report->details }}”</p>
                         @endif
@@ -70,7 +70,7 @@
                     </div>
 
                     @if($report->status === 'open')
-                        <div class="flex shrink-0 flex-wrap items-center gap-2">
+                        <div class="flex flex-nowrap items-center gap-2 overflow-x-auto whitespace-nowrap">
                             <form method="POST" action="{{ route('admin.reports.update', $report) }}">
                                 @csrf @method('PATCH')
                                 <input type="hidden" name="action" value="dismiss">

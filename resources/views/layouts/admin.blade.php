@@ -104,22 +104,91 @@
                         @if(isset($actions))
                             {{ $actions }}
                         @endif
-                        <span class="hidden md:inline-flex items-center gap-2 rounded-full border border-ink-200 px-3 py-1.5 text-xs font-semibold">
-                            <span class="inline-flex h-6 w-6 items-center justify-center rounded-full prism-bg text-[10px] font-bold text-white">
+                        <span class="inline-flex items-center gap-2 rounded-full border border-ink-200 px-2 py-2 text-xs font-semibold">
+                            <span class="h-6 w-6 flex items-center justify-center rounded-full prism-bg text-white text-[10px]">
                                 {{ Str::upper(Str::substr(auth()->user()->name, 0, 1)) }}
                             </span>
-                            {{ auth()->user()->name }}
+                            <span class="hidden sm:inline">
+                                {{ auth()->user()->name }}
+                            </span>
                         </span>
+                        <div class="relative lg:hidden" x-data="{ open: false }">
+                            <button @click="open = !open" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink-200 text-ink-700 hover:bg-ink-100 hover:text-ink-900 transition active:scale-95">
+                                <!-- hamburger -->
+                                <svg x-show="!open"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    class="h-5 w-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+                                </svg>
+
+                                <!-- close -->
+                                <svg x-show="open"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    class="h-5 w-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6 18 18 6M6 6l12 12"/>
+                                </svg>
+
+                            </button>
+                                <div x-show="open"
+                                    x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+                                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-150"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                                    @click.away="open = false"
+                                    class="absolute right-0 mt-2 w-48 rounded-xl border border-ink-200 bg-white shadow-lg z-50 origin-top">
+                                    <a href="{{ route('home') }}"
+                                    class="block px-5 py-4 text-sm hover:bg-ink-100">
+                                        Back to public site
+                                    </a>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit"
+                                                class="w-full text-left px-5 py-4 text-sm text-rose-600 hover:bg-rose-50">
+                                            Log out
+                                        </button>
+                                    </form>
+                                </div>
+                            </details>
+                        </div>
                     </div>
                 </div>
             </header>
 
-            <div class="px-4 py-6 md:px-8 md:py-10">
+            <div class="px-4 py-6 md:px-8 md:py-10 pb-[130px] md:pb-[130px] lg:pb-10">
                 {{ $slot ?? '' }}
             </div>
         </main>
     </div>
-
+    <div class="fixed bottom-0 left-0 right-0 z-50 border-t border-ink-200 bg-white lg:hidden">
+        <div class="grid grid-cols-4 text-[10px] font-semibold text-ink-700 px-1 py-1">
+            @foreach($items as $i)
+                @php
+                    $active = request()->routeIs($i['route']) 
+                            || request()->routeIs(str_replace('.index', '.*', $i['route']));
+                @endphp
+                <a href="{{ route($i['route']) }}"
+                class="flex flex-col items-center justify-center py-2 rounded-xl transition
+                        {{ $active ? 'bg-ink-900 text-white' : 'text-ink-700 hover:bg-ink-100 hover:text-ink-900' }}">
+                    <span class="h-5 w-5">{!! $i['icon'] !!}</span>
+                    <span class="mt-1 truncate">
+                        {{ $i['label'] }}
+                    </span>
+                </a>
+            @endforeach
+        </div>
+    </div>
     <x-flash />
 </body>
 </html>

@@ -9,47 +9,60 @@
     </form>
 
     <div class="overflow-hidden rounded-3xl border border-ink-200 bg-white">
-        <table class="min-w-full text-sm">
-            <thead class="bg-ink-50 text-left text-[10px] font-bold uppercase tracking-widest text-ink-500">
-                <tr>
-                    <th class="px-4 py-3">Item</th>
-                    <th class="px-4 py-3">Category</th>
-                    <th class="px-4 py-3 text-right">Price</th>
-                    <th class="px-4 py-3 text-right">Stock</th>
-                    <th class="px-4 py-3 text-center">Featured</th>
-                    <th class="px-4 py-3"></th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-ink-100">
-                @foreach($items as $item)
-                    <tr class="hover:bg-ink-50">
-                        <td class="px-4 py-3">
-                            <div class="flex items-center gap-3">
-                                <span class="inline-flex h-12 w-12 overflow-hidden rounded-md bg-ink-100">
-                                    @if($item->image)<img src="{{ asset('storage/' . $item->image) }}" class="h-full w-full object-cover">@endif
-                                </span>
-                                <div>
-                                    <p class="font-bold">{{ $item->name }}</p>
-                                    <p class="text-[10px] text-ink-500">{{ $item->slug }}</p>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-4 py-3 text-xs capitalize">{{ $item->category }}</td>
-                        <td class="px-4 py-3 text-right font-mono">@idr($item->price)</td>
-                        <td class="px-4 py-3 text-right font-mono">{{ $item->stock }}</td>
-                        <td class="px-4 py-3 text-center">@if($item->featured) ★ @endif</td>
-                        <td class="px-4 py-3 text-right space-x-2">
-                            <a href="{{ route('admin.shop.edit', $item) }}" class="text-xs font-semibold hover:text-prism-violet">Edit</a>
-                            <form method="POST" action="{{ route('admin.shop.destroy', $item) }}" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-800" onclick="return confirm('Are you sure you want to delete this item?')">Delete</button>
-                            </form>
-                        </td>
+        <div class="overflow-x-auto [-webkit-overflow-scrolling:touch]">
+            <table class="min-w-full text-sm">
+                <thead class="bg-ink-50 text-left text-[10px] font-bold uppercase tracking-widest text-ink-500">
+                    <tr>
+                        <th class="px-4 py-3">Item</th>
+                        <th class="px-4 py-3">Category</th>
+                        <th class="px-4 py-3 text-right">Price</th>
+                        <th class="px-4 py-3 text-right">Stock</th>
+                        <th class="px-4 py-3 text-center">Featured</th>
+                        <th class="px-4 py-3"></th>
+                        <th class="px-4 py-3"></th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-ink-100">
+                    @foreach($items as $item)
+                        <tr class="hover:bg-ink-50">
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex h-12 w-12 overflow-hidden rounded-md bg-ink-100">
+                                        @if($item->image)<img src="{{ asset('storage/' . $item->image) }}" class="h-full w-full object-cover">@endif
+                                    </span>
+                                    <div>
+                                        <p class="font-bold whitespace-nowrap">{{ $item->name }}</p>
+                                        <p class="text-[10px] text-ink-500 whitespace-nowrap">{{ $item->slug }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-xs capitalize whitespace-nowrap">{{ $item->category }}</td>
+                            <td class="px-4 py-3 text-right font-mono whitespace-nowrap">@idr($item->price)</td>
+                            <td class="px-4 py-3 text-right font-mono whitespace-nowrap">{{ $item->stock }}</td>
+                            <td class="px-4 py-3 text-center">@if($item->featured) ★ @endif</td>
+                            <td class="px-4 py-3 text-right">
+                                <a href="{{ route('admin.shop.edit', $item) }}"
+                                class="text-xs font-semibold hover:text-prism-violet">
+                                    Edit
+                                </a>
+                            </td>
+
+                            <td class="px-4 py-3 text-right">
+                                <form method="POST" action="{{ route('admin.shop.destroy', $item) }}" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                            class="text-xs font-semibold text-red-600 hover:text-red-800"
+                                            onclick="return confirm('Are you sure?')">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="mt-6">{{ $items->links() }}</div>

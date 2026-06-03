@@ -294,6 +294,8 @@ class AuctionController extends Controller
         // Get all non-winning bids (loser bids)
         $loserBids = $auction->bids()
             ->where('user_id', '!=', $auction->winner_id)
+            ->select('user_id', DB::raw('MAX(amount) as amount'))
+            ->groupBy('user_id')
             ->with('user')
             ->orderByDesc('amount')
             ->get();

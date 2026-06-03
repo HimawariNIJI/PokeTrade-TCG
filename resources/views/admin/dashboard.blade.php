@@ -56,7 +56,12 @@
                          style="height: {{ $h }}px"
                          title="Rp {{ number_format($amount, 0, ',', '.') }}"></div>
                     <p class="mt-1 text-[10px] font-mono text-ink-500">{{ $m['month'] }}</p>
-                    <p class="text-[10px] font-bold text-ink-700">@idr($m['amount'])</p>
+                    <p class="text-[10px] font-bold text-ink-700 leading-tight text-center whitespace-nowrap max-[375px]:whitespace-normal">
+                        <span class="max-[470px]:block">Rp</span>
+                        <span class="max-[470px]:block">
+                            {{ number_format($m['amount'], 0, ',', '.') }}
+                        </span>
+                    </p>
                 </div>
             @endforeach
         </div>
@@ -90,30 +95,32 @@
     @if($recentOrders->isEmpty())
         <p class="px-6 py-10 text-center text-sm text-ink-500">No orders yet.</p>
     @else
-        <table class="min-w-full text-sm">
-            <thead class="bg-ink-50 text-left text-[10px] font-bold uppercase tracking-widest text-ink-500">
-                <tr>
-                    <th class="px-6 py-3">Order</th>
-                    <th class="px-6 py-3">Customer</th>
-                    <th class="px-6 py-3">Status</th>
-                    <th class="px-6 py-3 text-right">Total</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-ink-100">
-                @foreach($recentOrders as $o)
-                    <tr class="hover:bg-ink-50">
-                        <td class="px-6 py-3 font-mono text-xs">
-                            <a href="{{ route('admin.orders.show', $o) }}" class="hover:text-prism-violet">{{ $o->code }}</a>
-                        </td>
-                        <td class="px-6 py-3">{{ $o->user?->name }}</td>
-                        <td class="px-6 py-3">
-                            <span class="rounded-full bg-{{ $o->status_color }}-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-{{ $o->status_color }}-700">{{ $o->status }}</span>
-                        </td>
-                        <td class="px-6 py-3 text-right font-mono font-bold">@idr($o->total)</td>
+        <div class="overflow-x-auto [-webkit-overflow-scrolling:touch]">
+            <table class="min-w-full text-sm">
+                <thead class="bg-ink-50 text-left text-[10px] font-bold uppercase tracking-widest text-ink-500">
+                    <tr>
+                        <th class="px-6 py-3">Order</th>
+                        <th class="px-6 py-3">Customer</th>
+                        <th class="px-6 py-3">Status</th>
+                        <th class="px-6 py-3 text-right">Total</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-ink-100">
+                    @foreach($recentOrders as $o)
+                        <tr class="hover:bg-ink-50">
+                            <td class="px-6 py-3 font-mono text-xs whitespace-nowrap">
+                                <a href="{{ route('admin.orders.show', $o) }}" class="hover:text-prism-violet">{{ $o->code }}</a>
+                            </td>
+                            <td class="px-6 py-3">{{ $o->user?->name }}</td>
+                            <td class="px-6 py-3">
+                                <span class="rounded-full bg-{{ $o->status_color }}-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-{{ $o->status_color }}-700">{{ $o->status }}</span>
+                            </td>
+                            <td class="px-6 py-3 text-right font-mono font-bold whitespace-nowrap">@idr($o->total)</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     @endif
 </div>
 
