@@ -52,6 +52,35 @@ test('guests can view forums index, category and thread', function () {
     $this->get(route('forums.thread', $thread))->assertOk()->assertSee($thread->title);
 });
 
+test('forum views render author avatars via the avatar_url accessor, not the raw path', function () {
+    // Regression for QA-1.8: forum templates were rendering $author->avatar
+    // (the stored relative path) directly into <img src>, breaking the image
+    // for anyone whose avatar lives on the public disk. Should be avatar_url.
+    $cat = makeCategory();
+    $author = User::factory()->create(['avatar' => 'avatars/op/a.png']);
+    $replier = User::factory()->create(['avatar' => 'avatars/replier/b.png']);
+    $thread = makeThread($author, $cat);
+    ForumPost::create([
+        'forum_thread_id' => $thread->id,
+        'user_id' => $replier->id,
+        'body' => 'reply body',
+    ]);
+
+    $this->get(route('forums.thread', $thread))
+        ->assertOk()
+        ->assertSee('/storage/avatars/op/a.png', escape: false)
+        ->assertSee('/storage/avatars/replier/b.png', escape: false)
+        ->assertDontSee('src="avatars/op/a.png"', escape: false);
+
+    $this->get(route('forums.category', $cat))
+        ->assertOk()
+        ->assertSee('/storage/avatars/op/a.png', escape: false);
+
+    $this->get(route('forums.index'))
+        ->assertOk()
+        ->assertSee('/storage/avatars/op/a.png', escape: false);
+});
+
 test('forum search finds a matching thread', function () {
     makeThread(User::factory()->create(), null, ['title' => 'Umbreon SIR pull luck']);
 

@@ -56,8 +56,8 @@
                 <a href="{{ route('forums.thread', $thread) }}"
                    class="group flex items-start gap-4 px-5 py-5 transition hover:bg-ink-50">
                     {{-- Author avatar --}}
-                    @if($thread->author?->avatar)
-                        <img src="{{ $thread->author->avatar }}" alt="{{ $thread->author->name }}"
+                    @if($thread->author?->avatar_url)
+                        <img src="{{ $thread->author->avatar_url }}" alt="{{ $thread->author->name }}"
                              class="h-11 w-11 shrink-0 rounded-full object-cover">
                     @else
                         <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full prism-bg text-sm font-bold text-white">

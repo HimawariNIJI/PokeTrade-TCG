@@ -106,8 +106,8 @@
         <span class="absolute inset-x-0 top-0 h-1 prism-bg"></span>
         <header class="flex items-center gap-3">
             <a href="{{ $thread->author ? route('profiles.show', $thread->author) : '#' }}" class="shrink-0">
-                @if($thread->author?->avatar)
-                    <img src="{{ $thread->author->avatar }}" alt="{{ $thread->author->name }}" class="h-11 w-11 rounded-full object-cover">
+                @if($thread->author?->avatar_url)
+                    <img src="{{ $thread->author->avatar_url }}" alt="{{ $thread->author->name }}" class="h-11 w-11 rounded-full object-cover">
                 @else
                     <span class="inline-flex h-11 w-11 items-center justify-center rounded-full prism-bg text-sm font-bold text-white">
                         {{ Str::upper(Str::substr($thread->author?->name ?? '?', 0, 1)) }}
@@ -145,8 +145,8 @@
                     <article x-data="{ editing: false }" class="rounded-3xl border border-ink-200 bg-white p-5 md:p-6">
                         <header class="flex items-center gap-3">
                             <a href="{{ $post->author ? route('profiles.show', $post->author) : '#' }}" class="shrink-0">
-                                @if($post->author?->avatar)
-                                    <img src="{{ $post->author->avatar }}" alt="{{ $post->author->name }}" class="h-9 w-9 rounded-full object-cover">
+                                @if($post->author?->avatar_url)
+                                    <img src="{{ $post->author->avatar_url }}" alt="{{ $post->author->name }}" class="h-9 w-9 rounded-full object-cover">
                                 @else
                                     <span class="inline-flex h-9 w-9 items-center justify-center rounded-full prism-bg text-xs font-bold text-white">
                                         {{ Str::upper(Str::substr($post->author?->name ?? '?', 0, 1)) }}

@@ -177,8 +177,8 @@
                             <a href="{{ route('forums.thread', $thread) }}"
                                class="group flex items-center gap-4 px-5 py-4 transition hover:bg-ink-50"
                                data-reveal="fade-up" style="--reveal-i: {{ $i % 5 }};">
-                                @if($thread->author?->avatar)
-                                    <img src="{{ $thread->author->avatar }}" alt="{{ $thread->author->name }}"
+                                @if($thread->author?->avatar_url)
+                                    <img src="{{ $thread->author->avatar_url }}" alt="{{ $thread->author->name }}"
                                          class="h-10 w-10 shrink-0 rounded-full object-cover">
                                 @else
                                     <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full prism-bg text-sm font-bold text-white">

@@ -64,7 +64,9 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('settings.update') }}" class="space-y-12" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('settings.update') }}" class="space-y-12" enctype="multipart/form-data"
+          x-data="{ submitting: false }"
+          x-on:submit="submitting = true">
         @csrf
         @method('PATCH')
 
@@ -369,8 +371,14 @@
                 Account &amp; password
             </a>
 
-            <x-prism-button type="submit" size="md">
-                Save settings
+            <x-prism-button type="submit" size="md"
+                x-bind:disabled="submitting"
+                x-bind:class="{ 'opacity-70 cursor-wait pointer-events-none': submitting }">
+                <svg x-show="submitting" x-cloak class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z"/>
+                </svg>
+                <span x-text="submitting ? 'Saving…' : 'Save settings'">Save settings</span>
             </x-prism-button>
         </div>
     </form>
