@@ -79,4 +79,14 @@ class Card extends Model
     {
         return (float) ($this->price > 0 ? $this->price : ($this->market_price ?? 0));
     }
+
+    /**
+     * Whether this card has a real market price from the API. Cards whose
+     * tcgplayer payload lacked any usable price land here with 0; the UI
+     * uses this to show "Price unavailable" instead of "Rp 0".
+     */
+    public function getHasMarketPriceAttribute(): bool
+    {
+        return (float) $this->market_price > 0;
+    }
 }

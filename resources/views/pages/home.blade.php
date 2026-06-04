@@ -192,7 +192,11 @@
                 <div class="absolute -right-4 -top-4 rounded-2xl bg-white px-3 py-2 shadow-xl ring-1 ring-ink-200"
                      data-reveal="pop" data-reveal-delay="500">
                     <p class="text-[10px] uppercase tracking-widest text-ink-500">Market value</p>
-                    <p class="font-display text-lg font-black prism-text">@idr((float) $row1Card->market_price ?: $row1Card->display_price)</p>
+                    @if($row1Card->has_market_price)
+                        <p class="font-display text-lg font-black prism-text">@idr($row1Card->market_price)</p>
+                    @else
+                        <p class="font-display text-sm font-bold text-ink-500 italic">Price unavailable</p>
+                    @endif
                 </div>
             @endif
         </div>

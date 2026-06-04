@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'no-back-cache' => \App\Http\Middleware\NoBackCache::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'midtrans/notification',

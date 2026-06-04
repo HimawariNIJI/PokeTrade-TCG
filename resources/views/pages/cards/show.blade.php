@@ -118,16 +118,26 @@
                 <div class="mt-8 grid gap-4 rounded-3xl border border-ink-200 bg-white p-6 md:grid-cols-2">
                     <div>
                         <p class="text-[10px] font-bold uppercase tracking-widest text-ink-500">Tracked market value</p>
-                        <p class="mt-1 font-display text-4xl font-black text-ink-900">
-                            {{ $rp($card->market_price) }}
-                        </p>
+                        @if($card->has_market_price)
+                            <p class="mt-1 font-display text-4xl font-black text-ink-900">
+                                {{ $rp($card->market_price) }}
+                            </p>
+                        @else
+                            <p class="mt-1 font-display text-2xl font-bold text-ink-500 italic">Price unavailable</p>
+                        @endif
                         <div class="mt-2 flex flex-wrap items-center gap-2">
                             @if($priceStats['change30d'] !== null)
                                 <span class="inline-flex items-center gap-1 rounded-full bg-ink-50 px-2.5 py-1 text-xs font-bold {{ $changeClass($priceStats['change30d']) }}">
                                     {{ $changeText($priceStats['change30d']) }} <span class="font-normal text-ink-400">30d</span>
                                 </span>
                             @endif
-                            <span class="text-xs text-ink-500">Latest market value from TCGplayer data.</span>
+                            <span class="text-xs text-ink-500">
+                                @if($card->has_market_price)
+                                    Latest market value from TCGplayer data.
+                                @else
+                                    No market data returned for this card by TCGplayer.
+                                @endif
+                            </span>
                         </div>
                     </div>
 

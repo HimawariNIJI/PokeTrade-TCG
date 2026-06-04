@@ -12,7 +12,11 @@ use App\Http\Controllers\Auth\OtpPasswordResetController;
 use App\Http\Controllers\Auth\OtpEmailVerificationController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest')->group(function () {
+// `no-back-cache` sets Cache-Control: no-store on every auth page so the
+// browser cannot serve a stale form from BFCache after Auth::login()
+// rotates the session's CSRF token — without it, hitting Back from the
+// OTP page surfaces a cached /register form that 419s on submit.
+Route::middleware(['guest', 'no-back-cache'])->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
 
@@ -48,6 +52,7 @@ Route::middleware('auth')->group(function () {
     // The Laravel `verified` middleware redirects unverified users here, so
     // verification.notice must land on the OTP form (not the legacy prompt).
     Route::get('verify-email', [OtpEmailVerificationController::class, 'showForm'])
+        ->middleware('no-back-cache')
         ->name('verification.notice');
 
     Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
@@ -58,8 +63,11 @@ Route::middleware('auth')->group(function () {
         ->middleware('throttle:6,1')
         ->name('verification.send');
 
-    // OTP-based email verification (post-registration)
+    // OTP-based email verification (post-registration). `no-back-cache` so a
+    // user hitting Back after verifying doesn't replay the OTP form with a
+    // stale token (and so the form isn't kept in BFCache after they leave).
     Route::get('verify-email/otp', [OtpEmailVerificationController::class, 'showForm'])
+        ->middleware('no-back-cache')
         ->name('otp.email.verify-form');
 
     Route::post('verify-email/otp', [OtpEmailVerificationController::class, 'verify'])
