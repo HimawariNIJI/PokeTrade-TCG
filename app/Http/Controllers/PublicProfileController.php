@@ -28,16 +28,19 @@ class PublicProfileController extends Controller
         // Digital (gacha) collection — cap the eager-loaded rows for
         // display, but keep an honest total count for the stat chip.
         $user->load([
-            'digitalCards' => fn ($q) => $q->latest('collection_cards.obtained_at')->limit(12),
+            'digitalCards' => fn($q) => $q->latest('collection_cards.obtained_at')->limit(12),
             'wishlistedCards',
             'profileComments.author',
         ]);
 
         $digitalCount = $user->digitalCards()->count();
         $chaseCount   = $user->wishlistedCards()->count();
-        $auctionsWon = Auction::where('winner_id', auth()->id())->get();
-        $cardsWon = $auctionsWon->pluck('card');
-        $cardsWonCount = $cardsWon->count();
+        $auctionsWon = Auction::with('card')
+            ->where('winner_id', auth()->id())
+            ->latest()
+            ->take(12)
+            ->get();
+
         // Pinned showcase — the cards the trainer chose to highlight.
         // Falls back to the empty collection if they haven't pinned any.
         $pinnedCards = $user->pinnedShowcase();
@@ -51,8 +54,6 @@ class PublicProfileController extends Controller
             'chaseCount'   => $chaseCount,
             'pinnedCards'  => $pinnedCards,
             'auctionsWon'  => $auctionsWon,
-            'cardsWon'     => $cardsWon,
-            'cardsWonCount' => $cardsWonCount,
         ]);
     }
 
