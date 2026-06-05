@@ -266,8 +266,9 @@ $initialShouts = $shouts
                         <template x-for="msg in messages" :key="msg.id">
                             <div class="flex items-start gap-3">
                                 <template x-if="msg.avatar">
-                                    <img :src="msg.avatar" :alt="msg.name"
-                                        class="h-8 w-8 shrink-0 rounded-full object-cover">
+                                    <img :src="msg.avatar"
+                                        class="h-8 w-8 shrink-0 rounded-full object-cover transition-opacity duration-300"
+                                        @load="$el.classList.remove('opacity-0')" :class="'opacity-0'">
                                 </template>
 
                                 <template x-if="!msg.avatar">
