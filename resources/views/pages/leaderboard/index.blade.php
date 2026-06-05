@@ -81,7 +81,8 @@
                                         <template x-if="!entry.avatar">
                                             <span
                                                 class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full prism-bg text-xs font-bold text-white"
-                                                x-text="entry.initial"></span>
+                                                x-text="entry.name?.charAt(0)?.toUpperCase() ?? 'U'">
+                                            </span>
                                         </template>
                                         <span
                                             class="flex-1 truncate text-sm font-semibold text-ink-900 group-hover:text-prism-violet"
