@@ -237,12 +237,10 @@ $socials = collect($user->social_links ?? [])->filter(fn($url) => filled($url));
                         @foreach ($auctionsWon as $auction)
                             <div class="flex flex-col h-full">
 
-                                <!-- 1. Biarkan kartu di atas tanpa flex-grow -->
                                 <div>
                                     <x-card-tile :card="$auction->card" />
                                 </div>
-
-                                <!-- 2. Gunakan mt-auto di sini untuk mendorong kotak ini ke paling bawah -->
+                                
                                 <div class="mt-auto pt-4">
                                     <div class="text-center bg-black rounded-lg py-2 px-3 border border-gray-700">
                                         <span
