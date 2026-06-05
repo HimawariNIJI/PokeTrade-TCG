@@ -14,14 +14,14 @@ class ShoutboxController extends Controller
      */
     public function index(): JsonResponse
     {
-        $messages = ShoutboxMessage::with('user:id,name,avatar') // 1. Tambahkan kolom avatar di sini (sesuaikan dengan nama kolom di tabel user kamu)
+        $messages = ShoutboxMessage::with('user:id,name,avatar') 
             ->latest()
             ->limit(30)
             ->get()
             ->map(fn(ShoutboxMessage $m) => [
                 'id'     => $m->id,
                 'name'   => $m->user?->name ?? 'Trainer',
-                'avatar' => $m->user?->avatar ? asset('storage/' . $m->user->avatar) : null, // 2. Tambahkan key avatar di sini
+                'avatar' => $m->user?->avatar ? asset('storage/' . $m->user->avatar) : null, 
                 'body'   => $m->body,
                 'ago'    => $m->created_at->diffForHumans(null, true) . ' ago',
             ]);
