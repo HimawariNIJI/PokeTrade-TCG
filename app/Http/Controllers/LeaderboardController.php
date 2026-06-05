@@ -95,7 +95,7 @@ class LeaderboardController extends Controller
             'entries' => $users->values()->map(fn (User $u, int $i) => [
                 'rank' => $i + 1,
                 'name' => $u->name,
-                'initial' => Str::upper(Str::substr($u->name, 0, 1)),
+                'avatar' => $u->avatar,
                 'profileUrl' => route('profiles.show', $u),
                 'metric' => (int) ($u->{$metricKey} ?? 0),
             ])->all(),
