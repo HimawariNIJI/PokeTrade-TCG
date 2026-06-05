@@ -8,6 +8,7 @@ use App\Notifications\ProfileCommentNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use App\Models\Auction;
 
 /**
  * Public-facing Trainer Profiles.
@@ -34,6 +35,9 @@ class PublicProfileController extends Controller
 
         $digitalCount = $user->digitalCards()->count();
         $chaseCount   = $user->wishlistedCards()->count();
+        $auctionsWon = Auction::where('winner_id', auth()->id())
+                      ->take(5)
+                      ->get();
 
         // Pinned showcase — the cards the trainer chose to highlight.
         // Falls back to the empty collection if they haven't pinned any.
@@ -47,6 +51,7 @@ class PublicProfileController extends Controller
             'digitalCount' => $digitalCount,
             'chaseCount'   => $chaseCount,
             'pinnedCards'  => $pinnedCards,
+            'auctionsWon'   => $auctionsWon,
         ]);
     }
 

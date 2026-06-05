@@ -31,6 +31,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'show_chase'      => true,
         'show_socials'    => true,
         'show_bio'        => true,
+        'show_auction'    => true,
         'allow_comments'  => true,
     ];
 
