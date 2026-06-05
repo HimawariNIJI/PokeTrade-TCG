@@ -35,10 +35,9 @@ class PublicProfileController extends Controller
 
         $digitalCount = $user->digitalCards()->count();
         $chaseCount   = $user->wishlistedCards()->count();
-        $auctionsWon = Auction::where('winner_id', auth()->id())
-                      ->take(5)
-                      ->get();
-
+        $auctionsWon = Auction::where('winner_id', auth()->id())->get();
+        $cardsWon = $auctionsWon->pluck('card');
+        $cardsWonCount = $cardsWon->count();
         // Pinned showcase — the cards the trainer chose to highlight.
         // Falls back to the empty collection if they haven't pinned any.
         $pinnedCards = $user->pinnedShowcase();
@@ -51,7 +50,9 @@ class PublicProfileController extends Controller
             'digitalCount' => $digitalCount,
             'chaseCount'   => $chaseCount,
             'pinnedCards'  => $pinnedCards,
-            'auctionsWon'   => $auctionsWon,
+            'auctionsWon'  => $auctionsWon,
+            'cardsWon'     => $cardsWon,
+            'cardsWonCount' => $cardsWonCount,
         ]);
     }
 

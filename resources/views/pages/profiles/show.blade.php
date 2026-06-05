@@ -223,17 +223,28 @@ $socials = collect($user->social_links ?? [])->filter(fn($url) => filled($url));
             </section>
         @endif
         @if ($user->shows('show_auction'))
-            <h3>5 Lelang Pertama yang Dimenangkan</h3>
+            <section>
+                <div class="flex items-end justify-between gap-4">
+                    <x-section-heading eyebrow="Battle" title="Recently Won Auctions" />
+                    <span
+                        class="shrink-0 rounded-full border border-ink-200 bg-white px-4 py-1.5 font-mono text-sm font-bold text-ink-900">
+                        {{ $cardsWonCount }} {{ Str::plural('card', $cardsWonCount) }}
+                    </span>
+                </div>
 
-            @if ($auctionsWon->isEmpty())
-                <p>Belum ada lelang yang dimenangkan.</p>
-            @else
-                <ul>
-                    @foreach ($auctionsWon as $auction)
-                        <li>Card ID: {{ $auction->card_id }}</li>
-                    @endforeach
-                </ul>
-            @endif
+                @if ($cardsWon->isNotEmpty())
+                    <div class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+                        @foreach ($cardsWon as $card)
+                            <x-card-tile :card="$card" />
+                        @endforeach
+                    </div>
+                @else
+                    <div class="mt-8">
+                        <x-empty-state icon="✦" title="No cards from auction"
+                            message="This trainer hasn't won any auction!" />
+                    </div>
+                @endif
+            </section>
         @endif
 
         {{-- ========================================================
