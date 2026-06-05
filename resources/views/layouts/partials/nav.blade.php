@@ -1,13 +1,13 @@
 @php
     $navLinks = [
-        ['route' => 'home',              'label' => 'Home'],
-        ['route' => 'cards.index',       'label' => 'Cards'],
-        ['route' => 'auctions.index',    'label' => 'Auctions'],
-        ['route' => 'gacha.index',       'label' => 'Gacha'],
-        ['route' => 'forums.index',      'label' => 'Forums'],
+        ['route' => 'home', 'label' => 'Home'],
+        ['route' => 'cards.index', 'label' => 'Cards'],
+        ['route' => 'auctions.index', 'label' => 'Auctions'],
+        ['route' => 'gacha.index', 'label' => 'Gacha'],
+        ['route' => 'forums.index', 'label' => 'Forums'],
         ['route' => 'leaderboard.index', 'label' => 'Leaderboard'],
-        ['route' => 'shop.index',        'label' => 'Merch'],
-        ['route' => 'about',             'label' => 'About'],
+        ['route' => 'shop.index', 'label' => 'Merch'],
+        ['route' => 'about', 'label' => 'About'],
     ];
 @endphp
 @auth
@@ -15,10 +15,9 @@
         $unreadNotificationCount = auth()->user()->unreadNotifications()->count();
     @endphp
 @endauth
-<header x-data="{ open: false, scrolled: window.scrollY > 8 }"
-        @scroll.window="scrolled = window.scrollY > 8"
-        class="sticky top-0 z-40 transition"
-        :class="scrolled ? 'backdrop-blur-md bg-white/85 border-b border-ink-200 shadow-sm' : 'bg-white/95 border-b border-transparent'">
+<header x-data="{ open: false, scrolled: window.scrollY > 8 }" @scroll.window="scrolled = window.scrollY > 8" class="sticky top-0 z-40 transition"
+    :class="scrolled ? 'backdrop-blur-md bg-white/85 border-b border-ink-200 shadow-sm' :
+        'bg-white/95 border-b border-transparent'">
 
     {{-- Top hairline rainbow --}}
     <div class="h-[3px] w-full prism-bg"></div>
@@ -27,16 +26,18 @@
         <x-brand-mark size="md" />
 
         <nav class="hidden items-center gap-1 lg:flex">
-            @foreach($navLinks as $link)
+            @foreach ($navLinks as $link)
                 @php $active = request()->routeIs($link['route']); @endphp
                 <a href="{{ route($link['route']) }}"
-                   class="group relative rounded-full px-4 py-2 text-sm font-semibold transition
+                    class="group relative rounded-full px-4 py-2 text-sm font-semibold transition
                           {{ $active ? 'text-ink-900' : 'text-ink-700 hover:text-ink-900 hover:bg-ink-900/[0.06]' }}">
-                    @if($active)
+                    @if ($active)
                         <span class="absolute inset-0 rounded-full bg-ink-900/[0.06]"></span>
-                        <span class="absolute -bottom-0.5 left-1/2 h-[3px] w-8 -translate-x-1/2 rounded-full prism-bg"></span>
+                        <span
+                            class="absolute -bottom-0.5 left-1/2 h-[3px] w-8 -translate-x-1/2 rounded-full prism-bg"></span>
                     @else
-                        <span class="pointer-events-none absolute -bottom-0.5 left-1/2 h-[3px] w-0 -translate-x-1/2 rounded-full prism-bg transition-all duration-300 group-hover:w-8"></span>
+                        <span
+                            class="pointer-events-none absolute -bottom-0.5 left-1/2 h-[3px] w-0 -translate-x-1/2 rounded-full prism-bg transition-all duration-300 group-hover:w-8"></span>
                     @endif
                     <span class="relative">{{ $link['label'] }}</span>
                 </a>
@@ -47,13 +48,16 @@
             @auth
                 {{-- Notifications --}}
                 <a href="{{ route('notifications.index') }}"
-                   class="relative hidden h-10 w-10 items-center justify-center rounded-full border border-ink-200 text-ink-700 transition hover:border-prism-violet hover:text-prism-violet md:inline-flex"
-                   title="Notifications">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/>
+                    class="relative hidden h-10 w-10 items-center justify-center rounded-full border border-ink-200 text-ink-700 transition hover:border-prism-violet hover:text-prism-violet md:inline-flex"
+                    title="Notifications">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
                     </svg>
-                    @if(($unreadNotificationCount ?? 0) > 0)
-                        <span class="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full prism-bg px-1 text-[10px] font-bold text-white shadow">
+                    @if (($unreadNotificationCount ?? 0) > 0)
+                        <span
+                            class="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full prism-bg px-1 text-[10px] font-bold text-white shadow">
                             {{ $unreadNotificationCount }}
                         </span>
                     @endif
@@ -61,26 +65,31 @@
 
                 {{-- Wishlist --}}
                 <a href="{{ route('wishlist.index') }}"
-                   class="hidden h-10 w-10 items-center justify-center rounded-full border border-ink-200 text-ink-700 transition hover:border-prism-violet hover:text-prism-violet md:inline-flex"
-                   title="Chase cards">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5A4.69 4.69 0 0 0 12 6.073a4.69 4.69 0 0 0-4.313-2.323C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/>
+                    class="hidden h-10 w-10 items-center justify-center rounded-full border border-ink-200 text-ink-700 transition hover:border-prism-violet hover:text-prism-violet md:inline-flex"
+                    title="Chase cards">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5A4.69 4.69 0 0 0 12 6.073a4.69 4.69 0 0 0-4.313-2.323C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                     </svg>
                 </a>
 
                 {{-- Cart — collapses to an icon-only round button on phones to
                      stop the right cluster overflowing past the brand mark. --}}
                 <a href="{{ route('cart.index') }}"
-                   class="relative inline-flex h-10 w-10 items-center justify-center gap-2 rounded-full border border-ink-200 text-sm font-semibold text-ink-900 transition hover:border-prism-violet md:w-auto md:justify-start md:px-4"
-                   title="Cart">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/>
+                    class="relative inline-flex h-10 w-10 items-center justify-center gap-2 rounded-full border border-ink-200 text-sm font-semibold text-ink-900 transition hover:border-prism-violet md:w-auto md:justify-start md:px-4"
+                    title="Cart">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                     </svg>
                     @php
                         $cartCount = optional(auth()->user()->cart)->item_count ?? 0;
                     @endphp
-                    @if($cartCount > 0)
-                        <span class="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full prism-bg px-1 text-[10px] font-bold text-white shadow">
+                    @if ($cartCount > 0)
+                        <span
+                            class="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full prism-bg px-1 text-[10px] font-bold text-white shadow">
                             {{ $cartCount }}
                         </span>
                     @endif
@@ -90,36 +99,51 @@
                 {{-- User dropdown --}}
                 <div x-data="{ open: false }" class="relative">
                     <button @click="open = !open" @click.outside="open = false"
-                            class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white py-1 pl-1 pr-3 text-sm font-semibold text-ink-900 transition hover:border-prism-violet">
-                        <span class="inline-flex h-8 w-8 items-center justify-center rounded-full prism-bg text-xs font-bold text-white">
-                            {{ Str::upper(Str::substr(auth()->user()->name, 0, 1)) }}
-                        </span>
+                        class="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white py-1 pl-1 pr-3 text-sm font-semibold text-ink-900 transition hover:border-prism-violet">
+                        @if (auth()->user()->avatar)
+                            <img src="{{ asset('storage/' . auth()->user()->avatar) }}"
+                                alt="Avatar {{ auth()->user()->name }}" class="h-8 w-8 rounded-full object-cover">
+                        @else
+                            <span
+                                class="inline-flex h-8 w-8 items-center justify-center rounded-full prism-bg text-xs font-bold text-white">
+                                {{ Str::upper(Str::substr(auth()->user()->name, 0, 1)) }}
+                            </span>
+                        @endif
                         <span class="hidden md:inline">{{ Str::limit(auth()->user()->name, 14) }}</span>
-                        <svg class="h-4 w-4 text-ink-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"/>
+                        <svg class="h-4 w-4 text-ink-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="6 9 12 15 18 9" />
                         </svg>
                     </button>
                     <div x-show="open" x-transition.origin.top.right
-                         class="absolute right-0 top-12 w-56 overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-xl"
-                         style="display: none;">
+                        class="absolute right-0 top-12 w-56 overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-xl"
+                        style="display: none;">
                         <div class="border-b border-ink-100 px-4 py-3">
                             <p class="text-xs text-ink-500">Signed in as</p>
                             <p class="truncate text-sm font-semibold text-ink-900">{{ auth()->user()->email }}</p>
                         </div>
-                        <a href="{{ route('profiles.show', auth()->user()) }}" class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">My Profile</a>
-                        <a href="{{ route('collection.index') }}" class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">My Collection</a>
-                        <a href="{{ route('wishlist.index') }}" class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">Chase Cards</a>
-                        <a href="{{ route('notifications.index') }}" class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">Notifications</a>
-                        <a href="{{ route('orders.index') }}"  class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">My Orders</a>
-                        <a href="{{ route('settings.edit') }}" class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">Settings</a>
-                        @if(auth()->user()->isAdmin())
-                            <a href="{{ route('admin.dashboard') }}" class="block bg-ink-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-ink-700">
+                        <a href="{{ route('profiles.show', auth()->user()) }}"
+                            class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">My Profile</a>
+                        <a href="{{ route('collection.index') }}"
+                            class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">My Collection</a>
+                        <a href="{{ route('wishlist.index') }}"
+                            class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">Chase Cards</a>
+                        <a href="{{ route('notifications.index') }}"
+                            class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">Notifications</a>
+                        <a href="{{ route('orders.index') }}"
+                            class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">My Orders</a>
+                        <a href="{{ route('settings.edit') }}"
+                            class="block px-4 py-2.5 text-sm text-ink-700 hover:bg-ink-50">Settings</a>
+                        @if (auth()->user()->isAdmin())
+                            <a href="{{ route('admin.dashboard') }}"
+                                class="block bg-ink-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-ink-700">
                                 Admin Console →
                             </a>
                         @endif
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="block w-full px-4 py-2.5 text-left text-sm text-rose-600 hover:bg-rose-50">
+                            <button type="submit"
+                                class="block w-full px-4 py-2.5 text-left text-sm text-rose-600 hover:bg-rose-50">
                                 Log out
                             </button>
                         </form>
@@ -127,25 +151,28 @@
                 </div>
             @else
                 <a href="{{ route('login') }}"
-                class="inline-flex px-2 py-2 text-xs font-semibold text-ink-900 hover:text-prism-violet sm:px-4 sm:text-sm whitespace-nowrap">
+                    class="inline-flex px-2 py-2 text-xs font-semibold text-ink-900 hover:text-prism-violet sm:px-4 sm:text-sm whitespace-nowrap">
                     Log in
                 </a>
                 <x-prism-button :href="route('register')" size="sm">
                     <span class="text-xs sm:text-sm whitespace-nowrap">Sign up</span>
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m0 0-6-6m6 6-6 6" />
                     </svg>
                 </x-prism-button>
             @endauth
 
             {{-- Mobile menu toggle --}}
             <button @click="open = !open"
-                    class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink-200 lg:hidden">
-                <svg x-show="!open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+                class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink-200 lg:hidden">
+                <svg x-show="!open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" class="h-5 w-5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 </svg>
-                <svg x-show="open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5" style="display:none">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+                <svg x-show="open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" class="h-5 w-5" style="display:none">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                 </svg>
             </button>
         </div>
@@ -154,9 +181,9 @@
     {{-- Mobile menu --}}
     <div x-show="open" x-transition x-cloak class="border-t border-ink-100 bg-white lg:hidden">
         <nav class="flex flex-col gap-1 px-4 py-4">
-            @foreach($navLinks as $link)
+            @foreach ($navLinks as $link)
                 <a href="{{ route($link['route']) }}"
-                   class="rounded-xl px-3 py-2 text-sm font-semibold {{ request()->routeIs($link['route']) ? 'bg-ink-900 text-white' : 'text-ink-900 hover:bg-ink-100' }}">
+                    class="rounded-xl px-3 py-2 text-sm font-semibold {{ request()->routeIs($link['route']) ? 'bg-ink-900 text-white' : 'text-ink-900 hover:bg-ink-100' }}">
                     {{ $link['label'] }}
                 </a>
             @endforeach
