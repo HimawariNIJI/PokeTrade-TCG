@@ -14,15 +14,16 @@ class ShoutboxController extends Controller
      */
     public function index(): JsonResponse
     {
-        $messages = ShoutboxMessage::with('user:id,name')
+        $messages = ShoutboxMessage::with('user:id,name,avatar')
             ->latest()
             ->limit(30)
             ->get()
-            ->map(fn (ShoutboxMessage $m) => [
-                'id'   => $m->id,
-                'name' => $m->user?->name ?? 'Trainer',
-                'body' => $m->body,
-                'ago'  => $m->created_at->diffForHumans(null, true).' ago',
+            ->map(fn(ShoutboxMessage $m) => [
+                'id'     => $m->id,
+                'name'   => $m->user?->name ?? 'Trainer',
+                'avatar' => $m->user?->avatar ? asset('storage/' . $m->user->avatar) : null,
+                'body'   => $m->body,
+                'ago'    => $m->created_at->diffForHumans(null, true) . ' ago',
             ]);
 
         return response()->json(['messages' => $messages]);
@@ -39,14 +40,17 @@ class ShoutboxController extends Controller
             'body'    => $data['body'],
         ]);
 
-        $message->load('user:id,name');
+        // 1. Pastikan Tambah ',avatar' di sini
+        $message->load('user:id,name,avatar');
 
         return response()->json([
             'message' => [
-                'id'   => $message->id,
-                'name' => $message->user?->name ?? 'Trainer',
-                'body' => $message->body,
-                'ago'  => 'just now',
+                'id'     => $message->id,
+                'name'   => $message->user?->name ?? 'Trainer',
+                // 2. Tambahkan baris avatar ini agar saat kirim pesan baru, foto profil langsung ikut terkirim
+                'avatar' => $message->user?->avatar ? asset('storage/' . $message->user->avatar) : null,
+                'body'   => $message->body,
+                'ago'    => 'just now',
             ],
         ], 201);
     }
