@@ -23,14 +23,14 @@
                         <tr class="hover:bg-ink-50">
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-3">
-                                    @if (auth()->user()->avatar)
-                                        <img src="{{ asset('storage/' . auth()->user()->avatar) }}"
-                                            alt="Avatar {{ auth()->user()->name }}"
+                                    @if ($u->avatar)
+                                        <img src="{{ asset('storage/' . $u->avatar) }}"
+                                            alt="Avatar {{ $u->name }}"
                                             class="h-8 w-8 rounded-full object-cover">
                                     @else
                                         <span
                                             class="inline-flex h-8 w-8 items-center justify-center rounded-full prism-bg text-xs font-bold text-white">
-                                            {{ Str::upper(Str::substr(auth()->user()->name, 0, 1)) }}
+                                            {{ Str::upper(Str::substr($u->name, 0, 1)) }}
                                         </span>
                                     @endif
                                     <div>
