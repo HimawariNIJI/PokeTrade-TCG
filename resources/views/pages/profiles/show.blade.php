@@ -244,7 +244,7 @@ $socials = collect($user->social_links ?? [])->filter(fn($url) => filled($url));
 
                                 <!-- 2. Gunakan mt-auto di sini untuk mendorong kotak ini ke paling bawah -->
                                 <div class="mt-auto pt-4">
-                                    <div class="text-center bg-[#1f2532] rounded-lg py-2 px-3 border border-gray-700">
+                                    <div class="text-center bg-black rounded-lg py-2 px-3 border border-gray-700">
                                         <span
                                             class="block text-[10px] text-gray-400 uppercase tracking-wider font-semibold mb-1">
                                             Winning Bid
