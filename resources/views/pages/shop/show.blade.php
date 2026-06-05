@@ -61,15 +61,50 @@
                         @csrf
                         <input type="hidden" name="item_type" value="shop_item">
                         <input type="hidden" name="item_id" value="{{ $item->id }}">
-                        <div class="flex gap-3">
-                            <input type="number" name="quantity" value="1" min="1"
-                                max="{{ max(1, $item->stock - $stockinCart) }}"
-                                class="w-20 rounded-full border-ink-200 text-center text-sm focus:border-prism-violet focus:ring-prism-violet">
+                        <div class="flex flex-col gap-3">
+                            <div class="flex items-center gap-3">
+                                <button type="button"
+                                    class="h-10 w-10 rounded-full border border-ink-200 text-lg flex items-center justify-center
+                                        transition-all duration-150
+                                        hover:bg-ink-100 hover:border-ink-300
+                                        active:scale-90 active:bg-ink-200 active:border-ink-400"
+                                    onclick="changeQty(-1)">
+                                    -
+                                </button>
+                                <input id="qtyInput"
+                                    type="number"
+                                    name="quantity"
+                                    value="1"
+                                    min="1"
+                                    max="{{ max(1, $item->stock - $stockinCart) }}"
+                                    class="w-20 h-10 rounded-full border-ink-200 text-center text-sm focus:border-prism-violet focus:ring-prism-violet">
+                                <button type="button"
+                                    class="h-10 w-10 rounded-full border border-ink-200 text-lg flex items-center justify-center
+                                        transition-all duration-150
+                                        hover:bg-ink-100 hover:border-ink-300
+                                        active:scale-90 active:bg-ink-200 active:border-ink-400"
+                                    onclick="changeQty(1)">
+                                    +
+                                </button>
+                            </div>
                             <x-prism-button type="submit" size="lg" :disabled="$item->stock <= 0">
                                 {{ $item->stock > 0 ? 'Add to cart' : 'Sold out' }}
                             </x-prism-button>
                         </div>
                     </form>
+                    <script>
+                    function changeQty(delta) {
+                        const input = document.getElementById('qtyInput');
+
+                        let value = parseInt(input.value) || 1;
+                        let min = parseInt(input.min) || 1;
+                        let max = parseInt(input.max) || 999;
+
+                        value = Math.min(max, Math.max(min, value + delta));
+
+                        input.value = value;
+                    }
+                    </script>
                 </div>
             </div>
         </div>

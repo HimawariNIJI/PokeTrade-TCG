@@ -11,12 +11,35 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::query()
-            ->when($request->string('q')->toString(), fn ($q, $term) =>
-                $q->where('name', 'like', "%{$term}%")->orWhere('email', 'like', "%{$term}%"))
-            ->latest()->paginate(20)->withQueryString();
+        $filter = $request->get('filter', 'all');
+        $term = $request->string('q')->toString();
 
-        return view('admin.users.index', compact('users'));
+        $users = User::query()
+
+            // FILTER ROLE
+            ->when($filter !== 'all', function ($q) use ($filter) {
+                $q->where('role', $filter);
+            })
+
+            // SEARCH
+            ->when($term, function ($q) use ($term) {
+                $q->where(function ($sub) use ($term) {
+                    $sub->where('name', 'like', "%{$term}%")
+                        ->orWhere('email', 'like', "%{$term}%");
+                });
+            })
+
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
+
+        $statusCounts = [
+            'all' => User::count(),
+            'customer' => User::where('role', 'customer')->count(),
+            'admin' => User::where('role', 'admin')->count(),
+        ];
+        
+        return view('admin.users.index', compact('users', 'filter', 'statusCounts'));
     }
 
     public function show(User $user)

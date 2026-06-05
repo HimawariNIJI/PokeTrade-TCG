@@ -6,6 +6,7 @@ use App\Models\Card;
 use App\Models\CollectionCard;
 use App\Support\Gacha;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Digital gacha — modeled on the Pokémon TCG Pocket mobile app's
@@ -123,42 +124,51 @@ class GachaController extends Controller
     {
         $user = $request->user();
 
-        // digitalCards() is BelongsToMany via the collection_cards pivot,
-        // so it yields one row per pull — collapse to distinct cards.
-        $owned = $user->digitalCards()->orderBy('name')->get();
-        $unique = $owned->unique('id')->values();
-
-        // Total = every pull (duplicates included); unique = distinct cards.
-        $totalCards = $user->collectionCards()->count();
-        $uniqueCards = $unique->count();
-
-        // Count of pulls grouped by card rarity (duplicates counted).
-        $rarityBreakdown = $owned
-            ->groupBy(fn (Card $card) => $card->rarity ?: 'Common')
-            ->map->count()
-            ->sortDesc();
-
-        // Per-page selector — clamp to a known list so users can't request 99999.
         $allowedPerPage = [12, 24, 48, 96];
         $perPage = (int) $request->integer('per_page', 24);
         if (! in_array($perPage, $allowedPerPage, true)) {
             $perPage = 24;
         }
 
-        $cards = new \Illuminate\Pagination\LengthAwarePaginator(
-            $unique->forPage($request->integer('page', 1), $perPage)->values(),
+        $page = $request->integer('page', 1);
+
+        $allOwnedGlobal = $user->digitalCards()->orderBy('name')->get();
+
+        $totalCards = $user->collectionCards()->count();
+
+        $uniqueCards = $allOwnedGlobal->unique('id')->count();
+
+        $rarityBreakdown = $allOwnedGlobal
+            ->groupBy(fn ($card) => $card->rarity ?: 'Common')
+            ->map->count()
+            ->sortDesc();
+
+        $allRarities = $allOwnedGlobal
+            ->pluck('rarity')
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
+
+        $query = $user->digitalCards()
+            ->when($request->filled('rarity'), function ($q) use ($request) {
+                $q->where('rarity', $request->rarity);
+            })->orderBy('name');
+
+        $allOwned = $query->get();
+
+        $unique = $allOwned->unique('id')->values();
+
+        $cards = new LengthAwarePaginator(
+            $unique->forPage($page, $perPage)->values(),
             $unique->count(),
             $perPage,
-            $request->integer('page', 1),
-            ['path' => $request->url(), 'query' => $request->query()]
+            $page,
         );
 
-        // Which of the trainer's cards are pinned to their profile —
-        // drives the star toggle on each tile.
-        $pinnedIds = collect($user->pinned_cards ?? [])
-            ->map(fn ($id) => (int) $id)
-            ->unique()
-            ->values();
+        $cards->withPath($request->url())->appends($request->query());
+
+        $pinnedIds = collect($user->pinned_cards ?? [])->map(fn ($id) => (int) $id)->unique()->values();
 
         return view('pages.gacha.collection', [
             'cards'           => $cards,
@@ -168,6 +178,7 @@ class GachaController extends Controller
             'perPage'         => $perPage,
             'allowedPerPage'  => $allowedPerPage,
             'pinnedIds'       => $pinnedIds,
+            'allRarities'     => $allRarities,
             'maxPinned'       => \App\Http\Controllers\SettingsController::MAX_PINNED,
         ]);
     }

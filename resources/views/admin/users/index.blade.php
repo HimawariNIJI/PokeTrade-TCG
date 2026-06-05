@@ -1,9 +1,38 @@
 <x-admin-layout heading="Users" eyebrow="Account management">
+    <div class="mb-6 flex flex-wrap gap-2">
+        <a href="{{ route('admin.users.index', ['filter' => 'all', 'q' => request('q')]) }}"
+        class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition
+        {{ $filter === 'all' ? 'bg-prism-violet text-white' : 'border border-ink-200 text-ink-700 hover:border-prism-violet hover:text-prism-violet' }}">
+            All Users
+            <span class="rounded-full bg-white/20 px-2 py-0.5 text-xs font-bold">
+                {{ $statusCounts['all'] }}
+            </span>
+        </a>
+        <a href="{{ route('admin.users.index', ['filter' => 'customer', 'q' => request('q')]) }}"
+        class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition
+        {{ $filter === 'customer' ? 'bg-blue-100 text-blue-700' : 'border border-ink-200 text-ink-700 hover:border-blue-300 hover:text-blue-600' }}">
+            👤 Customer
+            <span class="rounded-full {{ $filter === 'customer' ? 'bg-blue-200' : 'bg-blue-50' }} px-2 py-0.5 text-xs font-bold">
+                {{ $statusCounts['customer'] }}
+            </span>
+        </a>
+        <a href="{{ route('admin.users.index', ['filter' => 'admin', 'q' => request('q')]) }}"
+        class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition
+        {{ $filter === 'admin' ? 'bg-ink-200 text-ink-800' : 'border border-ink-200 text-ink-700 hover:border-ink-300' }}">
+            🛡️ Admin
+            <span class="rounded-full {{ $filter === 'admin' ? 'bg-ink-300' : 'bg-ink-100' }} px-2 py-0.5 text-xs font-bold">
+                {{ $statusCounts['admin'] }}
+            </span>
+        </a>
+    </div>
 
     <form method="GET" class="mb-5 flex gap-2">
+        <input type="hidden" name="filter" value="{{ request('filter', 'all') }}">
         <input type="search" name="q" value="{{ request('q') }}" placeholder="Search name or email…"
             class="flex-1 rounded-full border-ink-200 text-sm">
-        <button type="submit" class="rounded-full bg-ink-900 px-5 py-2 text-sm font-bold text-white">Search</button>
+        <button type="submit" class="rounded-full bg-ink-900 px-5 py-2 text-sm font-bold text-white">
+            Search
+        </button>
     </form>
 
     <div class="overflow-hidden rounded-3xl border border-ink-200 bg-white">

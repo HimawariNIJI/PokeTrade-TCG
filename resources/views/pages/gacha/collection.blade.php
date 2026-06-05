@@ -65,18 +65,50 @@
         {{-- ============ CARD DISPLAY ============
              A clean display of just the cards the trainer has picked
              up from the gacha — no prices, no market value. --}}
-        <div class="mb-5 flex flex-wrap items-center justify-end gap-3">
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <select
+                    onchange="changeRarity(this.value)"
+                    class="rounded-full border-ink-200 text-sm focus:border-prism-violet focus:ring-prism-violet">
+                    <option value="">All rarities</option>
+                    @foreach($allRarities as $r)
+                        <option value="{{ $r }}" @selected(request('rarity') === $r)>
+                            {{ $r }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
             <label class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-ink-500">
                 Cards per page
                 <select
-                    onchange="const u=new URL(window.location); u.searchParams.set('per_page', this.value); u.searchParams.delete('page'); window.location = u.toString();"
-                    class="rounded-full border-ink-200 px-3 py-1.5 text-xs font-bold text-ink-900">
+                    onchange="changePerPage(this.value)"
+                    class="rounded-full border-ink-200 px-3 py-1.5 pr-8 text-xs font-bold text-ink-900">
                     @foreach($allowedPerPage as $opt)
-                        <option value="{{ $opt }}" @selected($perPage === $opt)>{{ $opt }}</option>
+                        <option value="{{ $opt }}" @selected($perPage == $opt)>
+                            {{ $opt }}
+                        </option>
                     @endforeach
                 </select>
             </label>
         </div>
+        <script>
+            function changeRarity(value) {
+                const url = new URL(window.location.href);
+                if (value) {
+                    url.searchParams.set('rarity', value);
+                } else {
+                    url.searchParams.delete('rarity');
+                }
+                url.searchParams.delete('page');
+                window.location.href = url.toString();
+            }
+            function changePerPage(value) {
+                const u = new URL(window.location.href);
+                u.searchParams.set('per_page', value);
+                u.searchParams.delete('page');
+                window.location.href = u.toString();
+            }
+        </script>
 
         {{-- Pinned summary + a hint to the settings picker when at cap. --}}
         <div class="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-prism-gold/40 bg-prism-gold/10 px-4 py-3">
