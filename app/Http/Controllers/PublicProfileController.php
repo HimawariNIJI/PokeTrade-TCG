@@ -36,7 +36,7 @@ class PublicProfileController extends Controller
         $digitalCount = $user->digitalCards()->count();
         $chaseCount   = $user->wishlistedCards()->count();
         $auctionsWon = Auction::with('card')
-            ->where('winner_id', auth()->id())
+            ->where('winner_id', $user->id)
             ->latest()
             ->take(12)
             ->get();
