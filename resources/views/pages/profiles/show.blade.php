@@ -237,18 +237,22 @@ $socials = collect($user->social_links ?? [])->filter(fn($url) => filled($url));
                         @foreach ($auctionsWon as $auction)
                             <div class="flex flex-col h-full">
 
-                                <div class="flex-grow">
+                                <!-- 1. Biarkan kartu di atas tanpa flex-grow -->
+                                <div>
                                     <x-card-tile :card="$auction->card" />
                                 </div>
 
-                                <div class="mt-3 text-center bg-gray-800 rounded-lg py-2 px-3 border border-gray-700">
-                                    <span
-                                        class="block text-[10px] text-gray-400 uppercase tracking-wider font-semibold mb-1">
-                                        Winning Bid
-                                    </span>
-                                    <span class="block text-sm font-bold prism-text">
-                                        Rp{{ number_format($auction->winning_amount, 0, ',', '.') }}
-                                    </span>
+                                <!-- 2. Gunakan mt-auto di sini untuk mendorong kotak ini ke paling bawah -->
+                                <div class="mt-auto pt-4">
+                                    <div class="text-center bg-[#1f2532] rounded-lg py-2 px-3 border border-gray-700">
+                                        <span
+                                            class="block text-[10px] text-gray-400 uppercase tracking-wider font-semibold mb-1">
+                                            Winning Bid
+                                        </span>
+                                        <span class="block text-sm font-bold prism-text text-[#00e5a0]">
+                                            Rp{{ number_format($auction->winning_amount, 0, ',', '.') }}
+                                        </span>
+                                    </div>
                                 </div>
 
                             </div>
