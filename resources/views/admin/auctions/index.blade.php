@@ -18,10 +18,17 @@
     <div class="mb-8 rounded-3xl border border-ink-200 bg-white p-6">
         <h3 class="font-display text-lg font-black">🎯 Auction Revenue (Last 6 Months)</h3>
         <p class="mt-1 text-sm text-ink-500">Revenue from winning bids in ended auctions</p>
-        
+    
+        @php
+            $maxRevenue = max(1, collect($auctionRevenue)->max('amount'));
+        @endphp
+
         <div class="mt-6 flex items-end justify-between gap-2">
             @foreach($auctionRevenue as $m)
-                @php $h = max(8, ($m['amount'] ?? 0) > 0 ? min(100, $m['amount'] / 1000) : 8); @endphp
+                @php 
+                    $h = max(8, ($m['amount'] / $maxRevenue) * 100); 
+                @endphp
+                
                 <div class="flex flex-1 flex-col items-center">
                     <div class="w-full rounded-t-md bg-gradient-to-b from-prism-mint to-prism-sky opacity-80" style="height: {{ $h }}px"></div>
                         <p class="mt-1 text-[10px] font-mono text-ink-500">{{ $m['month'] }}</p>
@@ -35,7 +42,7 @@
             @endforeach
         </div>
     </div>
-
+    
     {{-- Filter Buttons --}}
     <div class="mb-6 flex flex-wrap gap-2">
         <a href="{{ route('admin.auctions.index', ['filter' => 'all']) }}"

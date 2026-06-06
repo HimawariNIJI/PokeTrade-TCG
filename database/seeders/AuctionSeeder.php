@@ -129,7 +129,67 @@ class AuctionSeeder extends Seeder
             $auction->update([
                 'current_bid'       => $amount,
                 'current_leader_id' => $leader?->id,
+                'winning_amount'    => $status === 'ended' ? $amount : null,
             ]);
+        }
+        $showcaseMonths = [
+            // Jan 2026: ~Rp 20 Juta (approx 28%)
+            ['month' => 1, 'amount' => 20000000],
+            // Feb 2026: ~Rp 28 Juta (approx 39%)
+            ['month' => 2, 'amount' => 28000000],
+            // Mar 2026: ~Rp 24 Juta (approx 33%)
+            ['month' => 3, 'amount' => 24000000],
+            // Apr 2026: ~Rp 32 Juta (approx 45%)
+            ['month' => 4, 'amount' => 32000000],
+            // May 2026: ~Rp 26 Juta (approx 36%)
+            ['month' => 5, 'amount' => 26000000],
+        ];
+
+        foreach ($showcaseMonths as $data) {
+            $card = Card::query()->inRandomOrder()->first();
+            if (!$card) continue;
+            
+            $bidder = $bidders->random();
+            $month = $data['month'];
+            
+            // Set lelang agar selesai pada tanggal 20 di masing-masing bulan
+            $auctionEnd = \Carbon\Carbon::create(2026, $month, 20, 15, 0, 0);
+            $auctionStart = $auctionEnd->copy()->subDays(3);
+            
+            $auction = Auction::create([
+                'card_id'       => $card->id,
+                'seller_id'     => $seller->id,
+                'starting_bid'  => $data['amount'] - 5000000,
+                'current_bid'   => $data['amount'],
+                'winning_amount'=> $data['amount'],
+                'current_leader_id' => $bidder->id,
+                'winner_id'     => $bidder->id,
+                'winner_paid_at'=> $auctionEnd->copy()->addHours(2),
+                'bid_increment' => 500000,
+                'buy_now_price' => $data['amount'] * 2,
+                'starts_at'     => $auctionStart,
+                'ends_at'       => $auctionEnd,
+                'status'        => 'ended',
+                'created_at'    => $auctionStart,
+                'updated_at'    => $auctionEnd->copy()->addHours(2),
+            ]);
+
+            // Tambahkan "winning bid" yang dibayarkan agar terekam sebagai revenue
+            $bid = Bid::create([
+                'auction_id' => $auction->id,
+                'user_id'    => $bidder->id,
+                'amount'     => $data['amount'],
+                // Tetap menggunakan format bawaan seeder-mu
+                'status'     => Bid::STATUS_PAID, 
+                'paid_at'    => $auctionEnd->copy()->addHours(2),
+                'order_id'   => fake()->uuid(),
+                // Tambahan jika ada refactor kolom pembayaran Midtrans sebelumnya:
+                'payment_status' => 'paid', 
+            ]);
+            
+            $bid->created_at = $auctionEnd->copy()->subMinutes(10);
+            $bid->updated_at = $auctionEnd->copy()->addHours(2);
+            $bid->save();
         }
 
         $this->command?->info('Seeded '.count($plan).' demo auctions with dummy bids.');

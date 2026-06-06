@@ -188,5 +188,48 @@ class OrderSeeder extends Seeder
                 'updated_at' => \Carbon\Carbon::create(2026, 3, 18, 16, 0, 0),
             ]
         );
+        // --- DUMMY DATA FOR DASHBOARD SHOWCASE (25% - 50% of June's Revenue) ---
+        
+        $showcaseOrders = [
+            // Jan 2026: ~Rp 150 Juta (approx 29%)
+            ['id' => 10, 'month' => 1, 'subtotal' => 149980000.00, 'total' => 150000000.00],
+            // Feb 2026: ~Rp 210 Juta (approx 41%)
+            ['id' => 11, 'month' => 2, 'subtotal' => 209980000.00, 'total' => 210000000.00],
+            // Mar 2026: ~Rp 180 Juta (approx 35%)
+            ['id' => 12, 'month' => 3, 'subtotal' => 179980000.00, 'total' => 180000000.00],
+            // Apr 2026: ~Rp 240 Juta (approx 47%)
+            ['id' => 13, 'month' => 4, 'subtotal' => 239980000.00, 'total' => 240000000.00],
+            // May 2026: ~Rp 195 Juta (approx 38%)
+            ['id' => 14, 'month' => 5, 'subtotal' => 194980000.00, 'total' => 195000000.00],
+        ];
+
+        foreach ($showcaseOrders as $order) {
+            DB::table('orders')->updateOrInsert(
+                ['id' => $order['id']],
+                [
+                    'code' => 'PT-2026-0000' . $order['id'],
+                    'user_id' => $customer->id,
+                    'status' => 'delivered',
+                    'payment_status' => 'paid',
+                    'payment_method' => null,
+                    'payment_reference' => null,
+                    'subtotal' => $order['subtotal'],
+                    'shipping_fee' => 20000.00,
+                    'tax' => 0.00, // Diset 0 agar perhitungan rapi
+                    'total' => $order['total'],
+                    'shipping_name' => 'Ash Ketchum',
+                    'shipping_phone' => '+62 812-3456-7890',
+                    'shipping_address' => 'Pallet Town Trading Post, 12 Route 1',
+                    'shipping_city' => 'Pallet Town',
+                    'shipping_postal_code' => '12345',
+                    'notes' => 'Wholesale showcase order for dashboard testing.',
+                    'paid_at' => \Carbon\Carbon::create(2026, $order['month'], 15, 12, 0, 0),
+                    'shipped_at' => \Carbon\Carbon::create(2026, $order['month'], 16, 10, 0, 0),
+                    'delivered_at' => \Carbon\Carbon::create(2026, $order['month'], 20, 14, 0, 0),
+                    'created_at' => \Carbon\Carbon::create(2026, $order['month'], 15, 10, 0, 0),
+                    'updated_at' => \Carbon\Carbon::create(2026, $order['month'], 20, 14, 0, 0),
+                ]
+            );
+        }
     }
 }
