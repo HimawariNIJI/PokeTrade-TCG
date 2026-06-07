@@ -32,10 +32,23 @@
                 <div class="flex flex-1 flex-col items-center">
                     <div class="w-full rounded-t-md bg-gradient-to-b from-prism-mint to-prism-sky opacity-80" style="height: {{ $h }}px"></div>
                         <p class="mt-1 text-[10px] font-mono text-ink-500">{{ $m['month'] }}</p>
-                        <p class="text-[10px] font-bold text-ink-700 leading-tight text-center whitespace-nowrap max-[375px]:whitespace-normal">
+                        @php
+                            $val = $m['amount'];
+                            if ($val >= 1000000000) {
+                                $displayAmount = round($val / 1000000000, 1) . ' M';
+                            } elseif ($val >= 1000000) {
+                                $displayAmount = round($val / 1000000, 1) . ' Jt';
+                            } elseif ($val >= 1000) {
+                                $displayAmount = round($val / 1000, 1) . ' Rb';
+                            } else {
+                                $displayAmount = number_format($val, 0, ',', '.');
+                            }
+                        @endphp
+                        <p
+                            class="text-[10px] font-bold text-ink-700 leading-tight text-center whitespace-nowrap max-[375px]:whitespace-normal">
                             <span class="max-[470px]:block">Rp</span>
                             <span class="max-[470px]:block">
-                                {{ number_format($m['amount'], 0, ',', '.') }}
+                                {{ str_replace('.', ',', $displayAmount) }}
                             </span>
                         </p>
                 </div>
