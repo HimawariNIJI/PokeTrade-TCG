@@ -47,7 +47,9 @@
                         <p class="mt-1 text-[10px] font-mono text-ink-500">{{ $m['month'] }}</p>
                         @php
                             $val = $m['amount'];
-                            if ($val >= 1000000000) {
+                            if ($val >= 1000000000000) {
+                                $displayAmount = round($val / 1000000000000, 1) . ' T';
+                            } elseif ($val >= 1000000000) {
                                 $displayAmount = round($val / 1000000000, 1) . ' M';
                             } elseif ($val >= 1000000) {
                                 $displayAmount = round($val / 1000000, 1) . ' Jt';
