@@ -10,15 +10,18 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 /**
- * Pulls every Standard-legal Pokémon TCG card from pokemontcg.io v2.
+ * Pulls every Pokémon TCG card pokemontcg.io v2 has (~20k English cards).
  *
- * Standard = cards with regulation mark H / I / J (2026 rotation),
- * plus basic Energy cards from the sve set (always legal).
+ * Catalog was previously scoped to Standard-legal only (regulation marks
+ * H/I/J + sve basic energies); expanded for the launch demo so users can
+ * search/wishlist any card. The Standard-only filter lives in the catalogue
+ * UI (regulation_mark dropdown), not in the sync.
  *
- * Uses batched upserts (one query per API page) so this runs in
- * single-digit seconds rather than minutes — important because the
- * admin Refresh-from-API button calls this synchronously from a
- * web request, where nginx will 504 after ~60s.
+ * Uses batched upserts (one query per API page). Initial seed of ~20k cards
+ * runs ~5–10 min via the parallel fetch; the admin Refresh-from-API button
+ * (which calls this synchronously) may exceed nginx's 60s read timeout on
+ * a from-empty run — prefer the CLI for the first sync, then admin button
+ * is fine for incremental refreshes.
  *
  * On existing rows we deliberately preserve stock + featured so admin
  * overrides survive a refresh; only API-sourced fields are overwritten.
@@ -29,7 +32,7 @@ use Illuminate\Support\Str;
 class CardSeeder extends Seeder
 {
     private const API_URL = 'https://api.pokemontcg.io/v2/cards';
-    private const SET_QUERY = '(regulationMark:H OR regulationMark:I OR regulationMark:J) OR set.id:sve';
+    private const SET_QUERY = '';
     private const PAGE_SIZE = 250;
     private const REQUEST_TIMEOUT = 45;
     private const FIXTURE_PATH = __DIR__ . '/fixtures/cards.json';
@@ -92,11 +95,7 @@ class CardSeeder extends Seeder
                         if ($apiKey) {
                             $req = $req->withHeaders(['X-Api-Key' => $apiKey]);
                         }
-                        return $req->get(self::API_URL, [
-                            'q' => self::SET_QUERY,
-                            'page' => $page,
-                            'pageSize' => self::PAGE_SIZE,
-                        ]);
+                        return $req->get(self::API_URL, $this->queryParams($page));
                     }, range(2, $totalPages));
                 });
 
@@ -120,7 +119,16 @@ class CardSeeder extends Seeder
             $imported += count($rows);
         }
 
-        $this->command?->info("Imported {$imported} Standard-legal cards.");
+        $this->command?->info("Imported {$imported} cards.");
+    }
+
+    private function queryParams(int $page): array
+    {
+        $params = ['page' => $page, 'pageSize' => self::PAGE_SIZE];
+        if (self::SET_QUERY !== '') {
+            $params['q'] = self::SET_QUERY;
+        }
+        return $params;
     }
 
     private function fetchPage(int $page, ?string $apiKey): ?\Illuminate\Http\Client\Response
@@ -130,11 +138,7 @@ class CardSeeder extends Seeder
             if ($apiKey) {
                 $req = $req->withHeaders(['X-Api-Key' => $apiKey]);
             }
-            $response = $req->get(self::API_URL, [
-                'q' => self::SET_QUERY,
-                'page' => $page,
-                'pageSize' => self::PAGE_SIZE,
-            ]);
+            $response = $req->get(self::API_URL, $this->queryParams($page));
         } catch (\Throwable $e) {
             $this->command?->warn("API page {$page} unreachable: {$e->getMessage()}");
             return null;

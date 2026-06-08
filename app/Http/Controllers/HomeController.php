@@ -24,10 +24,13 @@ class HomeController extends Controller
             $featuredCards = Card::query()->inRandomOrder()->limit(6)->get();
         }
 
-        $heroCards = Card::query()
-            ->orderByDesc('market_price')
-            ->limit(3)
-            ->get();
+        // Hero is hand-picked: Umbreon ex (PE SIR), Mega Charizard X ex (Phantasmal Flames SIR),
+        // Pikachu Illustrator promo. Order is left → center → right; mobile shows the center card.
+        $heroApiIds = ['sv8pt5-161', 'me2-125', 'basep-24'];
+        $heroCards = Card::whereIn('api_id', $heroApiIds)
+            ->get()
+            ->sortBy(fn ($card) => array_search($card->api_id, $heroApiIds))
+            ->values();
 
         $featuredItems = ShopItem::query()
             ->where('featured', true)

@@ -23,7 +23,9 @@ class RefreshCardPrices extends Command
     protected $description = "Refresh each card's market_price from pokemontcg.io (TCGplayer data)";
 
     private const API_URL = 'https://api.pokemontcg.io/v2/cards';
-    private const SET_QUERY = '(regulationMark:H OR regulationMark:I OR regulationMark:J) OR set.id:sve';
+    // Empty = fetch every card pokemontcg.io has. Catalogue was expanded for
+    // launch demo; keep this in sync with CardSeeder::SET_QUERY.
+    private const SET_QUERY = '';
     private const PAGE_SIZE = 250;
 
     public function handle(): int
@@ -43,11 +45,11 @@ class RefreshCardPrices extends Command
                     $request = $request->withHeaders(['X-Api-Key' => $apiKey]);
                 }
 
-                $response = $request->get(self::API_URL, [
-                    'q' => self::SET_QUERY,
-                    'page' => $page,
-                    'pageSize' => self::PAGE_SIZE,
-                ]);
+                $params = ['page' => $page, 'pageSize' => self::PAGE_SIZE];
+                if (self::SET_QUERY !== '') {
+                    $params['q'] = self::SET_QUERY;
+                }
+                $response = $request->get(self::API_URL, $params);
             } catch (\Throwable $e) {
                 $this->error("API unreachable: {$e->getMessage()}. Aborting.");
 
