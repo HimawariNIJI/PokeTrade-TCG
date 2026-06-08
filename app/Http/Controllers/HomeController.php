@@ -24,9 +24,9 @@ class HomeController extends Controller
             $featuredCards = Card::query()->inRandomOrder()->limit(6)->get();
         }
 
-        // Hero is hand-picked: Umbreon ex (PE SIR), Mega Charizard X ex (Phantasmal Flames SIR),
-        // Pikachu Illustrator promo. Order is left → center → right; mobile shows the center card.
-        $heroApiIds = ['sv8pt5-161', 'me2-125', 'basep-24'];
+        // Hero is hand-picked: Umbreon ex (PE SIR) | Pikachu Illustrator (center, mobile-visible)
+        // | Mega Charizard X ex (Phantasmal Flames SIR). Order is left → center → right.
+        $heroApiIds = ['sv8pt5-161', 'basep-24', 'me2-125'];
         $heroCards = Card::whereIn('api_id', $heroApiIds)
             ->get()
             ->sortBy(fn ($card) => array_search($card->api_id, $heroApiIds))
