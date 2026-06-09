@@ -31,7 +31,7 @@
      EEVEELUTION LINEUP — the rainbow itself
      ===================================================== --}}
 @if($eeveelutions->isNotEmpty())
-<section class="mx-auto max-w-[1400px] px-4 pb-24 md:px-8">
+<section class="mx-auto max-w-[1400px] px-4 pt-14 pb-24 md:px-8">
     <div class="mb-10 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
         <div class="max-w-xl">
             <p class="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-500"
